@@ -1,0 +1,4748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chromatune — Color Picker</title>
+
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+
+:root {
+  --bg: #050507;
+  --card: rgba(18,18,23,0.96);
+  --surface: rgba(28,28,35,0.88);
+  --surface2: rgba(42,42,50,0.92);
+  --border: rgba(255,255,255,0.09);
+  --border2: rgba(255,255,255,0.22);
+  --text: #f5f5f9;
+  --text2: #b0b0bd;
+  --text3: #7a7a8a;
+  --font: 'JetBrains Mono', 'Courier New', monospace;
+  --radius: 26px;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: center;
+  justify-content: flex-start;
+  padding: clamp(18px, calc(50vh - 310px), 60px) 18px 36px;
+  background-image:
+    radial-gradient(ellipse 70% 45% at 25% 15%, rgba(80,80,120,0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 35% at 75% 85%, rgba(60,90,140,0.07) 0%, transparent 70%);
+}
+
+.picker {
+  width: min(450px, 100%);
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 13px;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.06) inset,
+    0 2px 0 rgba(255,255,255,0.04) inset,
+    0 25px 70px -10px rgba(0,0,0,0.65),
+    0 8px 25px -6px rgba(0,0,0,0.4);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  user-select: none;
+}
+
+/* ─── TOP BAR ─────────────────────────────────────── */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 11px;
+}
+
+.app-title {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  color: var(--text3);
+  text-transform: lowercase;
+}
+
+.mode-toggle {
+  display: flex;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 2px;
+  gap: 2px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.mode-btn {
+  background: none;
+  border: none;
+  color: var(--text3);
+  font-family: var(--font);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  padding: 4px 11px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mode-btn.active {
+  background: rgba(255,255,255,0.14);
+  color: var(--text);
+  box-shadow:
+    0 1px 4px rgba(0,0,0,0.3),
+    0 0 0 1px rgba(255,255,255,0.12) inset;
+}
+
+.mode-btn:hover:not(.active) {
+  color: var(--text2);
+}
+
+/* ─── MAIN AREA ───────────────────────────────────── */
+.main-area {
+  display: flex;
+  gap: 9px;
+  margin-bottom: 10px;
+  height: 218px;
+}
+
+/* ─── PREVIEW ─────────────────────────────────────── */
+.preview-wrap {
+  flex: 0 0 218px;
+  height: 218px;
+  position: relative;
+}
+
+.preview-swatch {
+  width: 100%;
+  height: 100%;
+  border-radius: 18px;
+  position: relative;
+  overflow: hidden;
+  transition: background-color 0.08s;
+  background-image:
+    repeating-conic-gradient(#2a2a36 0% 25%, #1e1e28 0% 50%)
+    center / 16px 16px;
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.06) inset,
+    0 8px 20px rgba(0,0,0,0.4);
+}
+
+.preview-color-layer {
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+}
+
+.preview-split {
+  position: absolute;
+  inset: 0;
+  display: none;
+}
+
+.preview-swatch.is-split .preview-color-layer {
+  display: none;
+}
+
+.preview-swatch.is-split .preview-split {
+  display: flex;
+}
+
+.preview-split-half {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  border-radius: 18px;
+}
+
+.preview-split-half:first-child {
+  border-radius: 18px 0 0 18px;
+}
+
+.preview-split-half:last-child {
+  border-radius: 0 18px 18px 0;
+}
+
+.preview-split-half + .preview-split-half {
+  border-left: 1px solid rgba(255,255,255,0.14);
+}
+
+.preview-split-layer {
+  position: absolute;
+  inset: 0;
+}
+
+.preview-split-label {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  font-family: var(--font);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: lowercase;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  background: rgba(0,0,0,0.45);
+  color: rgba(255,255,255,0.85);
+  border: 1px solid rgba(255,255,255,0.15);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.preview-split-fallback .preview-split-label {
+  left: auto;
+  right: 10px;
+}
+
+.preview-badges {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.badge {
+  font-family: var(--font);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.badge-mode {
+  background: rgba(0,0,0,0.45);
+  color: rgba(255,255,255,0.85);
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+.badge-gamut,
+.badge-p3 {
+  background: rgba(0,0,0,0.5);
+  color: rgba(255,255,255,0.75);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+.badge.is-alert,
+.preview-split-label.is-alert,
+.chip-label.is-alert {
+  color: #ff9a9a;
+}
+
+.chip-label.is-bright {
+  color: var(--text);
+}
+
+/* HSL vertical slider strip */
+.hsl-vstrip {
+  display: flex;
+  flex-direction: row;
+  gap: 7px;
+  width: 100%;
+  height: 185px;
+  flex-shrink: 0;
+}
+
+/* ─── VERTICAL SLIDERS ────────────────────────────── */
+.vsliders-area {
+  flex: 1;
+  display: flex;
+  gap: 7px;
+}
+
+.picker.mode-hsl .preview-wrap {
+  flex: 0 0 105px;
+}
+
+.picker.mode-hsl .preview-badges {
+  left: 10px;
+  bottom: 10px;
+  transform: none;
+}
+
+.vsliders-area.hsl-mode-layout {
+  gap: 10px;
+  align-items: stretch;
+}
+
+.hsl-field-wrap {
+  flex: 1;
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  cursor: crosshair;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.06) inset,
+    0 8px 20px rgba(0,0,0,0.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.hsl-field-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.hsl-field-thumb {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 17px;
+  height: 17px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 2.5px solid rgba(255,255,255,0.95);
+  background: rgba(255,255,255,0.15);
+  box-shadow:
+    0 3px 10px rgba(0,0,0,0.4),
+    0 0 0 3px rgba(255,255,255,0.12);
+  pointer-events: none;
+}
+
+.hsl-field-wrap:hover .hsl-field-thumb,
+.hsl-field-wrap.dragging .hsl-field-thumb {
+  box-shadow:
+    0 3px 12px rgba(0,0,0,0.55),
+    0 0 0 3px rgba(255,255,255,0.12);
+}
+
+.vslider-col.is-hsl-hue {
+  flex: 0 0 52px;
+}
+
+.vslider-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+
+.vslider-label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: var(--text3);
+  text-transform: uppercase;
+}
+
+.vslider-track {
+  flex: 1;
+  width: 100%;
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: ns-resize;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.07) inset,
+    0 2px 8px rgba(0,0,0,0.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.slider-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.vslider-thumb {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 15px;
+  background: linear-gradient(180deg, #f8f8f9 0%, #e5e5eb 100%);
+  border-radius: 10px;
+  border: 2px solid rgba(255,255,255,0.95);
+  box-shadow:
+    0 4px 12px -2px rgba(0,0,0,0.45),
+    0 1px 3px rgba(0,0,0,0.25),
+    inset 0 1px 0 rgba(255,255,255,0.85),
+    inset 0 -1px 0 rgba(0,0,0,0.15);
+  pointer-events: none;
+  transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.12s;
+}
+
+.vslider-track:hover .vslider-thumb,
+.vslider-track.dragging .vslider-thumb {
+  box-shadow:
+    0 6px 16px -3px rgba(0,0,0,0.5),
+    0 1px 3px rgba(0,0,0,0.25),
+    inset 0 1px 0 rgba(255,255,255,0.9),
+    0 0 0 3px rgba(255,255,255,0.12);
+  transform: translateX(-50%) scale(1.05);
+}
+
+.vslider-val {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--text2);
+  text-align: center;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: all 0.12s;
+  min-width: 38px;
+}
+
+.vslider-val:hover {
+  background: var(--surface2);
+  color: var(--text);
+}
+
+/* ─── HORIZONTAL SLIDERS ──────────────────────────── */
+.hsliders-area {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 10px;
+}
+
+.hslider-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-height: 48px;
+  opacity: 1;
+  transform: translateY(0);
+  overflow: hidden;
+  transition:
+    max-height 0.22s ease,
+    opacity 0.18s ease,
+    transform 0.18s ease,
+    margin 0.22s ease;
+}
+
+.hslider-track {
+  flex: 1;
+  height: 40px;
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: ew-resize;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.07) inset,
+    0 2px 8px rgba(0,0,0,0.3);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition:
+    height 0.18s ease,
+    opacity 0.18s ease,
+    transform 0.18s ease,
+    box-shadow 0.14s ease;
+}
+
+.hslider-thumb {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  width: 15px;
+  height: 27px;
+  background: linear-gradient(180deg, #f8f8f9 0%, #e5e5eb 100%);
+  border-radius: 10px;
+  border: 2px solid rgba(255,255,255,0.95);
+  box-shadow:
+    0 4px 12px -2px rgba(0,0,0,0.45),
+    0 1px 3px rgba(0,0,0,0.25),
+    inset 0 1px 0 rgba(255,255,255,0.85),
+    inset 0 -1px 0 rgba(0,0,0,0.15);
+  pointer-events: none;
+  transition:
+    transform 0.1s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.14s ease,
+    box-shadow 0.12s;
+}
+
+.hslider-track:hover .hslider-thumb,
+.hslider-track.dragging .hslider-thumb {
+  box-shadow:
+    0 6px 16px -3px rgba(0,0,0,0.5),
+    0 1px 3px rgba(0,0,0,0.25),
+    inset 0 1px 0 rgba(255,255,255,0.9),
+    0 0 0 3px rgba(255,255,255,0.12);
+  transform: translateY(-50%) scale(1.05);
+}
+
+.hslider-info {
+  width: 88px;
+  flex-shrink: 0;
+  transition: width 0.18s ease;
+}
+
+.hslider-info-label {
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--text3);
+  text-transform: uppercase;
+  margin-bottom: 3px;
+  transition:
+    color 0.14s ease,
+    opacity 0.14s ease,
+    background 0.14s ease,
+    border-color 0.14s ease,
+    padding 0.14s ease;
+}
+
+.hslider-info-val {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text);
+  cursor: pointer;
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 5px;
+  transition: all 0.12s;
+  outline: none;
+}
+
+.hslider-info-val:hover:not([contenteditable="true"]) {
+  background: var(--surface2);
+}
+
+.hslider-info-val[contenteditable="true"] {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  color: var(--text);
+}
+
+/* TUNE Color/Hue switch rows */
+.hslider-row.tune-control-row {
+  cursor: pointer;
+}
+
+.hslider-row.tune-control-active .hslider-track {
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.14) inset,
+    0 2px 8px rgba(0,0,0,0.3),
+    0 0 0 2px rgba(255,255,255,0.04);
+}
+
+.hslider-row.tune-control-active .hslider-thumb {
+  transform: translateY(-50%) scale(1.08);
+}
+
+.hslider-row.tune-control-compact {
+  max-height: 29px;
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.hslider-row.tune-control-compact .hslider-track {
+  height: 0;
+  opacity: 0;
+  transform: scaleY(0.55);
+  pointer-events: none;
+  border-width: 0;
+  box-shadow: none;
+}
+
+.hslider-row.tune-control-compact .slider-canvas,
+.hslider-row.tune-control-compact .hslider-thumb {
+  opacity: 0;
+}
+
+.hslider-row.tune-control-compact .hslider-info {
+  width: auto;
+  margin-left: auto;
+}
+
+.hslider-row.tune-control-compact .hslider-info-label {
+  margin-bottom: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 10px;
+  border-radius: 9999px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.06);
+  color: var(--text2);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.04) inset;
+}
+
+.hslider-row.tune-control-compact .hslider-info-label::before {
+  content: "switch to ";
+  text-transform: lowercase;
+  letter-spacing: 0.06em;
+  color: var(--text3);
+  margin-right: 4px;
+}
+
+.hslider-row.tune-control-compact .hslider-info-val {
+  display: none;
+}
+
+/* ─── VALUES BAR ──────────────────────────────────── */
+.values-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.values-bar {
+  display: flex;
+  gap: 7px;
+}
+
+.val-chip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 8px 10px;
+  transition: border-color 0.14s, background 0.14s;
+  cursor: default;
+  position: relative;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.06) inset;
+}
+
+.val-chip:hover {
+  border-color: var(--border2);
+  background: var(--surface2);
+}
+
+.val-chip .chip-label {
+  display: block;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--text3);
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+
+.val-chip .chip-val {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chip-code { flex: 1; }
+.chip-hex  { width: 92px; }
+
+/* ─── COPY INDICATOR ──────────────────────────────── */
+.copy-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  pointer-events: none;
+  box-shadow: 0 0 0 0 rgba(120,170,255,0);
+  transition: box-shadow 0.15s;
+}
+
+.val-chip.copied .copy-ring {
+  box-shadow: 0 0 0 3px rgba(120,170,255,0.55);
+  transition: box-shadow 0s;
+}
+
+/* ─── TOAST ───────────────────────────────────────── */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: rgba(30,30,38,0.95);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 11px;
+  padding: 7px 15px;
+  border-radius: 14px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 9999;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.has-checker {
+  background-image:
+    repeating-conic-gradient(#2a2a36 0% 25%, #1e1e28 0% 50%)
+    center / 10px 10px;
+}
+
+/* ─── RESPONSIVE ──────────────────────────────────── */
+@media (max-width: 560px) {
+  body {
+    padding: 14px 10px 28px;
+  }
+
+  .picker {
+    padding: 11px;
+    border-radius: 22px;
+  }
+
+  .top-bar {
+    gap: 8px;
+  }
+
+  .app-title {
+    font-size: 10px;
+    letter-spacing: 0.14em;
+  }
+
+  .main-area {
+    flex-direction: column;
+    height: auto;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .preview-wrap {
+    flex: none;
+    width: 100%;
+    height: 145px;
+  }
+
+  .picker.mode-hsl .preview-wrap {
+    flex: none;
+    width: 100%;
+    height: 145px;
+  }
+
+  .vsliders-area {
+    height: 98px;
+    flex-direction: row;
+  }
+
+  .vsliders-area.hsl-mode-layout {
+    flex-direction: column;
+    height: auto;
+    gap: 8px;
+  }
+
+  .hsl-field-wrap {
+    flex: 0 0 145px;
+    border-radius: 10px;
+  }
+
+  .hsl-vstrip {
+    height: 185px;
+  }
+
+  .hslider-track {
+    height: 36px;
+  }
+
+  .hslider-thumb {
+    height: 26px;
+  }
+
+  .hslider-info {
+    width: 68px;
+    flex-shrink: 0;
+  }
+
+  .hslider-info-val {
+    font-size: 12px;
+  }
+
+  .hsliders-area {
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+
+  .hslider-row.tune-control-compact {
+    max-height: 31px;
+  }
+
+  .hslider-row.tune-control-compact .hslider-info-label {
+    padding: 6px 9px;
+  }
+
+  .values-bar {
+    gap: 5px;
+  }
+
+  .val-chip {
+    padding: 7px 9px;
+  }
+
+  .val-chip .chip-val {
+    font-size: 11px;
+  }
+
+  .chip-hex {
+    width: 80px;
+  }
+
+  .preview-badges {
+    bottom: 8px;
+    gap: 4px;
+  }
+
+  .picker.mode-hsl .preview-badges {
+    left: 9px;
+    bottom: 9px;
+  }
+
+  .mode-btn {
+    padding: 4px 8px;
+    font-size: 9.5px;
+  }
+}
+
+
+
+/* ─── GRADIENT BUILDER PANEL ─────────────────────── */
+.app-shell {
+  width: min(100%, 940px);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: center;
+}
+
+.gradient-panel {
+  width: min(450px, 100%);
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 13px;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.06) inset,
+    0 2px 0 rgba(255,255,255,0.04) inset,
+    0 25px 70px -10px rgba(0,0,0,0.58),
+    0 8px 25px -6px rgba(0,0,0,0.36);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  user-select: none;
+}
+
+.gradient-header,
+.gradient-settings-header,
+.gradient-setting-row,
+.gradient-stop-actions,
+.gradient-context-actions,
+.gradient-output-actions,
+.gradient-add-stop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gradient-header,
+.gradient-settings-header,
+.gradient-stop-actions,
+.gradient-output-actions { justify-content: space-between; }
+.gradient-header { margin-bottom: 10px; }
+
+.gradient-title,
+.gradient-settings-title {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  color: var(--text3);
+  text-transform: lowercase;
+}
+
+.gradient-pill,
+.gradient-settings-summary,
+.gradient-setting-meta-text {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--text2);
+  text-transform: uppercase;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.06);
+  border-radius: 9999px;
+  padding: 4px 8px;
+}
+
+.gradient-setting-meta-text {
+  display: inline-flex;
+  margin-top: 7px;
+  text-transform: none;
+  letter-spacing: 0.08em;
+}
+
+.gradient-type-toggle {
+  display: flex;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 2px;
+  gap: 2px;
+  margin-bottom: 10px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.gradient-type-btn {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--text3);
+  font-family: var(--font);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.11em;
+  padding: 5px 8px;
+  border-radius: 12px;
+  cursor: pointer;
+  text-transform: lowercase;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gradient-type-btn.active {
+  background: rgba(255,255,255,0.14);
+  color: var(--text);
+  box-shadow:
+    0 1px 4px rgba(0,0,0,0.3),
+    0 0 0 1px rgba(255,255,255,0.12) inset;
+}
+
+.gradient-type-btn:hover:not(.active) { color: var(--text2); }
+
+.gradient-preview-wrap {
+  position: sticky;
+  top: 12px;
+  z-index: 4;
+  border-radius: 18px;
+  overflow: hidden;
+  margin-bottom: 10px;
+  border: 1px solid var(--border);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.06) inset,
+    0 8px 20px rgba(0,0,0,0.38);
+  cursor: copy;
+}
+
+.gradient-preview {
+  aspect-ratio: 3 / 2;
+  width: 100%;
+  border-radius: 18px;
+  background-image:
+    linear-gradient(90deg in oklab, oklch(0.3657 0.2375 271.03) 0%, oklch(0.5550 0.3096 298.71) 100%),
+    repeating-conic-gradient(#2a2a36 0% 25%, #1e1e28 0% 50%);
+  background-size: auto, 16px 16px;
+  background-position: center, center;
+  transition: background-image 0.08s;
+}
+
+.gradient-preview-label,
+.gradient-preview-copy-hint {
+  position: absolute;
+  z-index: 2;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  background: rgba(0,0,0,0.45);
+  color: rgba(255,255,255,0.85);
+  border: 1px solid rgba(255,255,255,0.15);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  text-transform: lowercase;
+  pointer-events: none;
+}
+
+.gradient-preview-label { left: 10px; bottom: 10px; }
+.gradient-preview-copy-hint { right: 10px; bottom: 10px; opacity: 0.78; }
+
+.gradient-settings-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 9px;
+  margin-bottom: 10px;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.04) inset;
+}
+
+.gradient-settings-header { margin-bottom: 8px; }
+
+.gradient-settings-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.gradient-settings-summary {
+  max-width: 210px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-transform: lowercase;
+}
+
+.gradient-settings-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 780px;
+  opacity: 1;
+  overflow: hidden;
+  transition: max-height 0.22s ease, opacity 0.16s ease, margin 0.2s ease;
+}
+
+.gradient-settings-card.is-collapsed .gradient-settings-body {
+  max-height: 0;
+  opacity: 0;
+  margin: 0;
+}
+
+.gradient-settings-card.is-collapsed .gradient-settings-header { margin-bottom: 0; }
+
+.gradient-setting-group {
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.035);
+  border-radius: 15px;
+  padding: 8px;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.035) inset;
+}
+
+.gradient-setting-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--text3);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.gradient-setting-row { align-items: center; }
+
+.gradient-button,
+.gradient-select,
+.gradient-mini-button,
+.gradient-context-mobile-trigger {
+  font-family: var(--font);
+  color: var(--text2);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  min-height: 30px;
+  padding: 0 10px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: lowercase;
+  cursor: pointer;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.04) inset;
+  transition: border-color 0.14s, background 0.14s, color 0.14s, transform 0.12s, opacity 0.14s;
+}
+
+.gradient-button:hover,
+.gradient-select:hover,
+.gradient-mini-button:hover,
+.gradient-context-mobile-trigger:hover,
+.gradient-button:focus-visible,
+.gradient-select:focus-visible,
+.gradient-mini-button:focus-visible,
+.gradient-context-mobile-trigger:focus-visible,
+.context-dot:hover,
+.context-dot:focus-visible,
+.gradient-context-tile:focus-visible {
+  color: var(--text);
+  border-color: var(--border2);
+  outline: none;
+}
+
+.gradient-button:hover,
+.gradient-mini-button:hover,
+.gradient-context-mobile-trigger:hover,
+.gradient-button:focus-visible,
+.gradient-mini-button:focus-visible,
+.gradient-context-mobile-trigger:focus-visible { background: var(--surface2); }
+
+.gradient-button:active,
+.gradient-mini-button:active,
+.gradient-context-mobile-trigger:active,
+.context-dot:active { transform: scale(0.97); }
+
+.gradient-select {
+  flex: 1;
+  min-width: 0;
+  height: 30px;
+  min-height: 30px;
+  line-height: 30px;
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 0 28px 0 10px;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--text3) 50%),
+    linear-gradient(135deg, var(--text3) 50%, transparent 50%);
+  background-position: calc(100% - 13px) 50%, calc(100% - 8px) 50%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+
+.gradient-toggle-group {
+  display: flex;
+  flex: 1;
+  gap: 5px;
+  padding: 2px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+}
+
+.gradient-toggle-group .gradient-button {
+  flex: 1;
+  min-height: 26px;
+  padding: 0 8px;
+  background: transparent;
+  border-color: transparent;
+}
+
+.gradient-toggle-group .gradient-button.active {
+  color: var(--text);
+  background: rgba(255,255,255,0.13);
+  border-color: rgba(255,255,255,0.12);
+}
+
+.gradient-context-control {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+}
+
+.gradient-context-inline {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  grid-template-columns: repeat(3, 7px);
+  grid-auto-rows: 7px;
+  gap: 4px;
+  place-content: center;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.035);
+  border: 1px solid var(--border);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.04) inset;
+}
+
+.context-dot {
+  width: 7px;
+  height: 7px;
+  min-height: 0;
+  padding: 0;
+  border: none;
+  border-radius: 9999px;
+  background: rgba(255,255,255,0.28);
+  cursor: pointer;
+  transition: background 0.14s, opacity 0.14s, transform 0.12s;
+}
+
+.context-dot:hover,
+.context-dot:focus-visible { background: rgba(255,255,255,0.62); }
+.context-dot.active { background: var(--text); }
+.context-dot:disabled { opacity: 0.18; pointer-events: none; }
+
+.gradient-context-mobile-trigger { display: none; padding: 0 4px; }
+
+.context-grid-icon {
+  width: 30px;
+  height: 30px;
+  display: block;
+}
+
+.context-grid-icon circle { fill: rgba(255,255,255,0.28); }
+.context-grid-icon circle.active { fill: var(--text); }
+
+.gradient-stops {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 9px;
+}
+
+.gradient-stops.is-flipping .gradient-stop-thumb,
+.gradient-stops.is-flipping .gradient-midpoint-thumb {
+  transition:
+    left 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gradient-stop-row {
+  background:
+    linear-gradient(
+      var(--stop-card-angle, 90deg),
+      rgba(var(--stop-rgb), 0.18),
+      rgba(var(--stop-rgb), 0.04) 45%,
+      transparent 75%
+    ),
+    rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 9px;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.04) inset;
+  transition: transform 0.18s ease, opacity 0.18s ease, border-color 0.14s, background 0.14s;
+  will-change: transform;
+}
+
+.gradient-stop-row.is-radial {
+  background:
+    radial-gradient(
+      circle at var(--stop-card-origin, center),
+      rgba(var(--stop-rgb), 0.22),
+      rgba(var(--stop-rgb), 0.05) 48%,
+      transparent 76%
+    ),
+    rgba(255,255,255,0.04);
+}
+
+.gradient-stop-row.is-conical {
+  background:
+    conic-gradient(
+      from var(--stop-card-angle, 0deg),
+      rgba(var(--stop-rgb), 0.18),
+      rgba(var(--stop-rgb), 0.035),
+      rgba(var(--stop-rgb), 0.14),
+      transparent 80%
+    ),
+    rgba(255,255,255,0.04);
+}
+
+.gradient-stop-row.is-reflected {
+  background:
+    linear-gradient(
+      var(--stop-card-angle, 90deg),
+      rgba(var(--stop-rgb), 0.16),
+      rgba(var(--stop-rgb), 0.035) 38%,
+      rgba(var(--stop-rgb), 0.13) 72%,
+      transparent 92%
+    ),
+    rgba(255,255,255,0.04);
+}
+
+.gradient-stop-row.is-selected { border-color: rgba(255,255,255,0.24); }
+
+.gradient-stop-row.is-dragging {
+  border-color: var(--border2);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.06) inset,
+    0 8px 22px rgba(0,0,0,0.22);
+}
+
+.gradient-stop-row.midpoint-mode .gradient-main-slider { opacity: 0.62; }
+.gradient-stop-actions { margin-bottom: 8px; }
+
+.gradient-stop-left,
+.gradient-stop-right {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.gradient-stop-right { flex-wrap: wrap; justify-content: flex-end; }
+
+.gradient-stop-swatch,
+.add-stop-swatch {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255,255,255,0.35);
+  background-image:
+    linear-gradient(var(--stop-color), var(--stop-color)),
+    repeating-conic-gradient(#2a2a36 0% 25%, #1e1e28 0% 50%);
+  background-size: auto, 8px 8px;
+  box-shadow:
+    0 1px 4px rgba(0,0,0,0.45),
+    0 0 0 2px rgba(255,255,255,0.06);
+}
+
+.gradient-stop-name {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--text3);
+  text-transform: uppercase;
+}
+
+.gradient-mini-button {
+  min-height: 25px;
+  padding: 0 8px;
+  border-radius: 9999px;
+}
+
+.gradient-mini-button.active {
+  color: var(--text);
+  border-color: var(--border2);
+  background: rgba(255,255,255,0.14);
+}
+
+.gradient-mini-button.danger:hover { color: #ffb1b1; border-color: rgba(255,150,150,0.34); }
+.gradient-mini-button:disabled { opacity: 0.38; cursor: not-allowed; }
+
+.gradient-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 7px;
+}
+
+.gradient-slider-row:last-child { margin-bottom: 0; }
+
+.gradient-slider-track {
+  flex: 1;
+  height: 38px;
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: ew-resize;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.07) inset,
+    0 2px 8px rgba(0,0,0,0.3);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: box-shadow 0.14s ease, border-color 0.14s ease;
+  touch-action: none;
+}
+
+.gradient-slider-track:hover,
+.gradient-slider-track.dragging { border-color: var(--border2); }
+
+.gradient-slider-track .hslider-thumb { z-index: 2; transition: left 0.08s linear, transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.12s; }
+
+.gradient-slider-track:hover .hslider-thumb,
+.gradient-slider-track.dragging .hslider-thumb {
+  box-shadow:
+    0 6px 16px -3px rgba(0,0,0,0.5),
+    0 1px 3px rgba(0,0,0,0.25),
+    inset 0 1px 0 rgba(255,255,255,0.9),
+    0 0 0 3px rgba(255,255,255,0.12);
+  transform: translateY(-50%) scale(1.05);
+}
+
+.gradient-slider-info {
+  width: 88px;
+  flex-shrink: 0;
+}
+
+.gradient-slider-info .hslider-info-label { margin-bottom: 3px; }
+.gradient-slider-info .hslider-info-val { max-width: 100%; }
+
+.gradient-midpoint-wrap {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 7px;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease, opacity 0.16s ease, margin 0.2s ease;
+}
+
+.gradient-stop-row.midpoint-mode .gradient-midpoint-wrap {
+  max-height: 140px;
+  opacity: 1;
+  margin-bottom: 7px;
+}
+
+.gradient-mini-slider .gradient-slider-track { height: 28px; border-radius: 12px; }
+.gradient-mini-slider .hslider-thumb { height: 21px; width: 13px; }
+.gradient-mini-slider.is-active .gradient-slider-track { border-color: var(--border2); }
+
+.gradient-stop-fields { display: flex; gap: 6px; }
+
+.gradient-stop-fields .val-chip {
+  flex: 1;
+  min-width: 0;
+  padding: 7px 9px;
+}
+
+.gradient-stop-fields .chip-val { outline: none; }
+
+.gradient-stop-fields .chip-val[contenteditable="true"],
+.gradient-output .chip-val[contenteditable="true"] {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 5px;
+  padding: 2px 5px;
+}
+
+.gradient-add-stop {
+  position: relative;
+  width: 100%;
+  justify-content: flex-start;
+  overflow: hidden;
+  margin-bottom: 10px;
+  min-height: 38px;
+  padding: 0 12px;
+}
+
+.gradient-add-stop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      90deg,
+      transparent 35%,
+      rgba(var(--current-picker-rgb, 35,0,184), 0.18)
+    );
+  pointer-events: none;
+}
+
+.gradient-add-stop > * { position: relative; z-index: 1; }
+.gradient-add-stop .add-stop-swatch { --stop-color: var(--current-picker-color, oklch(0.3657 0.2375 271.03)); }
+
+.gradient-output { display: flex; flex-direction: column; gap: 6px; }
+.gradient-output .chip-code { min-width: 0; }
+.gradient-output .chip-val { white-space: nowrap; outline: none; cursor: text; }
+.gradient-output-actions .gradient-button { flex: 0 0 auto; }
+
+.gradient-context-popover {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: rgba(0,0,0,0.48);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.gradient-context-popover.show { display: flex; }
+
+.gradient-context-card {
+  width: min(320px, 100%);
+  background: rgba(18,18,23,0.98);
+  border: 1px solid var(--border2);
+  border-radius: 22px;
+  padding: 13px;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.06) inset,
+    0 22px 60px rgba(0,0,0,0.58);
+}
+
+.gradient-context-title {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 10px;
+}
+
+.gradient-context-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+  margin-bottom: 11px;
+}
+
+.gradient-context-tile {
+  aspect-ratio: 1;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.05);
+  color: var(--text3);
+  font-family: var(--font);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.04) inset;
+  transition: background 0.14s, border-color 0.14s, color 0.14s, opacity 0.14s;
+}
+
+.gradient-context-tile::before {
+  content: "";
+  width: 12px;
+  height: 12px;
+  border-radius: 9999px;
+  background: rgba(255,255,255,0.28);
+}
+
+.gradient-context-tile:hover::before { background: rgba(255,255,255,0.62); }
+.gradient-context-tile.active::before { background: var(--text); }
+.gradient-context-tile:disabled { opacity: 0.28; cursor: not-allowed; }
+.gradient-context-actions { justify-content: flex-end; }
+
+@media (min-width: 980px) {
+  .app-shell {
+    width: min(100%, 930px);
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  .picker,
+  .gradient-panel { flex: 0 0 450px; }
+}
+
+@media (max-width: 560px) {
+  body { gap: 10px; }
+  .app-shell { width: 100%; gap: 10px; }
+  .gradient-panel { padding: 11px; border-radius: 22px; }
+  .gradient-preview-wrap { position: relative; top: auto; }
+  .gradient-settings-summary { max-width: 150px; }
+  .gradient-setting-row { align-items: center; }
+  .gradient-context-inline { display: none; }
+  .gradient-context-mobile-trigger { display: inline-flex; }
+  .gradient-button,
+  .gradient-select { min-height: 32px; }
+  .gradient-slider-row { gap: 6px; }
+  .gradient-slider-info { width: 74px; }
+  .gradient-stop-fields { grid-template-columns: 1fr; flex-direction: column; }
+  .gradient-stop-fields .val-chip .chip-val { font-size: 10.5px; }
+  .gradient-type-btn { font-size: 9px; padding: 5px 6px; }
+}
+
+</style>
+</head>
+
+<body>
+<div class="toast" id="toast">Copied!</div>
+
+<div class="app-shell">
+<div class="picker">
+  <div class="top-bar">
+    <span class="app-title">chromatune</span>
+    <div class="mode-toggle" id="modeToggle">
+      <button class="mode-btn active" data-mode="oklch">OKLCH</button>
+      <button class="mode-btn" data-mode="tune">TUNE</button>
+      <button class="mode-btn" data-mode="rgb">RGB</button>
+      <button class="mode-btn" data-mode="hsl">HSL</button>
+    </div>
+  </div>
+
+  <div class="main-area">
+    <div class="preview-wrap">
+      <div class="preview-swatch" id="previewSwatch">
+        <div class="preview-color-layer" id="previewColorLayer"></div>
+        <div class="preview-split" id="previewSplit">
+          <div class="preview-split-half preview-split-computed" id="previewComputedHalf">
+            <div class="preview-split-layer" id="previewComputedLayer"></div>
+            <div class="preview-split-label is-alert" id="previewComputedLabel">computed</div>
+          </div>
+          <div class="preview-split-half preview-split-fallback" id="previewFallbackHalf">
+            <div class="preview-split-layer" id="previewFallbackLayer"></div>
+            <div class="preview-split-label" id="previewFallbackLabel">fallback</div>
+          </div>
+        </div>
+        <div class="preview-badges" id="previewBadges">
+          <span class="badge badge-mode" id="badgeMode">oklch</span>
+          <span class="badge badge-p3" id="badgeP3" style="display:none">P3</span>
+          <span class="badge badge-gamut" id="badgeGamut" style="display:none">Fallback</span>
+        </div>
+      </div>
+    </div>
+    <div class="vsliders-area" id="vslidersArea"></div>
+  </div>
+
+  <div class="hsliders-area" id="hslidersArea"></div>
+
+  <div class="values-stack">
+    <div class="values-bar">
+      <div class="val-chip chip-code" id="codeChip">
+        <div class="copy-ring"></div>
+        <span class="chip-label" id="codeLabel">Color Code</span>
+        <div class="chip-val" id="codeVal">oklch(0.3657 0.2375 271.03)</div>
+      </div>
+      <div class="val-chip chip-hex" id="hexChip">
+        <div class="copy-ring"></div>
+        <span class="chip-label" id="hexLabel">Hex</span>
+        <div class="chip-val" id="hexVal">#2300b8</div>
+      </div>
+    </div>
+
+    <div class="values-bar" id="fallbackValuesBar" style="visibility:hidden">
+      <div class="val-chip chip-code" id="fallbackCodeChip">
+        <div class="copy-ring"></div>
+        <span class="chip-label" id="fallbackCodeLabel">Color Code (Fallback)</span>
+        <div class="chip-val" id="fallbackCodeVal">oklch(0.3657 0.2375 271.03)</div>
+      </div>
+      <div class="val-chip chip-hex" id="fallbackHexChip">
+        <div class="copy-ring"></div>
+        <span class="chip-label" id="fallbackHexLabel">Hex (Fallback)</span>
+        <div class="chip-val" id="fallbackHexVal">#2300b8</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<div class="gradient-panel" id="gradientPanel">
+  <div class="gradient-header">
+    <span class="gradient-title">gradient</span>
+    <span class="gradient-pill" id="gradientTypeBadge">linear · oklab</span>
+  </div>
+
+  <div class="gradient-type-toggle" id="gradientTypeToggle" role="tablist" aria-label="Gradient type">
+    <button class="gradient-type-btn active" type="button" role="tab" data-gradient-type="linear">linear</button>
+    <button class="gradient-type-btn" type="button" role="tab" data-gradient-type="radial">radial</button>
+    <button class="gradient-type-btn" type="button" role="tab" data-gradient-type="conical">conical</button>
+    <button class="gradient-type-btn" type="button" role="tab" data-gradient-type="reflected">reflected</button>
+  </div>
+
+  <div class="gradient-preview-wrap" id="gradientPreviewWrap" title="Copy gradient CSS">
+    <div class="gradient-preview" id="gradientPreview" aria-label="Gradient preview"></div>
+    <div class="gradient-preview-label" id="gradientPreviewLabel">linear</div>
+    <div class="gradient-preview-copy-hint">click to copy</div>
+  </div>
+
+  <div class="gradient-settings-card" id="gradientSettingsCard">
+    <div class="gradient-settings-header">
+      <span class="gradient-settings-title">gradient settings</span>
+      <div class="gradient-settings-meta">
+        <span class="gradient-settings-summary" id="gradientSettingsSummary">linear · to right · 90deg</span>
+        <button class="gradient-mini-button gradient-settings-collapse" id="gradientSettingsCollapse" type="button" aria-expanded="true">collapse</button>
+      </div>
+    </div>
+    <div class="gradient-settings-body" id="gradientSettingsBody"></div>
+  </div>
+
+  <div class="gradient-stops" id="gradientStops"></div>
+  <button class="gradient-button gradient-add-stop" id="gradientAddStop" type="button" aria-label="Add current picker color as another stop">
+    <span class="add-stop-swatch" aria-hidden="true"></span>
+    <span>add another stop</span>
+  </button>
+
+  <div class="gradient-output">
+    <div class="values-bar">
+      <div class="val-chip chip-code" id="gradientCssChip">
+        <div class="copy-ring"></div>
+        <span class="chip-label">Gradient CSS</span>
+        <div class="chip-val gradient-editable" id="gradientCssVal" data-gradient-edit="gradient-css" spellcheck="false">linear-gradient(90deg in oklab, oklch(0.3657 0.2375 271.03) 0%, oklch(0.5550 0.3096 298.71) 100%)</div>
+      </div>
+    </div>
+    <div class="gradient-output-actions">
+      <span class="gradient-pill" id="gradientOutputPill">editable css</span>
+      <button class="gradient-button" id="gradientCopyButton" type="button" aria-label="Copy gradient CSS">copy css</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="gradient-context-popover" id="gradientContextPopover" aria-hidden="true">
+  <div class="gradient-context-card" role="dialog" aria-modal="true" aria-labelledby="gradientContextTitle">
+    <div class="gradient-context-title" id="gradientContextTitle">context grid</div>
+    <div class="gradient-context-grid" id="gradientContextGrid"></div>
+    <div class="gradient-context-actions">
+      <button class="gradient-button" id="gradientContextCancel" type="button">cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// 1 ▸ COLOR MATHEMATICS
+// ═══════════════════════════════════════════════════════════
+const Color = (() => {
+  const strongestColorCache = new Map();
+
+  function gammaToLinear(c) {
+    const a = Math.abs(c);
+    return a <= 0.04045
+      ? Math.sign(c) * a / 12.92
+      : Math.sign(c) * ((a + 0.055) / 1.055) ** 2.4;
+  }
+
+  function linearToGamma(c) {
+    const a = Math.abs(c);
+    return a <= 0.0031308
+      ? Math.sign(c) * 12.92 * a
+      : Math.sign(c) * (1.055 * a ** (1/2.4) - 0.055);
+  }
+
+  function oklchToLinear(L, C, H) {
+    const hr = H * Math.PI / 180;
+    const a  = C * Math.cos(hr), b = C * Math.sin(hr);
+    const l_ = L + 0.3963377774*a + 0.2158037573*b;
+    const m_ = L - 0.1055613458*a - 0.0638541728*b;
+    const s_ = L - 0.0894841775*a - 1.2914855480*b;
+    const l = l_**3, m = m_**3, s = s_**3;
+    return [
+      +4.0767416621*l - 3.3077115913*m + 0.2309699292*s,
+      -1.2684380046*l + 2.6097574011*m - 0.3413193965*s,
+      -0.0041960863*l - 0.7034186147*m + 1.7076147010*s,
+    ];
+  }
+
+  function oklchToRGB(L, C, H) {
+    return oklchToLinear(L, C, H).map(linearToGamma);
+  }
+
+  function oklchClamped(L, C, H) {
+    return oklchToRGB(L, C, H).map(v => Math.max(0, Math.min(1, v)));
+  }
+
+  function inSRGB(L, C, H) {
+    const [r,g,b] = oklchToLinear(L, C, H);
+    return r>=-1e-4 && r<=1+1e-4 && g>=-1e-4 && g<=1+1e-4 && b>=-1e-4 && b<=1+1e-4;
+  }
+
+  function oklchToXYZ(L, C, H) {
+    const hr = H * Math.PI / 180;
+    const a  = C * Math.cos(hr), b = C * Math.sin(hr);
+    const l_ = L + 0.3963377774*a + 0.2158037573*b;
+    const m_ = L - 0.1055613458*a - 0.0638541728*b;
+    const s_ = L - 0.0894841775*a - 1.2914855480*b;
+    const l = l_**3, m = m_**3, s = s_**3;
+    return [
+      1.2268798733741557*l - 0.5578149965554813*m + 0.28139105017721583*s,
+      -0.04057576262431372*l + 1.1122868293970594*m - 0.07171106666151701*s,
+      -0.07637294974672142*l - 0.4214933239627914*m + 1.5869240244272418*s,
+    ];
+  }
+
+  function xyzToLinearP3(X, Y, Z) {
+    return [
+      2.493496911941425*X - 0.9313836179191239*Y - 0.40271078445071684*Z,
+      -0.8294889695615747*X + 1.7626640603183463*Y + 0.023624685841943577*Z,
+      0.03584583024378447*X - 0.07617238926804182*Y + 0.9568845240076872*Z,
+    ];
+  }
+
+  function oklchToLinearP3(L, C, H) {
+    const [X, Y, Z] = oklchToXYZ(L, C, H);
+    return xyzToLinearP3(X, Y, Z);
+  }
+
+  function oklchToP3(L, C, H) {
+    return oklchToLinearP3(L, C, H).map(linearToGamma);
+  }
+
+  function inRGBGamut(linear) {
+    return linear.every(v => v >= -1e-4 && v <= 1 + 1e-4);
+  }
+
+  function inP3(L, C, H) {
+    return inRGBGamut(oklchToLinearP3(L, C, H));
+  }
+
+  function inGamut(L, C, H, gamut = 'srgb') {
+    return gamut === 'p3' ? inP3(L, C, H) : inSRGB(L, C, H);
+  }
+
+  function maxChroma(L, H, gamut = 'srgb') {
+    if (!inGamut(L, 0, H, gamut)) return 0;
+    let lo = 0, hi = 0.01;
+
+    while (hi < C_MAX && inGamut(L, hi, H, gamut)) {
+      hi = Math.min(hi * 2.2 + 0.005, C_MAX);
+    }
+
+    if (inGamut(L, C_MAX, H, gamut)) return C_MAX;
+
+    for (let i = 0; i < 26; i++) {
+      const mid = (lo + hi) / 2;
+      inGamut(L, mid, H, gamut) ? (lo = mid) : (hi = mid);
+    }
+
+    return lo;
+  }
+
+  function hueBoundaries(L, C, gamut = 'srgb', steps = 240) {
+    const pts = [];
+    let prev = inGamut(L, C, 0, gamut);
+    for (let i = 1; i <= steps; i++) {
+      const cur = inGamut(L, C, (i / steps) * 360, gamut);
+      if (cur !== prev) pts.push(i / steps);
+      prev = cur;
+    }
+    return pts;
+  }
+
+  function lightnessBoundaries(C, H, gamut = 'srgb', steps = 240) {
+    const pts = [];
+    let prev = inGamut(0, C, H, gamut);
+    for (let i = 1; i <= steps; i++) {
+      const cur = inGamut(i / steps, C, H, gamut);
+      if (cur !== prev) pts.push(i / steps);
+      prev = cur;
+    }
+    return pts;
+  }
+
+  function rgbToOKLCH(r, g, b) {
+    const rl = gammaToLinear(r), gl = gammaToLinear(g), bl = gammaToLinear(b);
+    const l = 0.4122214708*rl + 0.5363325363*gl + 0.0514459929*bl;
+    const m = 0.2119034982*rl + 0.6806995451*gl + 0.1073969566*bl;
+    const s = 0.0883024619*rl + 0.2817188376*gl + 0.6299787005*bl;
+    const l_ = Math.cbrt(l), m_ = Math.cbrt(m), s_ = Math.cbrt(s);
+    const Lv = 0.2104542553*l_ + 0.7936177850*m_ - 0.0040720468*s_;
+    const av = 1.9779984951*l_ - 2.4285922050*m_ + 0.4505937099*s_;
+    const bv = 0.0259040371*l_ + 0.7827717662*m_ - 0.8086757660*s_;
+    const Cv = Math.sqrt(av**2 + bv**2);
+    let Hv = Math.atan2(bv, av) * 180 / Math.PI;
+    if (Hv < 0) Hv += 360;
+    return [Lv, Cv, Hv];
+  }
+
+  function rgbToHSV(r, g, b) {
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    const d = max - min;
+    let h = 0;
+    if (d > 1e-9) {
+      if (max === r) h = ((g - b) / d) % 6;
+      else if (max === g) h = (b - r) / d + 2;
+      else h = (r - g) / d + 4;
+      h *= 60;
+      if (h < 0) h += 360;
+    }
+    const s = max <= 1e-9 ? 0 : d / max;
+    return [h, s, max];
+  }
+
+  function hsvToRGB(h, s, v) {
+    const hh = ((h % 360) + 360) % 360;
+    const c = v * s;
+    const x = c * (1 - Math.abs((hh / 60) % 2 - 1));
+    const m = v - c;
+    let r1 = 0, g1 = 0, b1 = 0;
+    if (hh < 60) [r1, g1, b1] = [c, x, 0];
+    else if (hh < 120) [r1, g1, b1] = [x, c, 0];
+    else if (hh < 180) [r1, g1, b1] = [0, c, x];
+    else if (hh < 240) [r1, g1, b1] = [0, x, c];
+    else if (hh < 300) [r1, g1, b1] = [x, 0, c];
+    else [r1, g1, b1] = [c, 0, x];
+    return [r1 + m, g1 + m, b1 + m];
+  }
+
+  function rgbToHSL(r, g, b) {
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    const l = (max + min) / 2;
+    const d = max - min;
+    let h = 0, s = 0;
+    if (d > 1e-9) {
+      s = d / (1 - Math.abs(2 * l - 1));
+      if (max === r) h = ((g - b) / d) % 6;
+      else if (max === g) h = (b - r) / d + 2;
+      else h = (r - g) / d + 4;
+      h *= 60;
+      if (h < 0) h += 360;
+    }
+    return [h, s || 0, l];
+  }
+
+  function hslToRGB(h, s, l) {
+    const hh = ((h % 360) + 360) % 360;
+    const c = (1 - Math.abs(2 * l - 1)) * s;
+    const x = c * (1 - Math.abs((hh / 60) % 2 - 1));
+    const m = l - c / 2;
+    let r1 = 0, g1 = 0, b1 = 0;
+    if (hh < 60) [r1, g1, b1] = [c, x, 0];
+    else if (hh < 120) [r1, g1, b1] = [x, c, 0];
+    else if (hh < 180) [r1, g1, b1] = [0, c, x];
+    else if (hh < 240) [r1, g1, b1] = [0, x, c];
+    else if (hh < 300) [r1, g1, b1] = [x, 0, c];
+    else [r1, g1, b1] = [c, 0, x];
+    return [r1 + m, g1 + m, b1 + m];
+  }
+
+  function toHex(r, g, b) {
+    return '#' + [r,g,b]
+      .map(v => Math.round(Math.max(0, Math.min(255, v))).toString(16).padStart(2,'0'))
+      .join('');
+  }
+
+  function toHexAlpha(r, g, b, alpha = 1) {
+    const base = toHex(r, g, b);
+    if (alpha >= 1) return base;
+    const a = Math.round(Math.max(0, Math.min(255, alpha * 255))).toString(16).padStart(2, '0');
+    return base + a;
+  }
+
+  function strongestColorForHue(H, gamut = 'p3', options = {}) {
+    const {
+      useCache = true,
+      cacheStep = 0.1,
+      coarseSamples = 14,
+      refineSteps = 22,
+      safety = 0.9985,
+    } = options;
+
+    const hue = ((Number(H) % 360) + 360) % 360;
+    const cacheHue = Math.round(hue / cacheStep) * cacheStep;
+    const cacheKey = `${gamut}:${cacheHue.toFixed(4)}:${coarseSamples}:${refineSteps}`;
+
+    let tone;
+
+    if (useCache && strongestColorCache.has(cacheKey)) {
+      // Cache only the best tone neighborhood.
+      // Chroma is recomputed for the exact requested hue below.
+      tone = strongestColorCache.get(cacheKey);
+    } else {
+      let bestI = 1;
+      let bestChroma = -1;
+
+      for (let i = 1; i < coarseSamples; i++) {
+        const candidateTone = i / coarseSamples;
+        const chroma = maxChroma(candidateTone, hue, gamut);
+
+        if (chroma > bestChroma) {
+          bestChroma = chroma;
+          bestI = i;
+        }
+      }
+
+      let lo = Math.max(0.0001, (bestI - 1) / coarseSamples);
+      let hi = Math.min(0.9999, (bestI + 1) / coarseSamples);
+
+      const gr = (Math.sqrt(5) - 1) / 2;
+
+      let x1 = hi - gr * (hi - lo);
+      let x2 = lo + gr * (hi - lo);
+
+      let c1 = maxChroma(x1, hue, gamut);
+      let c2 = maxChroma(x2, hue, gamut);
+
+      for (let i = 0; i < refineSteps; i++) {
+        if (c1 < c2) {
+          lo = x1;
+          x1 = x2;
+          c1 = c2;
+          x2 = lo + gr * (hi - lo);
+          c2 = maxChroma(x2, hue, gamut);
+        } else {
+          hi = x2;
+          x2 = x1;
+          c2 = c1;
+          x1 = hi - gr * (hi - lo);
+          c1 = maxChroma(x1, hue, gamut);
+        }
+      }
+
+      tone = (lo + hi) / 2;
+
+      if (useCache) strongestColorCache.set(cacheKey, tone);
+    }
+
+    let chroma = maxChroma(tone, hue, gamut) * safety;
+
+    // Extra inward walk to avoid boundary precision / cache mismatch fallback.
+    while (chroma > 0 && !inGamut(tone, chroma, hue, gamut)) {
+      chroma *= 0.999;
+    }
+
+    return [tone, chroma];
+  }
+
+  function clearStrongestColorCache() {
+    strongestColorCache.clear();
+  }
+
+  return {
+    gammaToLinear,
+    linearToGamma,
+    oklchToXYZ,
+    oklchToLinear,
+    oklchToRGB,
+    oklchClamped,
+    oklchToLinearP3,
+    oklchToP3,
+    inSRGB,
+    inP3,
+    inGamut,
+    maxChroma,
+    hueBoundaries,
+    lightnessBoundaries,
+    rgbToOKLCH,
+    rgbToHSV,
+    hsvToRGB,
+    rgbToHSL,
+    hslToRGB,
+    toHex,
+    toHexAlpha,
+    strongestColorForHue,
+    clearStrongestColorCache,
+  };
+})();
+
+// ═══════════════════════════════════════════════════════════
+// 2 ▸ STATE
+// ═══════════════════════════════════════════════════════════
+const S = {
+  mode: 'oklch',
+  L: 0.3657, C: 0.2375, H: 271.03,
+  r: 35, g: 0, b: 184,
+  alpha: 1,
+  savedOKLCH: { L: 0.3657, C: 0.2375, H: 271.03 },
+  rgbDirty: false,
+  hslH: 0, hslS: 0, hslLight: 0,
+  hsvH: 0, hsvS: 0, hsvV: 0,
+
+  // TUNE mode
+  vividness: 1,
+  activeTuneControl: 'color', // 'color' or 'hue'
+
+  // Gradient builder state is initialized after color helpers are available.
+  gradient: null,
+  gradientStopSeq: 2,
+};
+
+const C_MAX = 0.4;
+const VERT_HUE_LIGHTNESS = 0.7;
+const SUPPORT = {
+  cssP3: typeof CSS !== 'undefined' && CSS.supports('color', 'color(display-p3 1 0 0)'),
+  cssOKLCH: typeof CSS !== 'undefined' && CSS.supports('color', 'oklch(0.5 0.2 180)'),
+};
+
+function clamp01(v) {
+  return Math.max(0, Math.min(1, v));
+}
+
+function clamp255(v) {
+  return Math.round(Math.max(0, Math.min(255, v)));
+}
+
+function normHue(v, fallback = 0) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return fallback;
+  return ((n % 360) + 360) % 360;
+}
+
+function getCanvasCtx(canvas) {
+  try {
+    return canvas.getContext('2d', { colorSpace: SUPPORT.cssP3 ? 'display-p3' : 'srgb' }) || canvas.getContext('2d');
+  } catch {
+    return canvas.getContext('2d');
+  }
+}
+
+function rgbCss255(rgb, alpha = 1) {
+  const [r, g, b] = rgb.map(v => Math.round(Math.max(0, Math.min(255, v))));
+  return alpha < 1 ? `rgba(${r},${g},${b},${alpha})` : `rgb(${r} ${g} ${b})`;
+}
+
+function p3Css(L, C, H, alpha = 1) {
+  const [r, g, b] = Color.oklchToP3(L, C, H).map(clamp01);
+  return alpha < 1
+    ? `color(display-p3 ${r} ${g} ${b} / ${alpha})`
+    : `color(display-p3 ${r} ${g} ${b})`;
+}
+
+function formatAlphaPercent(alpha = S.alpha) {
+  return alpha < 1 ? ` / ${Math.round(alpha * 100)}%` : '';
+}
+
+function formatOKLCHCode(L, C, H, alpha = S.alpha) {
+  return `oklch(${L.toFixed(4)} ${C.toFixed(4)} ${H.toFixed(2)}${formatAlphaPercent(alpha)})`;
+}
+
+function formatRGBCode(r, g, b, alpha = S.alpha) {
+  const base = `rgb(${Math.round(r)} ${Math.round(g)} ${Math.round(b)}`;
+  return alpha < 1 ? `${base} / ${alpha.toFixed(2)})` : `${base})`;
+}
+
+function formatHSLCode(h, s, l, alpha = S.alpha) {
+  const hh = Math.round(normHue(h, 0));
+  const ss = Math.round(clamp01(s) * 100);
+  const ll = Math.round(clamp01(l) * 100);
+  const base = `hsl(${hh} ${ss}% ${ll}%`;
+  return alpha < 1 ? `${base} / ${alpha.toFixed(2)})` : `${base})`;
+}
+
+function rememberCurrentOKLCH() {
+  S.savedOKLCH = { L: S.L, C: S.C, H: S.H };
+}
+
+function syncAuxSpacesFromRGB() {
+  const [hsvH, hsvS, hsvV] = Color.rgbToHSV(S.r / 255, S.g / 255, S.b / 255);
+  const [hslH, hslS, hslL] = Color.rgbToHSL(S.r / 255, S.g / 255, S.b / 255);
+
+  const hueFallback = Number.isFinite(S.hsvH) ? S.hsvH : (Number.isFinite(S.hslH) ? S.hslH : 0);
+  const chosenHue = (hsvS > 1e-6 && hsvV > 1e-6)
+    ? hsvH
+    : ((hslS > 1e-6) ? hslH : hueFallback);
+
+  S.hsvH = normHue(chosenHue, hueFallback);
+  S.hsvS = clamp01(hsvS);
+  S.hsvV = clamp01(hsvV);
+  S.hslH = normHue(chosenHue, hueFallback);
+  S.hslS = clamp01(hslS);
+  S.hslLight = clamp01(hslL);
+}
+
+function restoreSavedOKLCH() {
+  if (!S.savedOKLCH) return false;
+  S.L = S.savedOKLCH.L;
+  S.C = S.savedOKLCH.C;
+  S.H = S.savedOKLCH.H;
+  const [r01, g01, b01] = Color.oklchClamped(S.L, S.C, S.H);
+  S.r = Math.round(r01 * 255);
+  S.g = Math.round(g01 * 255);
+  S.b = Math.round(b01 * 255);
+  syncAuxSpacesFromRGB();
+  return true;
+}
+
+function parseUnitNumber(token, scale = 1) {
+  const v = String(token).trim();
+  if (!v) return NaN;
+  if (v.endsWith('%')) return parseFloat(v) / 100 * scale;
+  return parseFloat(v);
+}
+
+function parsePercentField(text) {
+  let s = String(text).trim();
+  if (!s) return NaN;
+
+  const hadPercent = s.endsWith('%');
+  if (hadPercent) s = s.slice(0, -1).trim();
+
+  const n = parseFloat(s);
+  if (isNaN(n)) return NaN;
+
+  if (hadPercent) return n / 100;
+  if (!s.includes('.') && n > 1) return n / 100;
+  return n;
+}
+
+function isMobile() { return window.innerWidth <= 560; }
+
+function syncStateFromRGB(r, g, b, options = {}) {
+  const { markDirty: shouldMarkDirty = (S.mode !== 'oklch' && S.mode !== 'tune'), rememberDerived = true } = options;
+  S.r = clamp255(r);
+  S.g = clamp255(g);
+  S.b = clamp255(b);
+  const [L, C, H] = Color.rgbToOKLCH(S.r / 255, S.g / 255, S.b / 255);
+  S.L = L;
+  S.C = C;
+  S.H = H;
+  syncAuxSpacesFromRGB();
+  if (rememberDerived) rememberCurrentOKLCH();
+  S.rgbDirty = !!shouldMarkDirty;
+}
+
+function syncStateFromOKLCH(L, C, H, options = {}) {
+  const { rememberRaw = true, clearRGBDirty = true } = options;
+  S.L = Math.max(0, Math.min(1, L));
+  S.C = Math.max(0, Math.min(C_MAX, C));
+  S.H = normHue(H, S.H);
+  const [r01, g01, b01] = Color.oklchClamped(S.L, S.C, S.H);
+  S.r = Math.round(r01 * 255);
+  S.g = Math.round(g01 * 255);
+  S.b = Math.round(b01 * 255);
+  syncAuxSpacesFromRGB();
+  if (rememberRaw) rememberCurrentOKLCH();
+  if (clearRGBDirty) S.rgbDirty = false;
+}
+
+function syncStateFromHSV(H, Sv, V, options = {}) {
+  S.hsvH = normHue(H, S.hsvH);
+  S.hslH = S.hsvH;
+  const [r01, g01, b01] = Color.hsvToRGB(S.hsvH, clamp01(Sv), clamp01(V));
+  syncStateFromRGB(r01 * 255, g01 * 255, b01 * 255, options);
+  S.hsvH = normHue(H, S.hsvH);
+  S.hslH = S.hsvH;
+  S.hsvS = clamp01(Sv);
+  S.hsvV = clamp01(V);
+}
+
+function syncStateFromHSL(H, Sval, Lval, options = {}) {
+  S.hslH = normHue(H, S.hslH);
+  S.hsvH = S.hslH;
+  const [r01, g01, b01] = Color.hslToRGB(S.hslH, clamp01(Sval), clamp01(Lval));
+  syncStateFromRGB(r01 * 255, g01 * 255, b01 * 255, options);
+  S.hslH = normHue(H, S.hslH);
+  S.hsvH = S.hslH;
+  S.hslS = clamp01(Sval);
+  S.hslLight = clamp01(Lval);
+}
+
+function parseHexColor(text) {
+  let hex = String(text).trim().replace(/^#/, '');
+  if (![3, 4, 6, 8].includes(hex.length) || /[^0-9a-f]/i.test(hex)) return null;
+  if (hex.length <= 4) hex = hex.split('').map(ch => ch + ch).join('');
+  const hasAlpha = hex.length === 8;
+  const r = parseInt(hex.slice(0, 2), 16);
+  const g = parseInt(hex.slice(2, 4), 16);
+  const b = parseInt(hex.slice(4, 6), 16);
+  const alpha = hasAlpha ? parseInt(hex.slice(6, 8), 16) / 255 : null;
+  return { space: 'rgb', r, g, b, alpha };
+}
+
+function parseFunctionalColor(text) {
+  const match = String(text).trim().match(/^([a-z]+)\(\s*(.*?)\s*\)$/i);
+  if (!match) return null;
+  const fn = match[1].toLowerCase();
+  const raw = match[2];
+
+  const slashIdx = raw.lastIndexOf('/');
+  const bodyStr = slashIdx >= 0 ? raw.slice(0, slashIdx).trim() : raw;
+  const alphaStr = slashIdx >= 0 ? raw.slice(slashIdx + 1).trim() : null;
+
+  const body = bodyStr.replace(/,/g, ' ').trim().split(/\s+/).filter(Boolean);
+
+  let alpha = null;
+  if (alphaStr !== null) alpha = parseUnitNumber(alphaStr, 1);
+  else if (body.length >= 4) alpha = parseUnitNumber(body[3], 1);
+
+  if (fn === 'oklch' && body.length >= 3) {
+    const L = parseUnitNumber(body[0], 1);
+    const C = parseUnitNumber(body[1], 1);
+    const H = body[2].endsWith('%') ? parseUnitNumber(body[2], 360) : parseFloat(body[2]);
+    if ([L, C].some(v => Number.isNaN(v)) || Number.isNaN(H)) return null;
+    return { space: 'oklch', L, C, H, alpha };
+  }
+
+  if (fn === 'oklab' && body.length >= 3) {
+    const L = parseUnitNumber(body[0], 1);
+    const a = parseUnitNumber(body[1], 0.4);
+    const b = parseUnitNumber(body[2], 0.4);
+    if ([L, a, b].some(v => Number.isNaN(v))) return null;
+    const C = Math.sqrt(a * a + b * b);
+    let H = Math.atan2(b, a) * 180 / Math.PI;
+    if (H < 0) H += 360;
+    return { space: 'oklch', L, C, H, alpha };
+  }
+
+  if ((fn === 'rgb' || fn === 'rgba') && body.length >= 3) {
+    const r = parseUnitNumber(body[0], 255);
+    const g = parseUnitNumber(body[1], 255);
+    const b = parseUnitNumber(body[2], 255);
+    if ([r, g, b].some(v => Number.isNaN(v))) return null;
+    return { space: 'rgb', r, g, b, alpha };
+  }
+
+  if ((fn === 'hsl' || fn === 'hsla') && body.length >= 3) {
+    let hRaw = body[0].replace(/deg$/i, '').replace(/grad$/i, '');
+    if (/rad$/i.test(body[0])) hRaw = (parseFloat(body[0]) * 180 / Math.PI).toString();
+    if (/turn$/i.test(body[0])) hRaw = (parseFloat(body[0]) * 360).toString();
+    const h = parseFloat(hRaw);
+    const s = parseUnitNumber(body[1], 1);
+    const l = parseUnitNumber(body[2], 1);
+    if ([h, s, l].some(v => Number.isNaN(v))) return null;
+    return { space: 'hsl', h, s, l, alpha };
+  }
+
+  if (fn === 'hwb' && body.length >= 3) {
+    let hRaw = body[0].replace(/deg$/i, '');
+    const h = parseFloat(hRaw);
+    const w = parseUnitNumber(body[1], 1);
+    const bk = parseUnitNumber(body[2], 1);
+    if ([h, w, bk].some(v => Number.isNaN(v))) return null;
+    let ww = w, bb = bk;
+    if (ww + bb > 1) { const s = ww + bb; ww /= s; bb /= s; }
+    const [r01, g01, b01] = Color.hslToRGB(h, 1, 0.5);
+    const r = (r01 * (1 - ww - bb) + ww) * 255;
+    const g = (g01 * (1 - ww - bb) + ww) * 255;
+    const b = (b01 * (1 - ww - bb) + ww) * 255;
+    return { space: 'rgb', r, g, b, alpha };
+  }
+
+  return null;
+}
+
+function applyColorInput(text) {
+  const trimmed = String(text).trim();
+  if (!trimmed) return false;
+
+  let parsed;
+  if (trimmed.startsWith('#')) parsed = parseHexColor(trimmed);
+  else if (/^[0-9a-f]+$/i.test(trimmed) && [3, 4, 6, 8].includes(trimmed.length)) parsed = parseHexColor('#' + trimmed);
+  if (!parsed) parsed = parseFunctionalColor(trimmed);
+  if (!parsed) return false;
+
+  if (parsed.space === 'rgb') {
+    syncStateFromRGB(parsed.r, parsed.g, parsed.b, {
+      markDirty: S.mode !== 'oklch' && S.mode !== 'tune',
+      rememberDerived: true,
+    });
+  } else if (parsed.space === 'hsl') {
+    syncStateFromHSL(parsed.h, parsed.s, parsed.l, {
+      markDirty: S.mode !== 'oklch' && S.mode !== 'tune',
+      rememberDerived: true,
+    });
+  } else {
+    syncStateFromOKLCH(parsed.L, parsed.C, parsed.H, {
+      rememberRaw: true,
+      clearRGBDirty: true,
+    });
+
+    if (S.mode === 'tune') {
+      const maxC = Color.maxChroma(S.L, S.H, 'p3');
+      S.C = Math.min(S.C, maxC * 0.9985);
+      S.vividness = maxC > 1e-6 ? S.C / maxC : 0;
+      syncStateFromOKLCH(S.L, S.C, S.H, {
+        rememberRaw: true,
+        clearRGBDirty: true,
+      });
+    }
+  }
+
+  if (parsed.alpha != null && !Number.isNaN(parsed.alpha)) {
+    S.alpha = Math.max(0, Math.min(1, parsed.alpha));
+  }
+
+  return true;
+}
+
+function colorSpecFromOKLCH(L, C, H, alpha = 1) {
+  const [sr, sg, sb] = Color.oklchClamped(L, C, H);
+  const fallback = [Math.round(sr * 255), Math.round(sg * 255), Math.round(sb * 255)];
+  return {
+    css: Color.inP3(L, C, H) && SUPPORT.cssP3 ? p3Css(L, C, H, alpha) : rgbCss255(fallback, alpha),
+    fallback,
+  };
+}
+
+function colorSpecFromRGB(rgb, alpha = 1) {
+  const fallback = rgb.map(v => Math.round(Math.max(0, Math.min(255, v))));
+  return { css: rgbCss255(fallback, alpha), fallback };
+}
+
+function currentRGB01() {
+  if (S.mode === 'oklch' || S.mode === 'tune') return Color.oklchClamped(S.L, S.C, S.H);
+  return [S.r / 255, S.g / 255, S.b / 255];
+}
+
+function currentComputedRGB255() {
+  if (S.mode === 'oklch' || S.mode === 'tune') {
+    const [r01, g01, b01] = currentRGB01();
+    return [Math.round(r01 * 255), Math.round(g01 * 255), Math.round(b01 * 255)];
+  }
+  return [S.r, S.g, S.b];
+}
+
+function currentColorCss(alpha = S.alpha) {
+  if ((S.mode === 'oklch' || S.mode === 'tune') && SUPPORT.cssOKLCH) {
+    return alpha < 1
+      ? `oklch(${S.L} ${S.C} ${S.H} / ${alpha})`
+      : `oklch(${S.L} ${S.C} ${S.H})`;
+  }
+  return rgbCss255(currentComputedRGB255(), alpha);
+}
+
+function getFallbackState(alpha = S.alpha) {
+  if ((S.mode !== 'oklch' && S.mode !== 'tune') || Color.inP3(S.L, S.C, S.H)) return null;
+
+  const fallbackChroma = Math.min(S.C, Color.maxChroma(S.L, S.H, 'p3') * 0.9985);
+  const spec = colorSpecFromOKLCH(S.L, fallbackChroma, S.H, alpha);
+  const hex = Color.toHexAlpha(...spec.fallback, alpha);
+  const [fallbackL, fallbackC, fallbackH] = Color.rgbToOKLCH(
+    spec.fallback[0] / 255,
+    spec.fallback[1] / 255,
+    spec.fallback[2] / 255
+  );
+
+  return {
+    source: { L: S.L, C: fallbackChroma, H: S.H },
+    display: spec,
+    hex,
+    code: formatOKLCHCode(fallbackL, fallbackC, fallbackH, alpha),
+  };
+}
+
+function buildBoundaryMarkers(srgbPoints = [], p3Points = []) {
+  return [
+    ...p3Points.map(t => ({ t, gamut: 'p3' })),
+    ...srgbPoints.map(t => ({ t, gamut: 'srgb' })),
+  ];
+}
+
+function buildSingleBoundaryMarkers(srgbT, p3T) {
+  const srgbPoints = typeof srgbT === 'number' && srgbT < 0.999 ? [srgbT] : [];
+  const p3Points = typeof p3T === 'number' && p3T < 0.999 ? [p3T] : [];
+  return buildBoundaryMarkers(srgbPoints, p3Points);
+}
+
+function switchMode(m) {
+  if (m === S.mode) return;
+
+  const wasOKLCHlike = S.mode === 'oklch' || S.mode === 'tune';
+  const isOKLCHlike = m === 'oklch' || m === 'tune';
+
+  if (wasOKLCHlike && !isOKLCHlike) {
+    rememberCurrentOKLCH();
+    const [r, g, b] = currentRGB01();
+    S.r = Math.round(r * 255);
+    S.g = Math.round(g * 255);
+    S.b = Math.round(b * 255);
+    syncAuxSpacesFromRGB();
+    S.rgbDirty = false;
+  } else if (!wasOKLCHlike && isOKLCHlike) {
+    if (!(S.savedOKLCH && !S.rgbDirty && restoreSavedOKLCH())) {
+      syncStateFromRGB(S.r, S.g, S.b, { markDirty: false, rememberDerived: true });
+    }
+    S.rgbDirty = false;
+  }
+
+  if (m === 'tune') {
+    const maxC = Color.maxChroma(S.L, S.H, 'p3');
+    S.C = Math.min(S.C, maxC * 0.9985);
+    S.vividness = maxC > 1e-6 ? Math.max(0, Math.min(1, S.C / maxC)) : 0;
+    S.activeTuneControl = S.activeTuneControl || 'color';
+    syncStateFromOKLCH(S.L, S.C, S.H, {
+      rememberRaw: true,
+      clearRGBDirty: true,
+    });
+  }
+
+  S.mode = m;
+  rebuildUI();
+}
+
+syncAuxSpacesFromRGB();
+
+// ═══════════════════════════════════════════════════════════
+// 3 ▸ CANVAS RENDERING
+// ═══════════════════════════════════════════════════════════
+function renderSliderCanvas(canvas, colorFn, isVert, boundaries = []) {
+  const ctx = getCanvasCtx(canvas);
+  const w = canvas.width, h = canvas.height;
+  if (!ctx || !w || !h) return;
+  ctx.clearRect(0, 0, w, h);
+
+  const paintChecker = (x, y, ww, hh) => {
+    const ts = 8;
+    for (let yy = y; yy < y + hh; yy += ts) {
+      for (let xx = x; xx < x + ww; xx += ts) {
+        const ck = (((xx / ts) | 0) + ((yy / ts) | 0)) & 1;
+        ctx.fillStyle = ck ? '#343442' : '#1e1e28';
+        ctx.fillRect(xx, yy, Math.min(ts, x + ww - xx), Math.min(ts, y + hh - yy));
+      }
+    }
+  };
+
+  const paintSpec = (spec, x, y, ww, hh) => {
+    if (spec === null) {
+      paintChecker(x, y, ww, hh);
+      return;
+    }
+    if (Array.isArray(spec)) {
+      ctx.fillStyle = rgbCss255(spec);
+      ctx.fillRect(x, y, ww, hh);
+      return;
+    }
+    ctx.fillStyle = spec.css || rgbCss255(spec.fallback || [0, 0, 0]);
+    ctx.fillRect(x, y, ww, hh);
+  };
+
+  if (isVert) {
+    for (let y = 0; y < h; y++) {
+      const t = 1 - y / Math.max(1, h - 1);
+      paintSpec(colorFn(t), 0, y, w, 1);
+    }
+  } else {
+    for (let x = 0; x < w; x++) {
+      const t = x / Math.max(1, w - 1);
+      paintSpec(colorFn(t), x, 0, 1, h);
+    }
+  }
+
+  const styles = {
+    srgb: { line: 'rgba(255,255,255,0.88)' },
+    p3:   { line: 'rgba(0,0,0,0.92)' },
+  };
+
+  for (const marker of boundaries) {
+    const style = styles[marker.gamut] || styles.srgb;
+    ctx.fillStyle = style.line;
+    if (isVert) {
+      const y = Math.round((1 - marker.t) * (h - 1));
+      ctx.fillRect(0, y - 1, w, 2);
+    } else {
+      const x = Math.round(marker.t * (w - 1));
+      ctx.fillRect(x - 1, 0, 2, h);
+    }
+  }
+}
+
+function renderAlphaCanvas(canvas, isVert) {
+  const ctx = getCanvasCtx(canvas);
+  const w = canvas.width, h = canvas.height;
+  if (!ctx || !w || !h) return;
+  ctx.clearRect(0, 0, w, h);
+
+  const ts = 8;
+  for (let ty = 0; ty < Math.ceil(h / ts); ty++) {
+    for (let tx = 0; tx < Math.ceil(w / ts); tx++) {
+      ctx.fillStyle = (tx + ty) % 2 === 0 ? '#2e2e3e' : '#1e1e2a';
+      ctx.fillRect(tx * ts, ty * ts, ts, ts);
+    }
+  }
+
+  let grad;
+  if (isVert) {
+    grad = ctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, currentColorCss(1));
+    grad.addColorStop(1, currentColorCss(0));
+  } else {
+    grad = ctx.createLinearGradient(0, 0, w, 0);
+    grad.addColorStop(0, currentColorCss(0));
+    grad.addColorStop(1, currentColorCss(1));
+  }
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, w, h);
+}
+
+function renderHSLFieldCanvas(canvas) {
+  const ctx = getCanvasCtx(canvas);
+  const w = canvas.width, h = canvas.height;
+  if (!ctx || !w || !h) return;
+  ctx.clearRect(0, 0, w, h);
+
+  const img = ctx.createImageData(w, h);
+  const d = img.data;
+
+  for (let y = 0; y < h; y++) {
+    const v = 1 - y / Math.max(1, h - 1);
+    for (let x = 0; x < w; x++) {
+      const s = x / Math.max(1, w - 1);
+      const [r, g, b] = Color.hsvToRGB(S.hsvH, s, v);
+      const i = (y * w + x) * 4;
+      d[i] = Math.round(r * 255);
+      d[i + 1] = Math.round(g * 255);
+      d[i + 2] = Math.round(b * 255);
+      d[i + 3] = 255;
+    }
+  }
+
+  ctx.putImageData(img, 0, 0);
+}
+
+// ═══════════════════════════════════════════════════════════
+// 4 ▸ SLIDER DEFINITIONS
+// ═══════════════════════════════════════════════════════════
+function getHSLHueDef() {
+  return {
+    key:'hslHue', label:'H', full:'Hue',
+    min:0, max:360,
+    inputMode: 'decimal',
+    get:()=>S.hsvH,
+    set:v=>{ syncStateFromHSV(v, S.hsvS, S.hsvV, { markDirty: true, rememberDerived: true }); },
+    fmt:v=>Math.round(v).toString(),
+    vFn: t => colorSpecFromRGB(Color.hsvToRGB(t * 360, 1, 1).map(v => v * 255)),
+    vBounds: () => [],
+    showH: false,
+  };
+}
+
+function getSliderDefs() {
+  if (S.mode === 'oklch') {
+    return [
+      {
+        key:'L', label:'L', full:'Lightness',
+        min:0, max:1,
+        inputMode: 'decimal',
+        get:()=>S.L,
+        set:v=>{ S.L = v; syncStateFromOKLCH(S.L, S.C, S.H, { rememberRaw: true, clearRGBDirty: true }); },
+        fmt:v=>v.toFixed(4),
+        vFn: t => {
+          const g = Math.round(t * 255);
+          return colorSpecFromRGB([g, g, g]);
+        },
+        vBounds: () => buildBoundaryMarkers(
+          Color.lightnessBoundaries(S.C, S.H, 'srgb'),
+          Color.lightnessBoundaries(S.C, S.H, 'p3')
+        ),
+        hFn: t => {
+          if (!Color.inP3(t, S.C, S.H)) return null;
+          return colorSpecFromOKLCH(t, S.C, S.H);
+        },
+        hBounds: () => buildBoundaryMarkers(
+          Color.lightnessBoundaries(S.C, S.H, 'srgb'),
+          Color.lightnessBoundaries(S.C, S.H, 'p3')
+        ),
+        showH: true,
+      },
+      {
+        key:'C', label:'C', full:'Chroma',
+        min:0, max:C_MAX,
+        inputMode: 'decimal',
+        get:()=>S.C,
+        set:v=>{ S.C = v; syncStateFromOKLCH(S.L, S.C, S.H, { rememberRaw: true, clearRGBDirty: true }); },
+        fmt:v=>v.toFixed(4),
+        vFn: t => {
+          const c = t * C_MAX;
+          const maxP3 = Color.maxChroma(S.L, S.H, 'p3');
+          return colorSpecFromOKLCH(S.L, Math.min(c, maxP3), S.H);
+        },
+        vBounds: () => buildSingleBoundaryMarkers(
+          Color.maxChroma(S.L, S.H, 'srgb') / C_MAX,
+          Color.maxChroma(S.L, S.H, 'p3') / C_MAX
+        ),
+        hFn: t => {
+          const c = t * C_MAX;
+          if (!Color.inP3(S.L, c, S.H)) return null;
+          return colorSpecFromOKLCH(S.L, c, S.H);
+        },
+        hBounds: () => buildSingleBoundaryMarkers(
+          Color.maxChroma(S.L, S.H, 'srgb') / C_MAX,
+          Color.maxChroma(S.L, S.H, 'p3') / C_MAX
+        ),
+        showH: true,
+      },
+      {
+        key:'H', label:'H', full:'Hue',
+        min:0, max:360,
+        inputMode: 'decimal',
+        get:()=>S.H,
+        set:v=>{ S.H = v; syncStateFromOKLCH(S.L, S.C, S.H, { rememberRaw: true, clearRGBDirty: true }); },
+        fmt:v=>v.toFixed(2),
+        vFn: t => colorSpecFromOKLCH(VERT_HUE_LIGHTNESS, S.C, t * 360),
+        vBounds: () => [],
+        hFn: t => {
+          const h = t * 360;
+          if (!Color.inP3(S.L, S.C, h)) return null;
+          return colorSpecFromOKLCH(S.L, S.C, h);
+        },
+        hBounds: () => buildBoundaryMarkers(
+          Color.hueBoundaries(S.L, S.C, 'srgb'),
+          Color.hueBoundaries(S.L, S.C, 'p3')
+        ),
+        showH: true,
+      },
+      { 
+        key:'alpha', label:'A', full:'Opacity',
+        isAlpha: true,
+        min:0, max:1,
+        inputMode: 'decimal',
+        get:()=>S.alpha, set:v=>{S.alpha=v;},
+        fmt:v=>v.toFixed(2),
+        editText:()=>S.alpha.toFixed(2),
+        parse: parsePercentField,
+        showH: false,
+      }
+    ];
+  }
+
+  if (S.mode === 'tune') {
+    function activeTuneShortLabel() {
+      return S.activeTuneControl === 'color' ? 'C' : 'H';
+    }
+
+    function tuneChromaFor(tone, vividness, hue) {
+      const T = Math.max(0, Math.min(1, tone));
+      const V = Math.max(0, Math.min(1, vividness));
+      const H = normHue(hue, S.H);
+      const maxC = Color.maxChroma(T, H, 'p3');
+      return V * maxC * 0.9985;
+    }
+
+    function tuneColorSpec(tone, vividness, hue) {
+      const T = Math.max(0, Math.min(1, tone));
+      const H = normHue(hue, S.H);
+      const C = tuneChromaFor(T, vividness, H);
+      return colorSpecFromOKLCH(T, C, H);
+    }
+
+    function strongestColorSpec(hue) {
+      const H = normHue(hue, S.H);
+      const [tone, chroma] = Color.strongestColorForHue(H, 'p3', {
+        useCache: true,
+        cacheStep: 0.1,
+        coarseSamples: 14,
+        refineSteps: 22,
+        safety: 0.9985,
+      });
+      return colorSpecFromOKLCH(tone, chroma, H);
+    }
+
+    function applyTune(tone, vividness, hue) {
+      S.H = normHue(hue, S.H);
+      S.L = Math.max(0, Math.min(1, tone));
+      S.vividness = Math.max(0, Math.min(1, vividness));
+
+      S.C = tuneChromaFor(S.L, S.vividness, S.H);
+
+      syncStateFromOKLCH(S.L, S.C, S.H, {
+        rememberRaw: true,
+        clearRGBDirty: true,
+      });
+
+      S.vividness = Math.max(0, Math.min(1, vividness));
+    }
+
+    function applyColorControl(hue) {
+      const newH = normHue(hue, S.H);
+      const [tone, chroma] = Color.strongestColorForHue(newH, 'p3', {
+        useCache: true,
+        cacheStep: 0.1,
+        coarseSamples: 14,
+        refineSteps: 22,
+        safety: 0.9985,
+      });
+
+      S.H = newH;
+      S.vividness = 1;
+
+      syncStateFromOKLCH(tone, chroma, newH, {
+        rememberRaw: true,
+        clearRGBDirty: true,
+      });
+
+      S.vividness = 1;
+    }
+
+    function applyHueControl(hue) {
+      const newH = normHue(hue, S.H);
+
+      const fixedTone = S.L;
+      const fixedVividness = S.vividness;
+      const nextC = tuneChromaFor(fixedTone, fixedVividness, newH);
+
+      S.H = newH;
+      S.L = fixedTone;
+      S.C = nextC;
+      S.vividness = fixedVividness;
+
+      syncStateFromOKLCH(S.L, S.C, S.H, {
+        rememberRaw: true,
+        clearRGBDirty: true,
+      });
+
+      S.L = fixedTone;
+      S.vividness = fixedVividness;
+    }
+
+    return [
+      {
+        key:'tone',
+        label:'T',
+        full:'Tone',
+        min:0,
+        max:1,
+        inputMode: 'decimal',
+        get:()=>S.L,
+        set:v=>{ applyTune(v, S.vividness, S.H); },
+        fmt:v=>v.toFixed(4),
+
+        // Contextual: current Hue + current Vividness across Tone.
+        vFn: t => tuneColorSpec(t, S.vividness, S.H),
+        vBounds: () => [],
+
+        hFn: t => tuneColorSpec(t, S.vividness, S.H),
+        hBounds: () => [],
+        showH: true,
+      },
+      {
+        key:'vividness',
+        label:'V',
+        full:'Vividness',
+        min:0,
+        max:1,
+        inputMode: 'decimal',
+        get:()=>S.vividness,
+        set:v=>{ applyTune(S.L, v, S.H); },
+        fmt:v=>v.toFixed(4),
+
+        // Contextual: current Tone + current Hue across Vividness.
+        vFn: t => tuneColorSpec(S.L, t, S.H),
+        vBounds: () => [],
+
+        hFn: t => tuneColorSpec(S.L, t, S.H),
+        hBounds: () => [],
+        showH: true,
+      },
+      {
+        key:'activeTuneControl',
+        label: activeTuneShortLabel(),
+        dynamicLabel: activeTuneShortLabel,
+        full:'Active',
+        min:0,
+        max:360,
+        inputMode: 'decimal',
+        get:()=>S.H,
+        set:v=>{
+          if (S.activeTuneControl === 'color') applyColorControl(v);
+          else applyHueControl(v);
+        },
+        fmt:v=>v.toFixed(2),
+
+        // Active vertical:
+        // Color = strongest P3 color for each hue.
+        // Hue = current Tone + current Vividness for each hue.
+        vFn: t => {
+          const h = t * 360;
+
+          if (S.activeTuneControl === 'color') {
+            return strongestColorSpec(h);
+          }
+
+          return tuneColorSpec(S.L, S.vividness, h);
+        },
+        vBounds: () => [],
+        showH: false,
+      },
+      {
+        key:'color',
+        label:'C',
+        full:'Color',
+        tuneControl: 'color',
+        horizontalOnly: true,
+        min:0,
+        max:360,
+        inputMode: 'decimal',
+        get:()=>S.H,
+        set:v=>{
+          S.activeTuneControl = 'color';
+          applyColorControl(v);
+        },
+        fmt:v=>v.toFixed(2),
+
+        // For every hue, render the strongest possible P3-safe color,
+        // allowing Tone and Chroma to change.
+        hFn: t => strongestColorSpec(t * 360),
+        hBounds: () => [],
+        showH: true,
+      },
+      {
+        key:'hue',
+        label:'H',
+        full:'Hue',
+        tuneControl: 'hue',
+        horizontalOnly: true,
+        min:0,
+        max:360,
+        inputMode: 'decimal',
+        get:()=>S.H,
+        set:v=>{
+          S.activeTuneControl = 'hue';
+          applyHueControl(v);
+        },
+        fmt:v=>v.toFixed(2),
+
+        // For every hue, preserve current Tone + current Vividness.
+        hFn: t => tuneColorSpec(S.L, S.vividness, t * 360),
+        hBounds: () => [],
+        showH: true,
+      },
+      { 
+        key:'alpha', label:'A', full:'Opacity',
+        isAlpha: true,
+        min:0, max:1,
+        inputMode: 'decimal',
+        get:()=>S.alpha, set:v=>{S.alpha=v;},
+        fmt:v=>v.toFixed(2),
+        editText:()=>S.alpha.toFixed(2),
+        parse: parsePercentField,
+        showH: false,
+      }
+    ];
+  }
+
+  if (S.mode === 'rgb') {
+    function parseRGBPercent(text) {
+      const s = String(text).trim().replace(/%$/, '');
+      const n = parseFloat(s);
+      if (isNaN(n)) return NaN;
+      return Math.max(0, Math.min(255, n / 100 * 255));
+    }
+
+    return [
+      {
+        key:'r', label:'R', full:'Red',
+        min:0, max:255,
+        inputMode: 'decimal',
+        get:()=>S.r,
+        set:v=>{ syncStateFromRGB(v, S.g, S.b, { markDirty: true, rememberDerived: true }); },
+        fmt:v=>Math.round(v).toString(),
+        vLabel: 'R%',
+        vFmt: v => Math.round(v / 255 * 100) + '%',
+        vEditText: () => Math.round(S.r / 255 * 100).toString(),
+        vParse: parseRGBPercent,
+        vFn: t => colorSpecFromRGB([t * 255, 0, 0]),
+        vBounds: () => [],
+        hFn: t => colorSpecFromRGB([t * 255, S.g, S.b]),
+        hBounds: () => [],
+        showH: true,
+      },
+      {
+        key:'g', label:'G', full:'Green',
+        min:0, max:255,
+        inputMode: 'decimal',
+        get:()=>S.g,
+        set:v=>{ syncStateFromRGB(S.r, v, S.b, { markDirty: true, rememberDerived: true }); },
+        fmt:v=>Math.round(v).toString(),
+        vLabel: 'G%',
+        vFmt: v => Math.round(v / 255 * 100) + '%',
+        vEditText: () => Math.round(S.g / 255 * 100).toString(),
+        vParse: parseRGBPercent,
+        vFn: t => colorSpecFromRGB([0, t * 255, 0]),
+        vBounds: () => [],
+        hFn: t => colorSpecFromRGB([S.r, t * 255, S.b]),
+        hBounds: () => [],
+        showH: true,
+      },
+      {
+        key:'b', label:'B', full:'Blue',
+        min:0, max:255,
+        inputMode: 'decimal',
+        get:()=>S.b,
+        set:v=>{ syncStateFromRGB(S.r, S.g, v, { markDirty: true, rememberDerived: true }); },
+        fmt:v=>Math.round(v).toString(),
+        vLabel: 'B%',
+        vFmt: v => Math.round(v / 255 * 100) + '%',
+        vEditText: () => Math.round(S.b / 255 * 100).toString(),
+        vParse: parseRGBPercent,
+        vFn: t => colorSpecFromRGB([0, 0, t * 255]),
+        vBounds: () => [],
+        hFn: t => colorSpecFromRGB([S.r, S.g, t * 255]),
+        hBounds: () => [],
+        showH: true,
+      },
+      {
+        key:'alpha', label:'A', full:'Opacity',
+        isAlpha: true,
+        min:0, max:1,
+        inputMode: 'decimal',
+        get:()=>S.alpha,
+        set:v=>{ S.alpha = v; },
+        fmt:v=>v.toFixed(2),
+        editText:()=>S.alpha.toFixed(2),
+        parse: parsePercentField,
+        showH: false,
+      }
+    ];
+  }
+
+  return [
+    {
+      key:'hslS', label:'S', full:'Saturation',
+      min:0, max:1,
+      inputMode: 'decimal',
+      get:()=>S.hslS,
+      set:v=>{ syncStateFromHSL(S.hslH, v, S.hslLight, { markDirty: true, rememberDerived: true }); },
+      fmt:v=>`${Math.round(v * 100)}%`,
+      editText:()=>`${Math.round(S.hslS * 100)}`,
+      parse: parsePercentField,
+      vFn: t => colorSpecFromRGB(Color.hslToRGB(S.hslH, t, S.hslLight).map(v => v * 255)),
+      vBounds: () => [],
+      hFn: t => colorSpecFromRGB(Color.hslToRGB(S.hslH, t, S.hslLight).map(v => v * 255)),
+      hBounds: () => [],
+      showH: true,
+    },
+    {
+      key:'hslL', label:'L', full:'Lightness',
+      min:0, max:1,
+      inputMode: 'decimal',
+      get:()=>S.hslLight,
+      set:v=>{ syncStateFromHSL(S.hslH, S.hslS, v, { markDirty: true, rememberDerived: true }); },
+      fmt:v=>`${Math.round(v * 100)}%`,
+      editText:()=>`${Math.round(S.hslLight * 100)}`,
+      parse: parsePercentField,
+      vFn: t => colorSpecFromRGB(Color.hslToRGB(S.hslH, S.hslS, t).map(v => v * 255)),
+      vBounds: () => [],
+      hFn: t => colorSpecFromRGB(Color.hslToRGB(S.hslH, S.hslS, t).map(v => v * 255)),
+      hBounds: () => [],
+      showH: true,
+    },
+    {
+      key:'alpha', label:'A', full:'Opacity',
+      isAlpha: true,
+      min:0, max:1,
+      inputMode: 'decimal',
+      get:()=>S.alpha, set:v=>{S.alpha=v;},
+      fmt:v=>v.toFixed(2),
+      editText:()=>S.alpha.toFixed(2),
+      parse: parsePercentField,
+      showH: true,
+    }
+  ];
+}
+
+// ═══════════════════════════════════════════════════════════
+// 5 ▸ UI CONSTRUCTION
+// ═══════════════════════════════════════════════════════════
+let sliders = [];
+let hslFieldUI = null;
+
+function buildVSlider(def) {
+  const vdef = Object.assign({}, def, {
+    label:    def.vLabel    || def.label,
+    fmt:      def.vFmt      || def.fmt,
+    editText: def.vEditText || def.editText,
+    parse:    def.vParse    || def.parse,
+  });
+
+  const col = document.createElement('div');
+  col.className = 'vslider-col';
+
+  const lbl = document.createElement('div');
+  lbl.className = 'vslider-label';
+  lbl.textContent = vdef.label;
+
+  const track = document.createElement('div');
+  track.className = def.isAlpha ? 'vslider-track has-checker' : 'vslider-track';
+
+  const cv = document.createElement('canvas');
+  cv.className = 'slider-canvas';
+
+  const thumb = document.createElement('div');
+  thumb.className = 'vslider-thumb';
+
+  track.appendChild(cv);
+  track.appendChild(thumb);
+
+  const valEl = document.createElement('div');
+  valEl.className = 'vslider-val';
+  valEl.textContent = vdef.fmt(def.get());
+  makeEditableVal(valEl, vdef);
+
+  col.append(lbl, track, valEl);
+  return { col, labelEl: lbl, track, canvas: cv, thumb, valEl, vdef };
+}
+
+function buildHSlider(def) {
+  const row = document.createElement('div');
+  row.className = 'hslider-row';
+
+  if (def.tuneControl) {
+    row.classList.add('tune-control-row');
+    row.dataset.tuneControl = def.tuneControl;
+
+    row.addEventListener('click', () => {
+      if (S.mode !== 'tune') return;
+      if (S.activeTuneControl === def.tuneControl) return;
+      S.activeTuneControl = def.tuneControl;
+      updateUI();
+    });
+  }
+
+  const track = document.createElement('div');
+  track.className = def.isAlpha ? 'hslider-track has-checker' : 'hslider-track';
+
+  const cv = document.createElement('canvas');
+  cv.className = 'slider-canvas';
+
+  const thumb = document.createElement('div');
+  thumb.className = 'hslider-thumb';
+
+  track.appendChild(cv);
+  track.appendChild(thumb);
+
+  const info = document.createElement('div');
+  info.className = 'hslider-info';
+
+  const infoLbl = document.createElement('div');
+  infoLbl.className = 'hslider-info-label';
+  infoLbl.textContent = def.full;
+
+  const infoVal = document.createElement('div');
+  infoVal.className = 'hslider-info-val';
+  infoVal.textContent = def.fmt(def.get());
+  makeEditableVal(infoVal, def);
+
+  info.append(infoLbl, infoVal);
+  row.append(track, info);
+  return { row, labelEl: infoLbl, track, canvas: cv, thumb, valEl: infoVal };
+}
+
+function buildHSLField() {
+  const wrap = document.createElement('div');
+  wrap.className = 'hsl-field-wrap';
+
+  const cv = document.createElement('canvas');
+  cv.className = 'hsl-field-canvas';
+
+  const thumb = document.createElement('div');
+  thumb.className = 'hsl-field-thumb';
+
+  wrap.append(cv, thumb);
+  return { wrap, canvas: cv, thumb };
+}
+
+function makeEditableVal(el, def) {
+  el.title = 'Click to edit';
+  el.addEventListener('click', e => {
+    e.stopPropagation();
+
+    if (def.tuneControl) {
+      S.activeTuneControl = def.tuneControl;
+    }
+
+    el.contentEditable = 'true';
+    if (def.inputMode) el.inputMode = def.inputMode;
+    el.textContent = def.editText ? def.editText() : def.get().toString();
+
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+
+    updateUI();
+  });
+
+  el.addEventListener('blur', () => {
+    el.contentEditable = 'false';
+    el.removeAttribute('inputmode');
+    const v = def.parse ? def.parse(el.textContent) : parseFloat(el.textContent);
+
+    if (!isNaN(v)) {
+      if (def.tuneControl) {
+        S.activeTuneControl = def.tuneControl;
+      }
+      def.set(Math.max(def.min, Math.min(def.max, v)));
+    }
+
+    updateUI();
+  });
+
+  el.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); el.blur(); }
+    if (e.key === 'Escape') { el.textContent = def.fmt(def.get()); el.blur(); }
+  });
+}
+
+function makeEditableColorField(el, getText) {
+  if (!el || el.dataset.editableBound === 'true') return;
+  el.dataset.editableBound = 'true';
+  el.title = 'Click to edit';
+  el.spellcheck = false;
+
+  el.addEventListener('click', e => {
+    e.stopPropagation();
+    if (el.contentEditable === 'true') return;
+    const initialText = getText();
+    el.dataset.editStartText = initialText;
+    el.contentEditable = 'true';
+    if (el.dataset.inputmode) el.inputMode = el.dataset.inputmode;
+    el.textContent = initialText;
+
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  });
+
+  el.addEventListener('blur', () => {
+    el.contentEditable = 'false';
+    el.removeAttribute('inputmode');
+    const initialText = el.dataset.editStartText ?? getText();
+    const submittedText = String(el.textContent || '').trim();
+    delete el.dataset.editStartText;
+
+    if (!submittedText || submittedText === initialText.trim()) {
+      el.textContent = getText();
+      updateUI();
+      return;
+    }
+
+    if (!applyColorInput(submittedText)) {
+      el.textContent = getText();
+    }
+
+    updateUI();
+  });
+
+  el.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); el.blur(); }
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      el.textContent = el.dataset.editStartText ?? getText();
+      el.blur();
+    }
+  });
+}
+
+function rebuildUI() {
+  const picker = document.querySelector('.picker');
+  const vsArea = document.getElementById('vslidersArea');
+  const hsArea = document.getElementById('hslidersArea');
+
+  const fallbackBar = document.getElementById('fallbackValuesBar');
+  if (fallbackBar) fallbackBar.style.visibility = 'hidden';
+
+  picker.classList.toggle('mode-hsl', S.mode === 'hsl');
+  vsArea.innerHTML = '';
+  hsArea.innerHTML = '';
+  vsArea.classList.toggle('hsl-mode-layout', S.mode === 'hsl');
+  sliders = [];
+  hslFieldUI = null;
+
+  if (S.mode === 'hsl') {
+    hslFieldUI = buildHSLField();
+    vsArea.appendChild(hslFieldUI.wrap);
+
+    if (isMobile()) {
+      const strip = document.createElement('div');
+      strip.className = 'hsl-vstrip';
+      vsArea.appendChild(strip);
+
+      const hueDef = getHSLHueDef();
+      const hueUI = buildVSlider(hueDef);
+      strip.appendChild(hueUI.col);
+      sliders.push({ def: hueDef, vi: hueUI, hi: null });
+
+      getSliderDefs().forEach(def => {
+        const vi = buildVSlider(def);
+        strip.appendChild(vi.col);
+        sliders.push({ def, vi, hi: null });
+      });
+    } else {
+      const hueDef = getHSLHueDef();
+      const hueUI = buildVSlider(hueDef);
+      hueUI.col.classList.add('is-hsl-hue');
+      vsArea.appendChild(hueUI.col);
+      sliders.push({ def: hueDef, vi: hueUI, hi: null });
+
+      getSliderDefs().forEach(def => {
+        const hi = buildHSlider(def);
+        hsArea.appendChild(hi.row);
+        sliders.push({ def, vi: null, hi });
+      });
+    }
+  } else {
+    const defs = getSliderDefs();
+    defs.forEach(def => {
+      let vi = null;
+
+      if (!def.horizontalOnly) {
+        vi = buildVSlider(def);
+        vsArea.appendChild(vi.col);
+      }
+
+      let hi = null;
+      if (def.showH) {
+        hi = buildHSlider(def);
+        hsArea.appendChild(hi.row);
+      }
+
+      sliders.push({ def, vi, hi });
+    });
+  }
+
+  document.querySelectorAll('.mode-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.mode === S.mode);
+  });
+
+  requestAnimationFrame(() => {
+    sliders.forEach(({ vi, hi }) => {
+      if (vi) {
+        vi.canvas.width = vi.track.offsetWidth || 44;
+        vi.canvas.height = vi.track.offsetHeight || 218;
+      }
+      if (hi) {
+        hi.canvas.width = hi.track.offsetWidth || 320;
+        hi.canvas.height = hi.track.offsetHeight || 40;
+      }
+    });
+
+    if (hslFieldUI) {
+      hslFieldUI.canvas.width = hslFieldUI.wrap.offsetWidth || 218;
+      hslFieldUI.canvas.height = hslFieldUI.wrap.offsetHeight || 218;
+    }
+
+    setupInteractions();
+    makeEditableColorField(document.getElementById('codeVal'), () => document.getElementById('codeVal').textContent);
+    makeEditableColorField(document.getElementById('hexVal'), () => document.getElementById('hexVal').textContent);
+    makeEditableColorField(document.getElementById('fallbackCodeVal'), () => document.getElementById('fallbackCodeVal').textContent);
+    makeEditableColorField(document.getElementById('fallbackHexVal'), () => document.getElementById('fallbackHexVal').textContent);
+    updateUI();
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// 6 ▸ UI UPDATE
+// ═══════════════════════════════════════════════════════════
+function updateUI() {
+  const alpha = S.alpha;
+  const computedRGB = currentComputedRGB255();
+  const computedHex = Color.toHexAlpha(...computedRGB, alpha);
+
+  const isOKLCHlike = S.mode === 'oklch' || S.mode === 'tune';
+  const inSRGB = !isOKLCHlike || Color.inSRGB(S.L, S.C, S.H);
+  const inP3 = !isOKLCHlike || Color.inP3(S.L, S.C, S.H);
+  const splitPreview = isOKLCHlike && !inP3;
+  const fallbackState = splitPreview ? getFallbackState(alpha) : null;
+
+  const swatch = document.getElementById('previewSwatch');
+  const layer = document.getElementById('previewColorLayer');
+  const split = document.getElementById('previewSplit');
+  const computedLayer = document.getElementById('previewComputedLayer');
+  const fallbackLayer = document.getElementById('previewFallbackLayer');
+  const previewBadges = document.getElementById('previewBadges');
+
+  swatch.classList.toggle('is-split', splitPreview);
+  split.style.display = splitPreview ? '' : 'none';
+  layer.style.display = splitPreview ? 'none' : '';
+  previewBadges.style.display = splitPreview ? 'none' : '';
+
+  if (splitPreview && fallbackState) {
+    computedLayer.style.background = rgbCss255(computedRGB, alpha);
+    fallbackLayer.style.background = fallbackState.display.css;
+  } else {
+    layer.style.background = currentColorCss(alpha);
+  }
+
+  document.getElementById('badgeMode').textContent = S.mode;
+
+  const badgeP3 = document.getElementById('badgeP3');
+  const badgeGamut = document.getElementById('badgeGamut');
+
+  if (!splitPreview && isOKLCHlike && !inSRGB) {
+    badgeP3.style.display = '';
+    badgeP3.textContent = 'P3';
+    badgeP3.classList.add('is-alert');
+    badgeGamut.style.display = 'none';
+  } else {
+    badgeP3.style.display = 'none';
+    badgeP3.classList.remove('is-alert');
+    badgeGamut.style.display = 'none';
+  }
+
+  const codeLabel = document.getElementById('codeLabel');
+  const hexLabel = document.getElementById('hexLabel');
+  const fallbackCodeLabel = document.getElementById('fallbackCodeLabel');
+  const fallbackHexLabel = document.getElementById('fallbackHexLabel');
+  const codeEl = document.getElementById('codeVal');
+  const hexEl = document.getElementById('hexVal');
+  const fallbackBar = document.getElementById('fallbackValuesBar');
+  const fallbackCodeEl = document.getElementById('fallbackCodeVal');
+  const fallbackHexEl = document.getElementById('fallbackHexVal');
+
+  if (splitPreview) {
+    codeLabel.innerHTML = 'Color Code <span class="is-alert" style="color: #ff9a9a;">(Computed)</span>';
+    hexLabel.innerHTML  = 'Hex <span class="is-alert" style="color: #ff9a9a;">(Computed)</span>';
+    fallbackCodeLabel.innerHTML = 'Color Code <span style="color:var(--text)">(Fallback)</span>';
+    fallbackHexLabel.innerHTML  = 'Hex <span style="color:var(--text)">(Fallback)</span>';
+  } else {
+    codeLabel.textContent = 'Color Code';
+    hexLabel.textContent  = 'Hex';
+    fallbackCodeLabel.textContent = 'Color Code (Fallback)';
+    fallbackHexLabel.textContent  = 'Hex (Fallback)';
+  }
+
+  codeLabel.classList.remove('is-alert');
+  hexLabel.classList.remove('is-alert');
+
+  const computedCode = (S.mode === 'oklch' || S.mode === 'tune')
+    ? formatOKLCHCode(S.L, S.C, S.H, alpha)
+    : (S.mode === 'hsl'
+      ? formatHSLCode(S.hslH, S.hslS, S.hslLight, alpha)
+      : formatRGBCode(S.r, S.g, S.b, alpha));
+
+  if (document.activeElement !== codeEl) codeEl.textContent = computedCode;
+  if (document.activeElement !== hexEl) hexEl.textContent = computedHex;
+
+  if (splitPreview && fallbackState) {
+    fallbackBar.style.visibility = 'visible';
+    if (document.activeElement !== fallbackCodeEl) fallbackCodeEl.textContent = fallbackState.code;
+    if (document.activeElement !== fallbackHexEl) fallbackHexEl.textContent = fallbackState.hex;
+  } else {
+    fallbackBar.style.visibility = 'hidden';
+  }
+
+  sliders.forEach(({ def, vi, hi }) => {
+    const val = def.get();
+    const t = (val - def.min) / (def.max - def.min);
+
+    if (vi) {
+      if (def.dynamicLabel && vi.labelEl) {
+        vi.labelEl.textContent = def.dynamicLabel();
+      }
+
+      const trackH = vi.track.clientHeight || 218;
+      vi.thumb.style.bottom = (t * trackH - 7.5) + 'px';
+      const vfmt = vi.vdef ? vi.vdef.fmt : def.fmt;
+      if (document.activeElement !== vi.valEl) vi.valEl.textContent = vfmt(val);
+
+      if (vi.canvas.width > 0 && vi.canvas.height > 0) {
+        if (def.isAlpha) renderAlphaCanvas(vi.canvas, true);
+        else renderSliderCanvas(vi.canvas, def.vFn, true, def.vBounds ? def.vBounds() : []);
+      }
+    }
+
+    if (hi) {
+      const trackW = hi.track.clientWidth || 320;
+      hi.thumb.style.left = (t * trackW - 7.5) + 'px';
+      if (document.activeElement !== hi.valEl) hi.valEl.textContent = def.fmt(val);
+
+      if (def.tuneControl) {
+        const isActive = S.mode === 'tune' && S.activeTuneControl === def.tuneControl;
+        hi.row.classList.toggle('tune-control-active', isActive);
+        hi.row.classList.toggle('tune-control-compact', !isActive);
+      }
+
+      if (hi.canvas.width > 0 && hi.canvas.height > 0) {
+        if (def.isAlpha) renderAlphaCanvas(hi.canvas, false);
+        else renderSliderCanvas(hi.canvas, def.hFn, false, def.hBounds ? def.hBounds() : []);
+      }
+    }
+  });
+
+  if (S.mode === 'hsl' && hslFieldUI) {
+    renderHSLFieldCanvas(hslFieldUI.canvas);
+    const w = hslFieldUI.wrap.clientWidth || 218;
+    const h = hslFieldUI.wrap.clientHeight || 218;
+    hslFieldUI.thumb.style.left = `${S.hsvS * w}px`;
+    hslFieldUI.thumb.style.top = `${(1 - S.hsvV) * h}px`;
+  }
+
+  if (S.gradient) updateGradientPanel();
+}
+
+// ═══════════════════════════════════════════════════════════
+// 7 ▸ DRAG INTERACTIONS
+// ═══════════════════════════════════════════════════════════
+let drag = null;
+
+window.addEventListener('mousemove', e => {
+  if (!drag) return;
+  applyDrag(e.clientX, e.clientY);
+});
+
+window.addEventListener('mouseup', () => {
+  if (drag) drag.track.classList.remove('dragging');
+  drag = null;
+});
+
+window.addEventListener('touchmove', e => {
+  if (!drag) return;
+  e.preventDefault();
+  applyDrag(e.touches[0].clientX, e.touches[0].clientY);
+}, { passive: false });
+
+window.addEventListener('touchend', () => {
+  if (drag) drag.track.classList.remove('dragging');
+  drag = null;
+});
+
+function applyDrag(cx, cy) {
+  const rect = drag.track.getBoundingClientRect();
+
+  if (drag.kind === 'hsl-field') {
+    const s = Math.max(0, Math.min(1, (cx - rect.left) / rect.width));
+    const v = Math.max(0, Math.min(1, 1 - (cy - rect.top) / rect.height));
+    syncStateFromHSV(S.hsvH, s, v, { markDirty: true, rememberDerived: true });
+    updateUI();
+    return;
+  }
+
+  if (drag.def && drag.def.tuneControl) {
+    S.activeTuneControl = drag.def.tuneControl;
+  }
+
+  let t = drag.isVert
+    ? 1 - (cy - rect.top) / rect.height
+    : (cx - rect.left) / rect.width;
+
+  t = Math.max(0, Math.min(1, t));
+
+  drag.def.set(drag.def.min + t * (drag.def.max - drag.def.min));
+  updateUI();
+}
+
+function setupTrackDrag(track, def, isVert) {
+  track.addEventListener('mousedown', e => {
+    e.preventDefault();
+
+    if (def.tuneControl) {
+      S.activeTuneControl = def.tuneControl;
+    }
+
+    track.classList.add('dragging');
+    drag = { track, def, isVert };
+    applyDrag(e.clientX, e.clientY);
+  });
+
+  track.addEventListener('touchstart', e => {
+    e.preventDefault();
+
+    if (def.tuneControl) {
+      S.activeTuneControl = def.tuneControl;
+    }
+
+    track.classList.add('dragging');
+    drag = { track, def, isVert };
+    applyDrag(e.touches[0].clientX, e.touches[0].clientY);
+  }, { passive: false });
+}
+
+function setupHSLFieldDrag(track) {
+  track.addEventListener('mousedown', e => {
+    e.preventDefault();
+    track.classList.add('dragging');
+    drag = { track, kind: 'hsl-field' };
+    applyDrag(e.clientX, e.clientY);
+  });
+
+  track.addEventListener('touchstart', e => {
+    e.preventDefault();
+    track.classList.add('dragging');
+    drag = { track, kind: 'hsl-field' };
+    applyDrag(e.touches[0].clientX, e.touches[0].clientY);
+  }, { passive: false });
+}
+
+function setupInteractions() {
+  sliders.forEach(({ def, vi, hi }) => {
+    if (vi) setupTrackDrag(vi.track, def, true);
+    if (hi) setupTrackDrag(hi.track, def, false);
+  });
+  if (hslFieldUI) setupHSLFieldDrag(hslFieldUI.wrap);
+}
+
+
+
+// ═══════════════════════════════════════════════════════════
+// 7.5 ▸ GRADIENT BUILDER
+// ═══════════════════════════════════════════════════════════
+const GRID_POSITIONS = {
+  'top-left':     { x: 0,   y: 0,   label: 'top left' },
+  'top':          { x: 50,  y: 0,   label: 'top' },
+  'top-right':    { x: 100, y: 0,   label: 'top right' },
+  'left':         { x: 0,   y: 50,  label: 'left' },
+  'center':       { x: 50,  y: 50,  label: 'center' },
+  'right':        { x: 100, y: 50,  label: 'right' },
+  'bottom-left':  { x: 0,   y: 100, label: 'bottom left' },
+  'bottom':       { x: 50,  y: 100, label: 'bottom' },
+  'bottom-right': { x: 100, y: 100, label: 'bottom right' },
+};
+
+const GRID_ORDER = ['top-left','top','top-right','left','center','right','bottom-left','bottom','bottom-right'];
+
+const LINEAR_DIRECTIONS = {
+  'to top': 0,
+  'to top right': 45,
+  'to right': 90,
+  'to bottom right': 135,
+  'to bottom': 180,
+  'to bottom left': 225,
+  'to left': 270,
+  'to top left': 315,
+};
+
+const TILE_TO_DIRECTION = {
+  'top': 'to top',
+  'top-right': 'to top right',
+  'right': 'to right',
+  'bottom-right': 'to bottom right',
+  'bottom': 'to bottom',
+  'bottom-left': 'to bottom left',
+  'left': 'to left',
+  'top-left': 'to top left',
+};
+
+const VALID_GRADIENT_TYPES = ['linear', 'radial', 'conical', 'reflected'];
+const GRADIENT_TYPE_LABELS = { linear: 'linear', radial: 'radial', conical: 'conical', reflected: 'reflected' };
+const DEFAULT_GRADIENT_STOPS = [
+  { L: 0.3657, C: 0.2375, H: 271.03, alpha: 1, position: 0 },
+  { L: 0.5550, C: 0.3096, H: 298.71, alpha: 1, position: 100 },
+];
+
+let gradientDrag = null;
+let gradientContextDraft = null;
+let gradientFlipTimer = null;
+
+function ensureGradientState() {
+  if (S.gradient) {
+    if (S.gradient.type === 'conic') S.gradient.type = 'conical';
+    if (!VALID_GRADIENT_TYPES.includes(S.gradient.type)) S.gradient.type = 'radial';
+    if (!S.gradient.interpolation) S.gradient.interpolation = { mode: S.gradient.interpolationSpace === 'oklch' ? 'shorter' : 'default' };
+    if (!['default', 'shorter', 'longer'].includes(S.gradient.interpolation.mode)) S.gradient.interpolation.mode = 'default';
+    if (!S.gradient.midpoints) S.gradient.midpoints = {};
+    if (!S.gradient.linear) S.gradient.linear = { angle: 90, direction: 'to right', contextTile: 'right' };
+    if (!S.gradient.radial) S.gradient.radial = { shape: 'circle', size: 'farthest-corner', position: 'center', x: 0, y: 0, contextTile: 'center' };
+    if (!S.gradient.conic) S.gradient.conic = { angle: 0, position: 'center', x: 0, y: 0, contextTile: 'center' };
+    delete S.gradient.radial.rotation;
+    S.gradientStopSeq = Math.max(Number(S.gradientStopSeq) || 0, ...S.gradient.stops.map(stop => Number(String(stop.id).replace(/\D/g, '')) || 0));
+    if (S.gradient.stopSlidersFlipped == null) S.gradient.stopSlidersFlipped = shouldFlipCurrentStopSliders();
+    normalizeGradientMidpoints();
+    return;
+  }
+
+  S.gradient = {
+    type: 'linear',
+    interpolation: { mode: 'default' },
+    selectedStopId: 'stop-1',
+    settingsCollapsed: false,
+    stopSlidersFlipped: false,
+    midpoints: {},
+    linear: { angle: 90, direction: 'to right', contextTile: 'right' },
+    radial: { shape: 'circle', size: 'farthest-corner', position: 'center', x: 0, y: 0, contextTile: 'center' },
+    conic: { angle: 0, position: 'center', x: 0, y: 0, contextTile: 'center' },
+    stops: [
+      makeGradientStop('stop-1', DEFAULT_GRADIENT_STOPS[0], DEFAULT_GRADIENT_STOPS[0].position),
+      makeGradientStop('stop-2', DEFAULT_GRADIENT_STOPS[1], DEFAULT_GRADIENT_STOPS[1].position),
+    ],
+  };
+
+  S.gradientStopSeq = 2;
+  sortGradientStops();
+  normalizeGradientMidpoints();
+}
+
+function makeGradientStop(id, color, position) {
+  return {
+    id,
+    L: clamp01(Number(color.L) || 0),
+    C: Math.max(0, Math.min(C_MAX, Number(color.C) || 0)),
+    H: normHue(color.H, 0),
+    alpha: color.alpha == null ? 1 : clamp01(Number(color.alpha)),
+    position: clampGradientPercent(position),
+    previousPosition: Number(position) || 0,
+    midpointMode: false,
+    activeMidpointSide: null,
+  };
+}
+
+function currentStopColor() {
+  if (S.mode === 'oklch' || S.mode === 'tune') return { L: S.L, C: S.C, H: S.H, alpha: S.alpha };
+  const [L, C, H] = Color.rgbToOKLCH(S.r / 255, S.g / 255, S.b / 255);
+  return { L, C, H, alpha: S.alpha };
+}
+
+function sortGradientStops() {
+  if (!S.gradient) return;
+  S.gradient.stops.sort((a, b) => a.position - b.position || a.id.localeCompare(b.id));
+}
+
+function gradientPairKey(a, b) { return `${a}|${b}`; }
+
+function normalizeGradientMidpoints() {
+  const g = S.gradient;
+  if (!g) return;
+  const old = g.midpoints || {};
+  const next = {};
+  sortGradientStops();
+  for (let i = 0; i < g.stops.length - 1; i++) {
+    const a = g.stops[i].id;
+    const b = g.stops[i + 1].id;
+    const forward = gradientPairKey(a, b);
+    const reverse = gradientPairKey(b, a);
+    if (old[forward] != null) next[forward] = clampGradientPercent(old[forward]);
+    else if (old[reverse] != null) next[forward] = 100 - clampGradientPercent(old[reverse]);
+    else next[forward] = 50;
+  }
+  g.midpoints = next;
+}
+
+function getGradientPairMidpoint(a, b) {
+  const g = S.gradient;
+  if (!g) return 50;
+  const key = gradientPairKey(a, b);
+  const reverse = gradientPairKey(b, a);
+  if (g.midpoints && g.midpoints[key] != null) return clampGradientPercent(g.midpoints[key]);
+  if (g.midpoints && g.midpoints[reverse] != null) return 100 - clampGradientPercent(g.midpoints[reverse]);
+  return 50;
+}
+
+function setGradientPairMidpoint(a, b, value) {
+  if (!a || !b) return;
+  S.gradient.midpoints[gradientPairKey(a, b)] = clampGradientPercent(value);
+  normalizeGradientMidpoints();
+  updateGradientPanel();
+}
+
+function clampGradientPercent(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return 0;
+  return Math.max(0, Math.min(100, n));
+}
+
+function fmtGradientNumber(value, decimals = 2) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return '0';
+  const fixed = n.toFixed(decimals);
+  return fixed.replace(/\.?0+$/, '');
+}
+
+function sliderPercent(value, min, max) {
+  const v = Math.max(min, Math.min(max, Number(value)));
+  return ((v - min) / (max - min)) * 100;
+}
+
+function thumbLeftCss(pct, thumbWidth = 15) {
+  return `calc(${fmtGradientNumber(pct, 4)}% - ${fmtGradientNumber((pct / 100) * thumbWidth, 4)}px)`;
+}
+
+function resolveGradientAngle() {
+  return Number(S.gradient?.linear?.angle) || 0;
+}
+
+function shouldFlipStopSliders(angleDeg) {
+  const a = ((Number(angleDeg) % 360) + 360) % 360;
+  return a > 180 && a < 360;
+}
+
+function shouldFlipCurrentStopSliders() {
+  if (!S.gradient || !['linear', 'reflected'].includes(S.gradient.type)) return false;
+  return shouldFlipStopSliders(resolveGradientAngle());
+}
+
+function stopPositionToSliderX(position, flipped) { return flipped ? 100 - position : position; }
+function sliderXToStopPosition(sliderX, flipped) { return flipped ? 100 - sliderX : sliderX; }
+
+function formatStopOKLCH(stop, alphaOverride = stop.alpha) {
+  const alpha = alphaOverride == null ? 1 : clamp01(alphaOverride);
+  const base = `oklch(${fmtGradientNumber(stop.L, 4)} ${fmtGradientNumber(stop.C, 4)} ${fmtGradientNumber(normHue(stop.H), 2)}`;
+  return alpha < 1 ? `${base} / ${Math.round(alpha * 100)}%)` : `${base})`;
+}
+
+function gradientStopFallbackCss(stop) {
+  const rgb = Color.oklchClamped(stop.L, stop.C, stop.H).map(v => Math.round(v * 255));
+  return rgbCss255(rgb, stop.alpha);
+}
+
+function gradientColorToken(stop, fallback) { return fallback ? gradientStopFallbackCss(stop) : formatStopOKLCH(stop); }
+
+function gradientStopToCss(stop, options = {}) {
+  const position = options.position == null ? stop.position : options.position;
+  return `${gradientColorToken(stop, !!options.fallback)} ${fmtGradientNumber(position, 2)}%`;
+}
+
+function gradientInterpolationClause(fallback = false) {
+  if (fallback) return '';
+  const mode = S.gradient?.interpolation?.mode || 'default';
+  if (mode === 'longer') return 'in oklch longer hue';
+  if (mode === 'shorter') return 'in oklch';
+  return 'in oklab';
+}
+
+function gradientInterpolationMetaText() {
+  const mode = S.gradient?.interpolation?.mode || 'default';
+  if (mode === 'longer') return 'Color Space — oklch · Hue Path — longer';
+  if (mode === 'shorter') return 'Color Space — oklch · Hue Path — shorter';
+  return 'Color Space — oklab';
+}
+
+function buildGradientCss(options = {}) {
+  const g = S.gradient;
+  if (!g) return '';
+  sortGradientStops();
+  normalizeGradientMidpoints();
+  const fallback = !!options.fallback;
+  const type = VALID_GRADIENT_TYPES.includes(g.type) ? g.type : 'radial';
+  const stopCss = buildGradientStopsForType(type, fallback);
+  const interpolation = gradientInterpolationClause(fallback);
+  const interp = interpolation ? ` ${interpolation}` : '';
+
+  if (type === 'linear' || type === 'reflected') {
+    const cssAngle = ((Number(g.linear.angle) % 360) + 360) % 360;
+    return `linear-gradient(${fmtGradientNumber(cssAngle, 2)}deg${interp}, ${stopCss})`;
+  }
+
+  if (type === 'conical') {
+    const at = positionWithOffset(g.conic.contextTile, g.conic.x, g.conic.y);
+    const cssAngle = ((Number(g.conic.angle) % 360) + 360) % 360;
+    return `conic-gradient(from ${fmtGradientNumber(cssAngle, 2)}deg at ${at}${interp}, ${stopCss})`;
+  }
+
+  const radial = g.radial;
+  const at = positionWithOffset(radial.contextTile, radial.x, radial.y);
+  return `radial-gradient(${radial.shape} ${radial.size} at ${at}${interp}, ${stopCss})`;
+}
+
+function buildGradientStopsForType(type, fallback) {
+  const stops = S.gradient.stops;
+  if (type === 'reflected') return buildReflectedGradientStops(fallback);
+  return buildStopsWithMidpointHints(stops, fallback, position => position);
+}
+
+function buildStopsWithMidpointHints(stops, fallback, positionMap) {
+  const tokens = [];
+  for (let i = 0; i < stops.length; i++) {
+    const stop = stops[i];
+    tokens.push(gradientStopToCss(stop, { fallback, position: positionMap(stop.position) }));
+    const next = stops[i + 1];
+    if (!next) continue;
+    const midpoint = getGradientPairMidpoint(stop.id, next.id);
+    if (Math.abs(midpoint - 50) > 0.01) {
+      const absolute = stop.position + (next.position - stop.position) * (midpoint / 100);
+      tokens.push(`${fmtGradientNumber(positionMap(absolute), 2)}%`);
+    }
+  }
+  return tokens.join(', ');
+}
+
+function buildReflectedGradientStops(fallback) {
+  const stops = S.gradient.stops;
+  const tokens = [];
+  for (let i = 0; i < stops.length; i++) {
+    const stop = stops[i];
+    tokens.push(gradientStopToCss(stop, { fallback, position: stop.position / 2 }));
+    const next = stops[i + 1];
+    if (!next) continue;
+    const midpoint = getGradientPairMidpoint(stop.id, next.id);
+    if (Math.abs(midpoint - 50) > 0.01) {
+      const absolute = stop.position + (next.position - stop.position) * (midpoint / 100);
+      tokens.push(`${fmtGradientNumber(absolute / 2, 2)}%`);
+    }
+  }
+  for (let i = stops.length - 2; i >= 0; i--) {
+    const left = stops[i];
+    const right = stops[i + 1];
+    const midpoint = getGradientPairMidpoint(left.id, right.id);
+    if (Math.abs(midpoint - 50) > 0.01) {
+      const absolute = left.position + (right.position - left.position) * (midpoint / 100);
+      tokens.push(`${fmtGradientNumber(100 - absolute / 2, 2)}%`);
+    }
+    tokens.push(gradientStopToCss(left, { fallback, position: 100 - left.position / 2 }));
+  }
+  return tokens.join(', ');
+}
+
+function positionWithOffset(tile, dx = 0, dy = 0) {
+  const base = GRID_POSITIONS[tile] || GRID_POSITIONS.center;
+  const x = Math.max(-100, Math.min(200, base.x + Number(dx || 0)));
+  const y = Math.max(-100, Math.min(200, base.y + Number(dy || 0)));
+  return `${fmtGradientNumber(x, 2)}% ${fmtGradientNumber(y, 2)}%`;
+}
+
+function stopToHex(stop) {
+  const rgb = Color.oklchClamped(stop.L, stop.C, stop.H).map(v => Math.round(v * 255));
+  return Color.toHexAlpha(rgb[0], rgb[1], rgb[2], stop.alpha);
+}
+
+function stopRgbParts(stop) {
+  return Color.oklchClamped(stop.L, stop.C, stop.H).map(v => Math.round(v * 255));
+}
+
+function updateGradientPanel() {
+  ensureGradientState();
+  normalizeGradientMidpoints();
+
+  const g = S.gradient;
+  const css = buildGradientCss();
+  const previewCss = SUPPORT.cssOKLCH ? css : buildGradientCss({ fallback: true });
+  const nowFlipped = shouldFlipCurrentStopSliders();
+  const hadFlipState = g.stopSlidersFlipped != null;
+  const wasFlipped = !!g.stopSlidersFlipped;
+  const flipChanged = hadFlipState && wasFlipped !== nowFlipped;
+  g.stopSlidersFlipped = nowFlipped;
+
+  const preview = document.getElementById('gradientPreview');
+  const typeBadge = document.getElementById('gradientTypeBadge');
+  const previewLabel = document.getElementById('gradientPreviewLabel');
+  const cssVal = document.getElementById('gradientCssVal');
+  const settingsCard = document.getElementById('gradientSettingsCard');
+  const settingsButton = document.getElementById('gradientSettingsCollapse');
+  const settingsSummary = document.getElementById('gradientSettingsSummary');
+  const addStop = document.getElementById('gradientAddStop');
+  const stopsHost = document.getElementById('gradientStops');
+
+  if (preview) preview.style.backgroundImage = `${previewCss}, repeating-conic-gradient(#2a2a36 0% 25%, #1e1e28 0% 50%)`;
+  if (typeBadge) typeBadge.textContent = `${GRADIENT_TYPE_LABELS[g.type]} · ${gradientInterpolationMetaText().replace('Color Space — ', '').toLowerCase()}`;
+  if (previewLabel) previewLabel.textContent = GRADIENT_TYPE_LABELS[g.type];
+  if (cssVal && document.activeElement !== cssVal) cssVal.textContent = css;
+  if (settingsSummary) settingsSummary.textContent = gradientSettingsSummaryText();
+  if (settingsCard) settingsCard.classList.toggle('is-collapsed', !!g.settingsCollapsed);
+  if (settingsButton) {
+    settingsButton.textContent = g.settingsCollapsed ? 'expand' : 'collapse';
+    settingsButton.setAttribute('aria-expanded', String(!g.settingsCollapsed));
+  }
+
+  updateGradientTypeToggle();
+  updateAddStopPreview(addStop);
+  renderGradientSettingsBody();
+
+  if (flipChanged && stopsHost) {
+    stopsHost.classList.add('is-flipping');
+    clearTimeout(gradientFlipTimer);
+    gradientFlipTimer = setTimeout(() => stopsHost.classList.remove('is-flipping'), 240);
+  }
+  renderGradientStops();
+}
+
+function updateGradientTypeToggle() {
+  document.querySelectorAll('.gradient-type-btn[data-gradient-type]').forEach(btn => {
+    const active = btn.dataset.gradientType === S.gradient.type;
+    btn.classList.toggle('active', active);
+    btn.setAttribute('aria-selected', String(active));
+  });
+}
+
+function updateAddStopPreview(btn) {
+  if (!btn) return;
+  const color = currentStopColor();
+  const stop = makeGradientStop('current', color, 100);
+  const [r, g, b] = stopRgbParts(stop);
+  btn.style.setProperty('--current-picker-rgb', `${r}, ${g}, ${b}`);
+  btn.style.setProperty('--current-picker-color', SUPPORT.cssOKLCH ? formatStopOKLCH(stop) : gradientStopFallbackCss(stop));
+}
+
+function gradientSettingsSummaryText() {
+  const g = S.gradient;
+  if (!g) return '';
+  if (g.type === 'linear') return `linear · ${g.linear.direction} · ${fmtGradientNumber(g.linear.angle, 0)}deg`;
+  if (g.type === 'reflected') return `reflected · ${g.linear.direction} · ${fmtGradientNumber(g.linear.angle, 0)}deg`;
+  if (g.type === 'conical') return `conical · from ${fmtGradientNumber(g.conic.angle, 0)}deg · ${GRID_POSITIONS[g.conic.contextTile]?.label || 'center'}`;
+  return `radial · ${g.radial.shape} · ${GRID_POSITIONS[g.radial.contextTile]?.label || 'center'}`;
+}
+
+function settingGroup(label, content) {
+  return `<div class="gradient-setting-group"><div class="gradient-setting-label">${label}</div>${content}</div>`;
+}
+
+function renderGradientSettingsBody() {
+  const host = document.getElementById('gradientSettingsBody');
+  if (!host || !S.gradient) return;
+  const g = S.gradient;
+  const colorSpace = settingGroup('Color Space', `
+    <select class="gradient-select" data-gradient-select="interpolation-mode" aria-label="Color Space">
+      <option value="default" ${g.interpolation.mode === 'default' ? 'selected' : ''}>default</option>
+      <option value="shorter" ${g.interpolation.mode === 'shorter' ? 'selected' : ''}>short hue path</option>
+      <option value="longer" ${g.interpolation.mode === 'longer' ? 'selected' : ''}>long hue path</option>
+    </select>
+    <div class="gradient-setting-meta-text">${gradientInterpolationMetaText()}</div>
+  `);
+
+  if (g.type === 'linear' || g.type === 'reflected') {
+    host.innerHTML = `
+      ${colorSpace}
+      ${settingGroup('Direction', `
+        <div class="gradient-setting-row">
+          ${gradientContextControlHtml('linear', g.linear.contextTile)}
+          <select class="gradient-select" data-gradient-select="linear-direction" aria-label="Linear gradient direction">
+            ${Object.keys(LINEAR_DIRECTIONS).map(dir => `<option value="${dir}" ${g.linear.direction === dir ? 'selected' : ''}>${dir}</option>`).join('')}
+          </select>
+        </div>
+      `)}
+      ${settingGroup('Angle', gradientSliderHtml({ control: 'linear-angle', label: 'Angle', value: g.linear.angle, min: 0, max: 360, unit: 'deg', snap: 'angle' }))}
+    `;
+    return;
+  }
+
+  if (g.type === 'conical') {
+    host.innerHTML = `
+      ${colorSpace}
+      ${settingGroup('Position', `
+        <div class="gradient-setting-row">
+          ${gradientContextControlHtml('conical', g.conic.contextTile)}
+          <select class="gradient-select" data-gradient-select="conic-position" aria-label="Conical gradient position">
+            ${GRID_ORDER.map(tile => `<option value="${tile}" ${g.conic.contextTile === tile ? 'selected' : ''}>${GRID_POSITIONS[tile].label}</option>`).join('')}
+          </select>
+        </div>
+      `)}
+      ${settingGroup('Angle', gradientSliderHtml({ control: 'conic-angle', label: 'Angle', value: g.conic.angle, min: 0, max: 360, unit: 'deg', snap: 'angle' }))}
+      ${settingGroup('X', gradientSliderHtml({ control: 'conic-x', label: 'X', value: g.conic.x, min: -100, max: 100, unit: '%' }))}
+      ${settingGroup('Y', gradientSliderHtml({ control: 'conic-y', label: 'Y', value: g.conic.y, min: -100, max: 100, unit: '%' }))}
+    `;
+    return;
+  }
+
+  const radial = g.radial;
+  host.innerHTML = `
+    ${colorSpace}
+    ${settingGroup('Shape', `
+      <div class="gradient-toggle-group" role="group" aria-label="Radial gradient shape">
+        <button class="gradient-button ${radial.shape === 'circle' ? 'active' : ''}" type="button" data-gradient-shape="circle">circle</button>
+        <button class="gradient-button ${radial.shape === 'ellipse' ? 'active' : ''}" type="button" data-gradient-shape="ellipse">ellipse</button>
+      </div>
+    `)}
+    ${settingGroup('Position', `
+      <div class="gradient-setting-row">
+        ${gradientContextControlHtml('radial', radial.contextTile)}
+        <select class="gradient-select" data-gradient-select="radial-position" aria-label="Radial gradient position">
+          ${GRID_ORDER.map(tile => `<option value="${tile}" ${radial.contextTile === tile ? 'selected' : ''}>${GRID_POSITIONS[tile].label}</option>`).join('')}
+        </select>
+      </div>
+    `)}
+    ${settingGroup('Size', `
+      <select class="gradient-select" data-gradient-select="radial-size" aria-label="Radial gradient size">
+        ${['closest-side','closest-corner','farthest-side','farthest-corner'].map(size => `<option value="${size}" ${radial.size === size ? 'selected' : ''}>${size}</option>`).join('')}
+      </select>
+    `)}
+    ${settingGroup('X', gradientSliderHtml({ control: 'radial-x', label: 'X', value: radial.x, min: -100, max: 100, unit: '%' }))}
+    ${settingGroup('Y', gradientSliderHtml({ control: 'radial-y', label: 'Y', value: radial.y, min: -100, max: 100, unit: '%' }))}
+  `;
+}
+
+function gradientContextControlHtml(kind, activeTile) {
+  return `
+    <div class="gradient-context-control" data-context-kind="${kind}">
+      <div class="gradient-context-inline" role="group" aria-label="${kind} context grid">
+        ${GRID_ORDER.map(tile => {
+          const disabled = kind === 'linear' && tile === 'center';
+          const active = activeTile === tile;
+          const label = GRID_POSITIONS[tile].label;
+          return `<button class="context-dot ${active ? 'active' : ''}" type="button" data-context-kind="${kind}" data-context-tile="${tile}" title="${label}" aria-label="${label}" ${disabled ? 'disabled' : ''}></button>`;
+        }).join('')}
+      </div>
+      <button class="gradient-context-mobile-trigger" type="button" data-context-trigger="${kind}" aria-label="Open ${kind} context grid">
+        ${contextGridIconSvg(activeTile)}
+      </button>
+    </div>
+  `;
+}
+
+function contextGridIconSvg(activeTile) {
+  const centers = [
+    ['top-left',8,8], ['top',18,8], ['top-right',28,8],
+    ['left',8,18], ['center',18,18], ['right',28,18],
+    ['bottom-left',8,28], ['bottom',18,28], ['bottom-right',28,28],
+  ];
+  return `<svg class="context-grid-icon" viewBox="0 0 36 36" aria-hidden="true">
+    ${centers.map(([tile, x, y]) => `<circle class="${tile === activeTile ? 'active' : ''}" cx="${x}" cy="${y}" r="2.8" />`).join('')}
+  </svg>`;
+}
+
+function renderGradientStops() {
+  const host = document.getElementById('gradientStops');
+  if (!host || !S.gradient) return;
+  const oldRects = new Map();
+  host.querySelectorAll('.gradient-stop-row[data-stop-id]').forEach(row => oldRects.set(row.dataset.stopId, row.getBoundingClientRect()));
+  sortGradientStops();
+  host.innerHTML = S.gradient.stops.map((stop, index) => gradientStopRowHtml(stop, index)).join('');
+  host.querySelectorAll('.gradient-stop-row[data-stop-id]').forEach(row => {
+    const old = oldRects.get(row.dataset.stopId);
+    if (!old) return;
+    const next = row.getBoundingClientRect();
+    const dy = old.top - next.top;
+    if (Math.abs(dy) < 1) return;
+    row.style.transition = 'none';
+    row.style.transform = `translateY(${dy}px)`;
+    requestAnimationFrame(() => {
+      row.style.transition = 'transform 0.18s ease, opacity 0.18s ease, border-color 0.14s, background 0.14s';
+      row.style.transform = '';
+    });
+  });
+}
+
+function gradientStopRowHtml(stop, index) {
+  const selected = S.gradient.selectedStopId === stop.id;
+  const dragging = gradientDrag && gradientDrag.stopId === stop.id && gradientDrag.control === 'stop-position';
+  const prev = S.gradient.stops[index - 1];
+  const next = S.gradient.stops[index + 1];
+  const before = prev ? getGradientPairMidpoint(prev.id, stop.id) : 50;
+  const after = next ? getGradientPairMidpoint(stop.id, next.id) : 50;
+  const stopCss = SUPPORT.cssOKLCH ? formatStopOKLCH(stop) : gradientStopFallbackCss(stop);
+  const [r, g, b] = stopRgbParts(stop);
+  const label = `Stop ${index + 1}`;
+  const typeClass = `is-${S.gradient.type}`;
+  const angle = fmtGradientNumber(S.gradient.type === 'conical' ? S.gradient.conic.angle : S.gradient.linear.angle, 2);
+  const origin = S.gradient.type === 'radial' ? (GRID_POSITIONS[S.gradient.radial.contextTile]?.label || 'center') : 'center';
+
+  return `
+    <div class="gradient-stop-row ${typeClass} ${selected ? 'is-selected' : ''} ${dragging ? 'is-dragging' : ''} ${stop.midpointMode ? 'midpoint-mode' : ''}" data-stop-id="${stop.id}" style="--stop-color:${stopCss};--stop-rgb:${r}, ${g}, ${b};--stop-position:${fmtGradientNumber(stop.position, 2)}%;--stop-card-angle:${angle}deg;--stop-card-origin:${origin};">
+      <div class="gradient-stop-actions">
+        <div class="gradient-stop-left">
+          <div class="gradient-stop-swatch" aria-hidden="true"></div>
+          <span class="gradient-stop-name">${label}</span>
+        </div>
+        <div class="gradient-stop-right">
+          <button class="gradient-mini-button" type="button" data-gradient-action="change-color" data-stop-id="${stop.id}" aria-label="Change ${label} to current picker color">change color</button>
+          <button class="gradient-mini-button danger" type="button" data-gradient-action="remove-stop" data-stop-id="${stop.id}" aria-label="Delete ${label}">delete stop</button>
+          <button class="gradient-mini-button ${stop.midpointMode ? 'active' : ''}" type="button" data-gradient-action="toggle-midpoint" data-stop-id="${stop.id}" aria-label="Toggle midpoint controls for ${label}">Midpoint</button>
+        </div>
+      </div>
+
+      <div class="gradient-main-slider">
+        ${gradientSliderHtml({ control: 'stop-position', stopId: stop.id, label: 'Position', value: stop.position, min: 0, max: 100, unit: '%', fill: buildGradientCss({ fallback: !SUPPORT.cssOKLCH }) })}
+      </div>
+
+      <div class="gradient-midpoint-wrap">
+        ${prev ? gradientMiniSliderHtml({ control: 'midpoint-before', stopId: stop.id, label: 'Midpoint to previous', value: before, active: stop.activeMidpointSide === 'before' }) : ''}
+        ${next ? gradientMiniSliderHtml({ control: 'midpoint-after', stopId: stop.id, label: 'Midpoint to next', value: after, active: stop.activeMidpointSide === 'after' }) : ''}
+      </div>
+
+      <div class="gradient-stop-fields">
+        <div class="val-chip">
+          <div class="copy-ring"></div>
+          <span class="chip-label">OKLCH</span>
+          <div class="chip-val gradient-editable" data-gradient-edit="stop-oklch" data-stop-id="${stop.id}" spellcheck="false">${formatStopOKLCH(stop)}</div>
+        </div>
+        <div class="val-chip">
+          <div class="copy-ring"></div>
+          <span class="chip-label">Hex</span>
+          <div class="chip-val gradient-editable" data-gradient-edit="stop-hex" data-stop-id="${stop.id}" spellcheck="false">${stopToHex(stop)}</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function gradientSliderHtml({ control, stopId = '', label, value, min, max, unit = '', snap = '', fill = '' }) {
+  const flips = ['stop-position', 'midpoint-before', 'midpoint-after'].includes(control) && shouldFlipCurrentStopSliders();
+  const displayValue = flips ? stopPositionToSliderX(Number(value), true) : Number(value);
+  const pct = sliderPercent(displayValue, min, max);
+  const isMidpoint = control === 'midpoint-before' || control === 'midpoint-after';
+  const thumbClass = isMidpoint ? 'gradient-midpoint-thumb' : (control === 'stop-position' ? 'gradient-stop-thumb' : 'gradient-control-thumb');
+  const thumbWidth = isMidpoint ? 13 : 15;
+  const fillStyle = fill ? `background-image:${fill}` : `background-image:linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.18))`;
+
+  return `
+    <div class="gradient-slider-row">
+      <div class="gradient-slider-track" data-grad-control="${control}" data-stop-id="${stopId}" data-min="${min}" data-max="${max}" data-snap="${snap}" data-flipped="${flips ? 'true' : 'false'}" style="${fillStyle}">
+        <div class="hslider-thumb ${thumbClass}" style="left:${thumbLeftCss(pct, thumbWidth)}"></div>
+      </div>
+      <div class="gradient-slider-info">
+        <div class="hslider-info-label">${label}</div>
+        <div class="hslider-info-val gradient-editable" data-gradient-edit="slider-value" data-grad-control="${control}" data-stop-id="${stopId}" data-min="${min}" data-max="${max}" data-unit="${unit}" data-snap="${snap}" spellcheck="false">${fmtGradientNumber(value, 2)}${unit}</div>
+      </div>
+    </div>
+  `;
+}
+
+function gradientMiniSliderHtml({ control, stopId, label, value, active }) {
+  return `<div class="gradient-mini-slider ${active ? 'is-active' : ''}">${gradientSliderHtml({ control, stopId, label, value, min: 0, max: 100, unit: '%', snap: 'midpoint' })}</div>`;
+}
+
+function addGradientStopFromCurrent() {
+  ensureGradientState();
+  const g = S.gradient;
+  sortGradientStops();
+  if (g.stops.length >= 2) {
+    const last = g.stops[g.stops.length - 1];
+    const previous = g.stops[g.stops.length - 2];
+    last.position = previous ? clampGradientPercent((previous.position + 100) / 2) : 50;
+  }
+  const id = `stop-${++S.gradientStopSeq}`;
+  const stop = makeGradientStop(id, currentStopColor(), 100);
+  g.stops.push(stop);
+  g.selectedStopId = id;
+  sortGradientStops();
+  normalizeGradientMidpoints();
+  updateGradientPanel();
+}
+
+function changeGradientStopColor(id) {
+  const stop = findGradientStop(id);
+  if (!stop) return;
+  Object.assign(stop, makeGradientStop(stop.id, currentStopColor(), stop.position), { midpointMode: stop.midpointMode, activeMidpointSide: stop.activeMidpointSide });
+  S.gradient.selectedStopId = id;
+  updateGradientPanel();
+}
+
+function removeGradientStop(id) {
+  const g = S.gradient;
+  if (g.stops.length <= 2) {
+    showToast('Gradient needs 2 stops');
+    return;
+  }
+  sortGradientStops();
+  const idx = g.stops.findIndex(stop => stop.id === id);
+  if (idx < 0) return;
+  g.stops.splice(idx, 1);
+  const nextSelected = g.stops[Math.min(idx, g.stops.length - 1)] || g.stops[0];
+  g.selectedStopId = nextSelected ? nextSelected.id : null;
+  normalizeGradientMidpoints();
+  updateGradientPanel();
+}
+
+function findGradientStop(id) { return S.gradient && S.gradient.stops.find(stop => stop.id === id); }
+
+function setGradientStopPosition(id, value) {
+  const g = S.gradient;
+  const stop = findGradientStop(id);
+  if (!stop) return;
+  const oldOrder = g.stops.map(s => s.id).join('|');
+  const oldPosition = stop.position;
+  stop.previousPosition = oldPosition;
+  stop.position = clampGradientPercent(value);
+  sortGradientStops();
+  const newOrder = g.stops.map(s => s.id).join('|');
+  normalizeGradientMidpoints();
+  g.selectedStopId = id;
+  updateGradientPanel();
+}
+
+function setGradientControl(control, value, meta = {}) {
+  const g = S.gradient;
+  if (!g) return;
+  const v = Number(value);
+  if (control === 'linear-angle') {
+    g.linear.angle = snapGradientAngle(v);
+    const direction = directionForAngle(g.linear.angle);
+    if (direction) {
+      g.linear.direction = direction;
+      const tile = Object.keys(TILE_TO_DIRECTION).find(key => TILE_TO_DIRECTION[key] === direction);
+      if (tile) g.linear.contextTile = tile;
+    }
+  } else if (control === 'conic-angle') {
+    g.conic.angle = snapGradientAngle(v);
+  } else if (control === 'radial-x') {
+    g.radial.x = Math.max(-100, Math.min(100, v));
+  } else if (control === 'radial-y') {
+    g.radial.y = Math.max(-100, Math.min(100, v));
+  } else if (control === 'conic-x') {
+    g.conic.x = Math.max(-100, Math.min(100, v));
+  } else if (control === 'conic-y') {
+    g.conic.y = Math.max(-100, Math.min(100, v));
+  } else if (control === 'stop-position') {
+    setGradientStopPosition(meta.stopId, v);
+    return;
+  } else if (control === 'midpoint-before' || control === 'midpoint-after') {
+    const stop = findGradientStop(meta.stopId);
+    if (!stop) return;
+    sortGradientStops();
+    const idx = g.stops.findIndex(s => s.id === stop.id);
+    const neighbor = control === 'midpoint-before' ? g.stops[idx - 1] : g.stops[idx + 1];
+    if (!neighbor) return;
+    stop.activeMidpointSide = control === 'midpoint-before' ? 'before' : 'after';
+    const midpoint = snapGradientMidpoint(v);
+    if (control === 'midpoint-before') setGradientPairMidpoint(neighbor.id, stop.id, midpoint);
+    else setGradientPairMidpoint(stop.id, neighbor.id, midpoint);
+    return;
+  }
+  updateGradientPanel();
+}
+
+function snapGradientAngle(value) {
+  let v = Math.max(0, Math.min(360, Number(value) || 0));
+  const snaps = [0,45,90,135,180,225,270,315,360];
+  for (const snap of snaps) if (Math.abs(v - snap) <= 3) return snap;
+  return v;
+}
+
+function snapGradientMidpoint(value) {
+  const v = clampGradientPercent(value);
+  return Math.abs(v - 50) <= 2 ? 50 : v;
+}
+
+function directionForAngle(angle) {
+  const normalized = ((Math.round(angle) % 360) + 360) % 360;
+  for (const [direction, deg] of Object.entries(LINEAR_DIRECTIONS)) if (deg === normalized) return direction;
+  return null;
+}
+
+function parseGradientNumber(text) {
+  const s = String(text).trim().replace(/deg|%/gi, '');
+  const n = parseFloat(s);
+  return Number.isFinite(n) ? n : NaN;
+}
+
+function commitGradientEditable(el) {
+  const kind = el.dataset.gradientEdit;
+  const original = el.dataset.editStartText || '';
+  const text = String(el.textContent || '').trim();
+  el.contentEditable = 'false';
+  el.removeAttribute('inputmode');
+  delete el.dataset.editStartText;
+
+  if (el.dataset.cancelEdit === 'true') {
+    delete el.dataset.cancelEdit;
+    updateGradientPanel();
+    return;
+  }
+
+  if (!text) { updateGradientPanel(); return; }
+
+  if (kind === 'gradient-css') {
+    if (!applyParsedGradientCss(text)) {
+      showToast('Invalid gradient');
+      el.textContent = original;
+    }
+    updateGradientPanel();
+    return;
+  }
+
+  if (kind === 'slider-value') {
+    const min = Number(el.dataset.min);
+    const max = Number(el.dataset.max);
+    let value = parseGradientNumber(text);
+    if (!Number.isFinite(value)) { showToast('Invalid number'); updateGradientPanel(); return; }
+    value = Math.max(min, Math.min(max, value));
+    if (el.dataset.snap === 'angle') value = snapGradientAngle(value);
+    if (el.dataset.snap === 'midpoint') value = snapGradientMidpoint(value);
+    setGradientControl(el.dataset.gradControl, value, { stopId: el.dataset.stopId });
+    return;
+  }
+
+  const stop = findGradientStop(el.dataset.stopId);
+  if (!stop) return;
+  if (kind === 'stop-hex' || kind === 'stop-oklch') {
+    if (!applyGradientColorToStop(stop, text)) {
+      showToast('Invalid color');
+      el.textContent = original;
+    }
+    updateGradientPanel();
+  }
+}
+
+function applyGradientColorToStop(stop, text) {
+  const trimmed = String(text).trim();
+  let parsed = null;
+  if (trimmed.startsWith('#')) parsed = parseHexColor(trimmed);
+  else if (/^[0-9a-f]+$/i.test(trimmed) && [3,4,6,8].includes(trimmed.length)) parsed = parseHexColor('#' + trimmed);
+  if (!parsed) parsed = parseFunctionalColor(trimmed);
+  if (!parsed) return false;
+
+  if (parsed.space === 'oklch') {
+    stop.L = clamp01(parsed.L);
+    stop.C = Math.max(0, Math.min(C_MAX, parsed.C));
+    stop.H = normHue(parsed.H, stop.H);
+  } else if (parsed.space === 'rgb') {
+    const [L, C, H] = Color.rgbToOKLCH(clamp255(parsed.r) / 255, clamp255(parsed.g) / 255, clamp255(parsed.b) / 255);
+    stop.L = clamp01(L); stop.C = Math.max(0, Math.min(C_MAX, C)); stop.H = normHue(H, stop.H);
+  } else if (parsed.space === 'hsl') {
+    const [r, g, b] = Color.hslToRGB(parsed.h, clamp01(parsed.s), clamp01(parsed.l));
+    const [L, C, H] = Color.rgbToOKLCH(r, g, b);
+    stop.L = clamp01(L); stop.C = Math.max(0, Math.min(C_MAX, C)); stop.H = normHue(H, stop.H);
+  }
+  if (parsed.alpha != null && !Number.isNaN(parsed.alpha)) stop.alpha = clamp01(parsed.alpha);
+  S.gradient.selectedStopId = stop.id;
+  return true;
+}
+
+function applyGradientContext(kind, tile) {
+  const g = S.gradient;
+  if (!g || !GRID_POSITIONS[tile]) return;
+  if (kind === 'linear') {
+    if (tile === 'center') return;
+    g.linear.contextTile = tile;
+    const dir = TILE_TO_DIRECTION[tile];
+    if (dir) { g.linear.direction = dir; g.linear.angle = LINEAR_DIRECTIONS[dir]; }
+  } else if (kind === 'conical') {
+    g.conic.contextTile = tile;
+    g.conic.position = GRID_POSITIONS[tile].label;
+  } else {
+    g.radial.contextTile = tile;
+    g.radial.position = GRID_POSITIONS[tile].label;
+  }
+  updateGradientPanel();
+}
+
+function openGradientContextGrid(kind) {
+  ensureGradientState();
+  const g = S.gradient;
+  const activeTile = kind === 'linear' ? g.linear.contextTile : (kind === 'conical' ? g.conic.contextTile : g.radial.contextTile);
+  gradientContextDraft = { kind, tile: activeTile };
+  renderGradientContextGrid();
+  const popover = document.getElementById('gradientContextPopover');
+  if (popover) { popover.classList.add('show'); popover.setAttribute('aria-hidden', 'false'); }
+}
+
+function closeGradientContextGrid() {
+  const popover = document.getElementById('gradientContextPopover');
+  if (popover) { popover.classList.remove('show'); popover.setAttribute('aria-hidden', 'true'); }
+  gradientContextDraft = null;
+}
+
+function renderGradientContextGrid() {
+  const grid = document.getElementById('gradientContextGrid');
+  if (!grid || !gradientContextDraft) return;
+  grid.innerHTML = GRID_ORDER.map(tile => {
+    const disabled = gradientContextDraft.kind === 'linear' && tile === 'center';
+    const active = gradientContextDraft.tile === tile;
+    const pos = GRID_POSITIONS[tile];
+    return `<button class="gradient-context-tile ${active ? 'active' : ''}" type="button" title="${pos.label}" data-context-tile="${tile}" aria-label="${pos.label}" ${disabled ? 'disabled' : ''}></button>`;
+  }).join('');
+}
+
+function splitTopLevelCommas(text) {
+  const out = [];
+  let depth = 0, start = 0;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (ch === '(') depth++;
+    else if (ch === ')') depth = Math.max(0, depth - 1);
+    else if (ch === ',' && depth === 0) {
+      out.push(text.slice(start, i).trim());
+      start = i + 1;
+    }
+  }
+  out.push(text.slice(start).trim());
+  return out.filter(Boolean);
+}
+
+function stripInterpolationPrelude(prelude) {
+  let mode = null;
+  let clean = prelude;
+  if (/\bin\s+oklch\s+longer\s+hue\b/i.test(clean)) { mode = 'longer'; clean = clean.replace(/\bin\s+oklch\s+longer\s+hue\b/i, '').trim(); }
+  else if (/\bin\s+oklch\b/i.test(clean)) { mode = 'shorter'; clean = clean.replace(/\bin\s+oklch\b/i, '').trim(); }
+  else if (/\bin\s+oklab\b/i.test(clean)) { mode = 'default'; clean = clean.replace(/\bin\s+oklab\b/i, '').trim(); }
+  return { clean: clean.replace(/\s+/g, ' ').trim(), mode };
+}
+
+function extractColorStopToken(token) {
+  const s = token.trim();
+  if (/^\d+(\.\d+)?%$/.test(s)) return null;
+  if (s.startsWith('#')) {
+    const m = s.match(/^(#[0-9a-fA-F]{3,8})(.*)$/);
+    if (!m) return null;
+    return { color: m[1], rest: m[2].trim() };
+  }
+  const m = s.match(/^([a-z]+)\(/i);
+  if (!m) return null;
+  let depth = 0;
+  for (let i = 0; i < s.length; i++) {
+    if (s[i] === '(') depth++;
+    else if (s[i] === ')') {
+      depth--;
+      if (depth === 0) return { color: s.slice(0, i + 1), rest: s.slice(i + 1).trim() };
+    }
+  }
+  return null;
+}
+
+function nearestGridTileFromPercent(x, y) {
+  let best = 'center', bestDist = Infinity;
+  for (const tile of GRID_ORDER) {
+    const p = GRID_POSITIONS[tile];
+    const dist = Math.hypot(p.x - x, p.y - y);
+    if (dist < bestDist) { best = tile; bestDist = dist; }
+  }
+  return best;
+}
+
+function parseGradientStops(args) {
+  const colorArgs = [];
+  for (const arg of args) {
+    const extracted = extractColorStopToken(arg);
+    if (extracted) colorArgs.push(extracted);
+  }
+  if (colorArgs.length < 2) return null;
+  return colorArgs.map((item, i) => {
+    const color = makeGradientStop(`stop-${i + 1}`, { L: 0, C: 0, H: 0, alpha: 1 }, colorArgs.length === 1 ? 0 : (i / (colorArgs.length - 1)) * 100);
+    if (!applyGradientColorToStop(color, item.color)) return null;
+    const posMatch = item.rest.match(/(-?\d+(?:\.\d+)?)%/);
+    color.position = posMatch ? clampGradientPercent(parseFloat(posMatch[1])) : clampGradientPercent((i / (colorArgs.length - 1)) * 100);
+    color.midpointMode = false;
+    color.activeMidpointSide = null;
+    return color;
+  }).filter(Boolean);
+}
+
+function applyParsedGradientCss(text) {
+  const source = String(text).trim();
+  const match = source.match(/^(linear-gradient|radial-gradient|conic-gradient)\((.*)\)$/i);
+  if (!match) return false;
+  const fn = match[1].toLowerCase();
+  const parts = splitTopLevelCommas(match[2]);
+  if (parts.length < 3) return false;
+  const first = stripInterpolationPrelude(parts[0]);
+  const stops = parseGradientStops(parts.slice(1));
+  if (!stops || stops.length < 2) return false;
+
+  ensureGradientState();
+  const g = S.gradient;
+  if (first.mode) g.interpolation.mode = first.mode;
+
+  if (fn === 'linear-gradient') {
+    g.type = 'linear';
+    const dir = Object.keys(LINEAR_DIRECTIONS).find(d => first.clean.includes(d));
+    const degMatch = first.clean.match(/(-?\d+(?:\.\d+)?)deg/i);
+    if (degMatch) g.linear.angle = snapGradientAngle(parseFloat(degMatch[1]));
+    else if (dir) g.linear.angle = LINEAR_DIRECTIONS[dir];
+    const direction = dir || directionForAngle(g.linear.angle);
+    if (direction) {
+      g.linear.direction = direction;
+      const tile = Object.keys(TILE_TO_DIRECTION).find(key => TILE_TO_DIRECTION[key] === direction);
+      if (tile) g.linear.contextTile = tile;
+    }
+  } else if (fn === 'conic-gradient') {
+    g.type = 'conical';
+    const degMatch = first.clean.match(/from\s+(-?\d+(?:\.\d+)?)deg/i);
+    if (degMatch) g.conic.angle = snapGradientAngle(parseFloat(degMatch[1]));
+    const atMatch = first.clean.match(/at\s+(-?\d+(?:\.\d+)?)%\s+(-?\d+(?:\.\d+)?)%/i);
+    if (atMatch) {
+      const x = parseFloat(atMatch[1]), y = parseFloat(atMatch[2]);
+      const tile = nearestGridTileFromPercent(x, y);
+      g.conic.contextTile = tile;
+      g.conic.x = x - GRID_POSITIONS[tile].x;
+      g.conic.y = y - GRID_POSITIONS[tile].y;
+    }
+  } else {
+    g.type = 'radial';
+    g.radial.shape = /\bellipse\b/i.test(first.clean) ? 'ellipse' : 'circle';
+    const size = ['closest-side','closest-corner','farthest-side','farthest-corner'].find(v => first.clean.includes(v));
+    if (size) g.radial.size = size;
+    const atMatch = first.clean.match(/at\s+(-?\d+(?:\.\d+)?)%\s+(-?\d+(?:\.\d+)?)%/i);
+    if (atMatch) {
+      const x = parseFloat(atMatch[1]), y = parseFloat(atMatch[2]);
+      const tile = nearestGridTileFromPercent(x, y);
+      g.radial.contextTile = tile;
+      g.radial.x = x - GRID_POSITIONS[tile].x;
+      g.radial.y = y - GRID_POSITIONS[tile].y;
+    } else {
+      const tile = GRID_ORDER.find(t => first.clean.includes(GRID_POSITIONS[t].label));
+      if (tile) g.radial.contextTile = tile;
+    }
+  }
+
+  g.stops = stops.map((stop, i) => ({ ...stop, id: `stop-${i + 1}` }));
+  S.gradientStopSeq = stops.length;
+  g.selectedStopId = g.stops[0]?.id || null;
+  g.midpoints = {};
+  sortGradientStops();
+  normalizeGradientMidpoints();
+  return true;
+}
+
+function setupGradientPanelEvents() {
+  const panel = document.getElementById('gradientPanel');
+  if (!panel || panel.dataset.gradientBound === 'true') return;
+  panel.dataset.gradientBound = 'true';
+
+  panel.addEventListener('click', e => {
+    const previewWrap = e.target.closest('#gradientPreviewWrap');
+    if (previewWrap) { copyText(buildGradientCss()); return; }
+    if (e.target.closest('.gradient-editable')) return;
+
+    const typeBtn = e.target.closest('[data-gradient-type]');
+    if (typeBtn) {
+      const nextType = typeBtn.dataset.gradientType;
+      if (VALID_GRADIENT_TYPES.includes(nextType)) {
+        S.gradient.type = nextType;
+        updateGradientPanel();
+      }
+      return;
+    }
+
+    const actionBtn = e.target.closest('[data-gradient-action]');
+    if (actionBtn) {
+      e.stopPropagation();
+      const id = actionBtn.dataset.stopId;
+      const action = actionBtn.dataset.gradientAction;
+      if (action === 'change-color') changeGradientStopColor(id);
+      else if (action === 'remove-stop') removeGradientStop(id);
+      else if (action === 'toggle-midpoint') {
+        const stop = findGradientStop(id);
+        if (stop) { stop.midpointMode = !stop.midpointMode; S.gradient.selectedStopId = id; updateGradientPanel(); }
+      }
+      return;
+    }
+
+    const shapeBtn = e.target.closest('[data-gradient-shape]');
+    if (shapeBtn) { S.gradient.radial.shape = shapeBtn.dataset.gradientShape; updateGradientPanel(); return; }
+
+    const contextDot = e.target.closest('[data-context-tile][data-context-kind]');
+    if (contextDot && !contextDot.disabled) { applyGradientContext(contextDot.dataset.contextKind, contextDot.dataset.contextTile); return; }
+
+    const contextTrigger = e.target.closest('[data-context-trigger]');
+    if (contextTrigger) { openGradientContextGrid(contextTrigger.dataset.contextTrigger); return; }
+
+    const row = e.target.closest('.gradient-stop-row[data-stop-id]');
+    if (row) { S.gradient.selectedStopId = row.dataset.stopId; updateGradientPanel(); }
+  });
+
+  panel.addEventListener('change', e => {
+    const select = e.target.closest('[data-gradient-select]');
+    if (!select) return;
+    if (select.dataset.gradientSelect === 'interpolation-mode') {
+      S.gradient.interpolation.mode = select.value;
+    } else if (select.dataset.gradientSelect === 'linear-direction') {
+      S.gradient.linear.direction = select.value;
+      S.gradient.linear.angle = LINEAR_DIRECTIONS[select.value];
+      const tile = Object.keys(TILE_TO_DIRECTION).find(key => TILE_TO_DIRECTION[key] === select.value);
+      if (tile) S.gradient.linear.contextTile = tile;
+    } else if (select.dataset.gradientSelect === 'radial-size') {
+      S.gradient.radial.size = select.value;
+    } else if (select.dataset.gradientSelect === 'radial-position') {
+      S.gradient.radial.contextTile = select.value;
+      S.gradient.radial.position = GRID_POSITIONS[select.value].label;
+    } else if (select.dataset.gradientSelect === 'conic-position') {
+      S.gradient.conic.contextTile = select.value;
+      S.gradient.conic.position = GRID_POSITIONS[select.value].label;
+    }
+    updateGradientPanel();
+  });
+
+  panel.addEventListener('pointerdown', e => {
+    const track = e.target.closest('.gradient-slider-track[data-grad-control]');
+    if (!track) return;
+    e.preventDefault();
+    const rect = track.getBoundingClientRect();
+    track.classList.add('dragging');
+    if (track.setPointerCapture) { try { track.setPointerCapture(e.pointerId); } catch {} }
+    gradientDrag = {
+      track,
+      pointerId: e.pointerId,
+      rect,
+      control: track.dataset.gradControl,
+      stopId: track.dataset.stopId,
+      min: Number(track.dataset.min),
+      max: Number(track.dataset.max),
+      snap: track.dataset.snap,
+      flipped: track.dataset.flipped === 'true',
+    };
+    gradientApplyDrag(e.clientX);
+  });
+
+  panel.addEventListener('click', e => {
+    const editable = e.target.closest('.gradient-editable');
+    if (!editable || editable.contentEditable === 'true') return;
+    e.stopPropagation();
+    editable.dataset.editStartText = editable.textContent;
+    editable.contentEditable = 'true';
+    editable.inputMode = editable.dataset.gradientEdit === 'slider-value' ? 'decimal' : 'text';
+    const range = document.createRange();
+    range.selectNodeContents(editable);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  });
+
+  panel.addEventListener('blur', e => {
+    const editable = e.target.closest('.gradient-editable');
+    if (editable) commitGradientEditable(editable);
+  }, true);
+
+  panel.addEventListener('keydown', e => {
+    const editable = e.target.closest('.gradient-editable');
+    if (!editable) return;
+    if (e.key === 'Enter') { e.preventDefault(); editable.blur(); }
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      editable.textContent = editable.dataset.editStartText || editable.textContent;
+      editable.dataset.cancelEdit = 'true';
+      editable.blur();
+    }
+  });
+
+  document.getElementById('gradientSettingsCollapse')?.addEventListener('click', () => {
+    ensureGradientState();
+    S.gradient.settingsCollapsed = !S.gradient.settingsCollapsed;
+    updateGradientPanel();
+  });
+
+  document.getElementById('gradientAddStop')?.addEventListener('click', addGradientStopFromCurrent);
+  document.getElementById('gradientCopyButton')?.addEventListener('click', () => copyText(buildGradientCss()));
+
+  document.getElementById('gradientContextCancel')?.addEventListener('click', closeGradientContextGrid);
+  document.getElementById('gradientContextPopover')?.addEventListener('click', e => { if (e.target.id === 'gradientContextPopover') closeGradientContextGrid(); });
+  document.getElementById('gradientContextGrid')?.addEventListener('click', e => {
+    const tileBtn = e.target.closest('[data-context-tile]');
+    if (!tileBtn || tileBtn.disabled || !gradientContextDraft) return;
+    const tile = tileBtn.dataset.contextTile;
+    if (gradientContextDraft.tile === tile) { closeGradientContextGrid(); return; }
+    gradientContextDraft.tile = tile;
+    applyGradientContext(gradientContextDraft.kind, tile);
+    renderGradientContextGrid();
+  });
+
+  window.addEventListener('pointermove', e => {
+    if (!gradientDrag) return;
+    e.preventDefault();
+    gradientApplyDrag(e.clientX);
+  }, { passive: false });
+
+  window.addEventListener('pointerup', e => {
+    if (gradientDrag && gradientDrag.track) {
+      gradientDrag.track.classList.remove('dragging');
+      if (gradientDrag.track.releasePointerCapture && gradientDrag.pointerId != null) {
+        try { gradientDrag.track.releasePointerCapture(gradientDrag.pointerId); } catch {}
+      }
+    }
+    gradientDrag = null;
+  });
+}
+
+function gradientApplyDrag(clientX) {
+  if (!gradientDrag || !gradientDrag.rect.width) return;
+  const raw = Math.max(0, Math.min(1, (clientX - gradientDrag.rect.left) / gradientDrag.rect.width));
+  let sliderValue = gradientDrag.min + raw * (gradientDrag.max - gradientDrag.min);
+  let value = sliderValue;
+  if (['stop-position', 'midpoint-before', 'midpoint-after'].includes(gradientDrag.control)) {
+    value = sliderXToStopPosition(sliderValue, gradientDrag.flipped);
+  }
+  if (gradientDrag.snap === 'angle') value = snapGradientAngle(value);
+  if (gradientDrag.snap === 'midpoint') value = snapGradientMidpoint(value);
+  setGradientControl(gradientDrag.control, value, { stopId: gradientDrag.stopId });
+}
+
+// ═══════════════════════════════════════════════════════════
+// 8 ▸ COPY, MODE
+// ═══════════════════════════════════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+function copyText(text) {
+  navigator.clipboard.writeText(text).catch(() => {});
+  showToast('Copied: ' + text);
+}
+
+const previewSwatchEl = document.getElementById('previewSwatch');
+const previewComputedHalfEl = document.getElementById('previewComputedHalf');
+const previewFallbackHalfEl = document.getElementById('previewFallbackHalf');
+
+if (previewSwatchEl) {
+  previewSwatchEl.addEventListener('click', () => {
+    const swatch = document.getElementById('previewSwatch');
+    if (swatch.classList.contains('is-split')) return;
+    copyText(document.getElementById('codeVal').textContent);
+  });
+}
+
+if (previewComputedHalfEl) {
+  previewComputedHalfEl.addEventListener('click', e => {
+    e.stopPropagation();
+    const swatch = document.getElementById('previewSwatch');
+    if (!swatch.classList.contains('is-split')) return;
+    copyText(document.getElementById('codeVal').textContent);
+  });
+}
+
+if (previewFallbackHalfEl) {
+  previewFallbackHalfEl.addEventListener('click', e => {
+    e.stopPropagation();
+    const swatch = document.getElementById('previewSwatch');
+    if (!swatch.classList.contains('is-split')) return;
+    copyText(document.getElementById('fallbackCodeVal').textContent);
+  });
+}
+
+document.getElementById('modeToggle').addEventListener('click', e => {
+  const btn = e.target.closest('.mode-btn');
+  if (btn && btn.dataset.mode !== S.mode) switchMode(btn.dataset.mode);
+});
+
+// ═══════════════════════════════════════════════════════════
+// 9 ▸ BOOTSTRAP
+// ═══════════════════════════════════════════════════════════
+let _resizeTimer = null;
+
+window.addEventListener('resize', () => {
+  clearTimeout(_resizeTimer);
+  _resizeTimer = setTimeout(() => {
+    sliders.forEach(({ vi, hi }) => {
+      if (vi && vi.track.offsetHeight > 0) {
+        vi.canvas.width  = vi.track.offsetWidth;
+        vi.canvas.height = vi.track.offsetHeight;
+      }
+      if (hi && hi.track.offsetWidth > 0) {
+        hi.canvas.width  = hi.track.offsetWidth;
+        hi.canvas.height = hi.track.offsetHeight;
+      }
+    });
+
+    if (hslFieldUI && hslFieldUI.wrap.offsetWidth > 0) {
+      hslFieldUI.canvas.width  = hslFieldUI.wrap.offsetWidth;
+      hslFieldUI.canvas.height = hslFieldUI.wrap.offsetHeight;
+    }
+
+    updateUI();
+  }, 60);
+});
+
+ensureGradientState();
+setupGradientPanelEvents();
+rebuildUI();
+</script>
+</body>
+</html>
