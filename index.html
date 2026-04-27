@@ -1828,6 +1828,72 @@ body {
   background: var(--stop-card-bg), rgba(255,255,255,0.04);
 }
 
+/* ─── PUSH / COPY / EASE POLISH OVERRIDES ─── */
+.gradient-type-btn,
+.gradient-button,
+.gradient-mini-button,
+.gradient-context-mobile-trigger { text-transform: uppercase; }
+.gradient-select,
+.gradient-select option {
+  background-color: #1c1c23;
+  color: var(--text);
+  font-family: var(--font);
+}
+.gradient-css-field {
+  width: 100%;
+  min-height: 118px;
+  resize: vertical;
+  white-space: pre;
+  overflow-wrap: normal;
+  overflow-x: auto;
+  font-family: var(--font);
+  font-size: 11px;
+  line-height: 1.55;
+  color: var(--text);
+  background: rgba(255,255,255,0.035);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 10px 12px;
+  outline: none;
+  cursor: text;
+  margin-top: 5px;
+}
+.gradient-css-field:focus {
+  border-color: var(--border2);
+  background: var(--surface);
+}
+.gradient-output .chip-code { width: 100%; }
+.gradient-output .chip-val { white-space: pre-wrap; }
+.gradient-ease-slider .gradient-slider-track,
+.gradient-mini-slider .gradient-slider-track {
+  --gradient-track-height: 28px;
+}
+.gradient-mini-slider .gradient-slider-track .hslider-thumb.gradient-midpoint-thumb {
+  top: 50%;
+  right: auto;
+  bottom: auto;
+  width: 15px;
+  height: 27px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #f8f8f9 0%, #e5e5eb 100%);
+  border: 2px solid rgba(255,255,255,0.95);
+  box-shadow:
+    0 4px 12px -2px rgba(0,0,0,0.45),
+    0 1px 3px rgba(0,0,0,0.25),
+    inset 0 1px 0 rgba(255,255,255,0.85),
+    inset 0 -1px 0 rgba(0,0,0,0.15);
+  transform: translate(-50%, -50%);
+}
+.gradient-mini-slider .gradient-slider-track:hover .hslider-thumb.gradient-midpoint-thumb,
+.gradient-mini-slider .gradient-slider-track.dragging .hslider-thumb.gradient-midpoint-thumb {
+  transform: translate(-50%, -50%) scale(1.05);
+  box-shadow:
+    0 6px 16px -3px rgba(0,0,0,0.5),
+    0 1px 3px rgba(0,0,0,0.25),
+    inset 0 1px 0 rgba(255,255,255,0.9),
+    0 0 0 3px rgba(255,255,255,0.12);
+}
+.gradient-stop-row:not(.fields-open) .gradient-stop-fields { display: none; }
 </style>
 </head>
 
@@ -1939,11 +2005,15 @@ body {
       <div class="val-chip chip-code" id="gradientCssChip">
         <div class="copy-ring"></div>
         <span class="chip-label">Gradient CSS</span>
-        <div class="chip-val gradient-editable" id="gradientCssVal" data-gradient-edit="gradient-css" spellcheck="false">linear-gradient(90deg in oklab, oklch(0.3657 0.2375 271.03) 0%, oklch(0.555 0.3096 298.71) 100%)</div>
+        <textarea class="gradient-css-field" id="gradientCssVal" data-gradient-css-field spellcheck="false">linear-gradient(
+  to right in oklab,
+  oklch(0.3657 0.2375 271.03) 0%,
+  oklch(0.555 0.3096 298.71) 100%
+)</textarea>
       </div>
     </div>
     <div class="gradient-output-actions">
-      <button class="gradient-button" id="gradientCopyButton" type="button" aria-label="Copy gradient CSS">copy css</button>
+      <button class="gradient-button" id="gradientCopyButton" type="button" data-copy-gradient-css aria-label="Copy gradient CSS">copy css</button>
     </div>
   </div>
 </div>
@@ -3832,6 +3902,10 @@ const LINEAR_DIRECTIONS = {
   'to left': 270,
   'to top left': 315,
 };
+const ANGLE_TO_DIRECTION = Object.fromEntries(
+  Object.entries(LINEAR_DIRECTIONS).map(([direction, angle]) => [String(angle), direction])
+);
+ANGLE_TO_DIRECTION['360'] = 'to top';
 const TILE_TO_DIRECTION = {
   'top': 'to top', 'top-right': 'to top right', 'right': 'to right', 'bottom-right': 'to bottom right',
   'bottom': 'to bottom', 'bottom-left': 'to bottom left', 'left': 'to left', 'top-left': 'to top left',
@@ -4021,6 +4095,13 @@ function gradientInterpolationClause(fallback = false) {
   return 'in oklab';
 }
 function getGradientInterpolationClause() { return gradientInterpolationClause(false); }
+function formatLinearOrientation() {
+  const angle = snapGradientAngle(Number(S.gradient?.linear?.angle) || 0);
+  const rounded = Math.round(angle);
+  const normalized = ((rounded % 360) + 360) % 360;
+  const direction = ANGLE_TO_DIRECTION[String(normalized)] || (rounded === 360 ? 'to top' : '');
+  return direction || `${fmtGradientNumber(angle, 2)}deg`;
+}
 function gradientInterpolationDescription() {
   return INTERPOLATION_DESCRIPTIONS[canonicalInterpolationMode(S.gradient?.interpolation?.mode)] || INTERPOLATION_DESCRIPTIONS.neutral;
 }
@@ -4063,13 +4144,13 @@ function buildGradientCss(options = {}) {
   ];
   return lines.join('\n');
 }
+function buildFormattedGradientCss(options = {}) { return buildGradientCss(options); }
 function buildGradientPrelude(type, fallback = false) {
   const g = S.gradient;
   const interpolation = gradientInterpolationClause(fallback);
   const interp = interpolation ? ` ${interpolation}` : '';
   if (type === 'linear' || type === 'reflected') {
-    const cssAngle = ((Number(g.linear.angle) % 360) + 360) % 360;
-    return `${fmtGradientNumber(cssAngle, 2)}deg${interp}`;
+    return `${formatLinearOrientation()}${interp}`;
   }
   if (type === 'conical') {
     const at = positionWithOffset(g.conic.contextTile, g.conic.x, g.conic.y);
@@ -4160,11 +4241,16 @@ function sliderTrackGradientCss(options = {}) {
   tokens.sort((a, b) => (parseFloat((a.match(/(-?\d+(?:\.\d+)?)%/) || [0,0])[1]) - parseFloat((b.match(/(-?\d+(?:\.\d+)?)%/) || [0,0])[1])));
   return linearPreviewGradient(tokens, fallback);
 }
-function midpointTrackGradientCss(a, b, flipped) {
+function midpointTrackGradientCss(a, b, flipped, value = 50) {
   const fallback = !SUPPORT.cssOKLCH;
   const left = flipped ? b : a;
   const right = flipped ? a : b;
-  return linearPreviewGradient([gradientColorToken(left, fallback), gradientColorToken(right, fallback)], fallback);
+  const hint = flipped ? 100 - clampGradientPercent(value) : clampGradientPercent(value);
+  return linearPreviewGradient([
+    `${gradientColorToken(left, fallback)} 0%`,
+    `${fmtGradientNumber(hint, 2)}%`,
+    `${gradientColorToken(right, fallback)} 100%`
+  ], fallback);
 }
 function addStopSliderGradientCss() {
   const color = makeGradientStop('current', currentPickerFallbackColorAsOKLCH(), S.gradient.addStopPosition);
@@ -4222,7 +4308,7 @@ function updateGradientPanel() {
 
   if (preview) preview.style.backgroundImage = `${previewCss}, repeating-conic-gradient(#2a2a36 0% 25%, #1e1e28 0% 50%)`;
   if (previewLabel) previewLabel.textContent = GRADIENT_TYPE_LABELS[g.type];
-  if (cssVal && document.activeElement !== cssVal) cssVal.textContent = css;
+  if (cssVal && document.activeElement !== cssVal) cssVal.value = css;
   if (settingsCard) settingsCard.classList.toggle('is-collapsed', !!g.settingsCollapsed);
   if (settingsButton) {
     settingsButton.textContent = g.settingsCollapsed ? 'expand' : 'collapse';
@@ -4393,9 +4479,9 @@ function gradientStopRowHtml(stop, index) {
       <div class="gradient-stop-actions">
         <div class="gradient-stop-left"><span class="gradient-stop-name">${label}</span></div>
         <div class="gradient-stop-right">
-          <button class="gradient-mini-button stop-action-btn" type="button" data-gradient-action="pull-from-picker" data-stop-id="${stop.id}" aria-label="Pull current picker color into ${label}">▧ PULL</button>
-          <button class="gradient-mini-button stop-action-btn" type="button" data-gradient-action="send-to-picker" data-stop-id="${stop.id}" aria-label="Send ${label} color to picker">⛶ PUSH</button>
-          <button class="gradient-mini-button stop-action-btn danger" type="button" data-gradient-action="remove-stop" data-stop-id="${stop.id}" aria-label="Remove ${label}">🗙 REMOVE</button>
+          <button class="gradient-mini-button stop-action-btn" type="button" data-gradient-action="pull-from-picker" data-stop-id="${stop.id}" aria-label="Pull current picker color into ${label}">˅ PULL</button>
+          <button class="gradient-mini-button stop-action-btn" type="button" data-gradient-action="send-to-picker" data-stop-id="${stop.id}" aria-label="Send ${label} color to picker">˄ PUSH</button>
+          <button class="gradient-mini-button stop-action-btn danger" type="button" data-gradient-action="remove-stop" data-stop-id="${stop.id}" aria-label="Remove ${label}">🞬 REMOVE</button>
           <button class="gradient-mini-button stop-action-btn ${stop.easeOpen ? 'active' : ''}" type="button" data-gradient-action="toggle-ease" data-stop-id="${stop.id}" aria-label="Toggle ease controls for ${label}">EASE ☰</button>
           <button class="gradient-mini-button stop-action-btn ${stop.fieldsOpen ? 'active' : ''}" type="button" data-gradient-action="toggle-fields" data-stop-id="${stop.id}" aria-label="Toggle color fields for ${label}">⋮</button>
         </div>
@@ -4404,8 +4490,8 @@ function gradientStopRowHtml(stop, index) {
         ${gradientSliderHtml({ control: 'stop-position', stopId: stop.id, label: 'Position', value: stop.position, min: 0, max: 100, unit: '%', fill, thumbColor: stopCss, stopThumb: true })}
       </div>
       <div class="gradient-midpoint-wrap">
-        ${prev ? gradientMiniSliderHtml({ control: 'midpoint-before', stopId: stop.id, label: 'Midpoint to previous', value: before, active: stop.activeMidpointSide === 'before', fill: midpointTrackGradientCss(prev, stop, flipped), thumbColor: midpointMarkerColor(prev, stop, before) }) : ''}
-        ${next ? gradientMiniSliderHtml({ control: 'midpoint-after', stopId: stop.id, label: 'Midpoint to next', value: after, active: stop.activeMidpointSide === 'after', fill: midpointTrackGradientCss(stop, next, flipped), thumbColor: midpointMarkerColor(stop, next, after) }) : ''}
+        ${prev ? gradientMiniSliderHtml({ control: 'midpoint-before', stopId: stop.id, label: 'Midpoint to previous', value: before, active: stop.activeMidpointSide === 'before', fill: midpointTrackGradientCss(prev, stop, flipped, before), thumbColor: midpointMarkerColor(prev, stop, before) }) : ''}
+        ${next ? gradientMiniSliderHtml({ control: 'midpoint-after', stopId: stop.id, label: 'Midpoint to next', value: after, active: stop.activeMidpointSide === 'after', fill: midpointTrackGradientCss(stop, next, flipped, after), thumbColor: midpointMarkerColor(stop, next, after) }) : ''}
       </div>
       <div class="gradient-stop-fields">
         <div class="val-chip"><div class="copy-ring"></div><span class="chip-label">OKLCH</span><div class="chip-val gradient-editable" data-gradient-edit="stop-oklch" data-stop-id="${stop.id}" spellcheck="false">${formatStopOKLCH(stop)}</div></div>
@@ -4485,15 +4571,25 @@ function pullPickerColorIntoStop(id) {
   Object.assign(stop, next, { easeOpen: stop.easeOpen, fieldsOpen: stop.fieldsOpen, activeMidpointSide: stop.activeMidpointSide });
   S.gradient.selectedStopId = id;
   updateGradientPanel();
-  showToast('Color pulled');
+  showToast('Picker color pulled to stop');
 }
 function sendStopColorToPicker(id) {
   const stop = findGradientStop(id);
   if (!stop) return;
-  S.mode = 'oklch';
-  applyColorInput(formatStopOKLCH(stop));
-  showToast('Stop sent to picker');
+  const previousMode = S.mode;
+  syncStateFromOKLCH(stop.L, stop.C, stop.H, { rememberRaw: true, clearRGBDirty: true });
+  S.alpha = stop.alpha ?? 1;
+  if (previousMode === 'tune') {
+    const maxC = Color.maxChroma(S.L, S.H, 'p3');
+    S.C = Math.min(S.C, maxC * 0.9985);
+    S.vividness = maxC > 1e-6 ? S.C / maxC : 0;
+    syncStateFromOKLCH(S.L, S.C, S.H, { rememberRaw: true, clearRGBDirty: true });
+  }
+  S.mode = previousMode;
+  syncAuxSpacesFromRGB();
+  showToast('Stop color pushed to picker');
   rebuildUI();
+  updateUI();
 }
 function removeGradientStop(id) {
   const g = S.gradient;
@@ -4784,13 +4880,51 @@ function applyParsedGradientCss(text) {
   return true;
 }
 
+function copyGradientCss() {
+  const css = buildFormattedGradientCss();
+  const chip = document.getElementById('gradientCssChip');
+  const previewWrap = document.getElementById('gradientPreviewWrap');
+  const done = () => {
+    showToast('Gradient CSS copied');
+    chip?.classList.add('copied');
+    previewWrap?.classList.add('copied');
+    setTimeout(() => { chip?.classList.remove('copied'); previewWrap?.classList.remove('copied'); }, 220);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(css).then(done).catch(() => fallbackCopyText(css, done));
+  } else {
+    fallbackCopyText(css, done);
+  }
+}
+function fallbackCopyText(text, onSuccess) {
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.setAttribute('readonly', '');
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  textarea.style.pointerEvents = 'none';
+  textarea.style.left = '-9999px';
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    const ok = document.execCommand('copy');
+    if (ok) (onSuccess || (() => showToast('Copied!')))();
+    else showToast('Copy failed');
+  } catch {
+    showToast('Copy failed');
+  }
+  document.body.removeChild(textarea);
+}
+
 function setupGradientPanelEvents() {
   const panel = document.getElementById('gradientPanel');
   if (!panel || panel.dataset.gradientBound === 'true') return;
   panel.dataset.gradientBound = 'true';
   panel.addEventListener('click', e => {
+    if (e.target.closest('[data-copy-gradient-css]')) { copyGradientCss(); return; }
     const previewWrap = e.target.closest('#gradientPreviewWrap');
-    if (previewWrap) { copyText(buildGradientCss()); previewWrap.classList.add('copied'); setTimeout(() => previewWrap.classList.remove('copied'), 180); return; }
+    if (previewWrap) { copyGradientCss(); previewWrap.classList.add('copied'); setTimeout(() => previewWrap.classList.remove('copied'), 180); return; }
+    if (e.target.closest('.gradient-css-field')) return;
     if (e.target.closest('.gradient-editable')) return;
     const typeBtn = e.target.closest('[data-gradient-type]');
     if (typeBtn) { const nextType = typeBtn.dataset.gradientType; if (VALID_GRADIENT_TYPES.includes(nextType)) { S.gradient.type = nextType; updateGradientPanel(); } return; }
@@ -4853,8 +4987,30 @@ function setupGradientPanelEvents() {
     if (e.key === 'Enter') { e.preventDefault(); editable.blur(); }
     if (e.key === 'Escape') { e.preventDefault(); editable.textContent = editable.dataset.editStartText || editable.textContent; editable.dataset.cancelEdit = 'true'; editable.blur(); }
   });
+  panel.addEventListener('focusin', e => {
+    const cssField = e.target.closest('.gradient-css-field');
+    if (cssField) cssField.dataset.editStartText = cssField.value;
+  });
+  panel.addEventListener('blur', e => {
+    const cssField = e.target.closest('.gradient-css-field');
+    if (!cssField) return;
+    if (cssField.dataset.cancelEdit === 'true') { delete cssField.dataset.cancelEdit; cssField.value = buildFormattedGradientCss(); return; }
+    const submitted = cssField.value.trim();
+    if (!submitted) { cssField.value = buildFormattedGradientCss(); return; }
+    if (!applyParsedGradientCss(submitted)) {
+      showToast('Invalid gradient');
+      cssField.value = cssField.dataset.editStartText || buildFormattedGradientCss();
+    }
+    updateGradientPanel();
+  }, true);
+  panel.addEventListener('keydown', e => {
+    const cssField = e.target.closest('.gradient-css-field');
+    if (!cssField) return;
+    if (e.key === 'Escape') { e.preventDefault(); cssField.dataset.cancelEdit = 'true'; cssField.blur(); }
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); cssField.blur(); }
+  });
   document.getElementById('gradientSettingsCollapse')?.addEventListener('click', () => { ensureGradientState(); S.gradient.settingsCollapsed = !S.gradient.settingsCollapsed; updateGradientPanel(); });
-  document.getElementById('gradientCopyButton')?.addEventListener('click', () => copyText(buildGradientCss()));
+  
   document.getElementById('gradientContextCancel')?.addEventListener('click', closeGradientContextGrid);
   document.getElementById('gradientContextPopover')?.addEventListener('click', e => { if (e.target.id === 'gradientContextPopover') closeGradientContextGrid(); });
   document.getElementById('gradientContextGrid')?.addEventListener('click', e => {
@@ -4897,8 +5053,12 @@ function showToast(msg) {
 }
 
 function copyText(text) {
-  navigator.clipboard.writeText(text).catch(() => {});
-  showToast('Copied: ' + text);
+  const done = () => showToast('Copied!');
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopyText(text, done));
+  } else {
+    fallbackCopyText(text, done);
+  }
 }
 
 const previewSwatchEl = document.getElementById('previewSwatch');
