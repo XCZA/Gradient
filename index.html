@@ -1828,6 +1828,12 @@ body {
   background: var(--stop-card-bg), rgba(255,255,255,0.04);
 }
 
+.stop-action-btn {
+  font-family: var(--font);
+  text-transform: uppercase;
+  font-variant-emoji: text;
+}
+
 /* ─── PUSH / COPY / EASE POLISH OVERRIDES ─── */
 .gradient-type-btn,
 .gradient-button,
@@ -4007,14 +4013,21 @@ function ensureGradientState() {
 }
 
 function makeGradientStop(id, color, position) {
+  const hasRange = !!color.hasRange && color.positionStart != null && color.positionEnd != null;
+  const start = hasRange ? clampGradientPercent(color.positionStart) : null;
+  const end = hasRange ? clampGradientPercent(color.positionEnd) : null;
+  const representative = hasRange ? (Math.min(start, end) + Math.max(start, end)) / 2 : clampGradientPercent(position);
   return {
     id,
     L: clamp01(Number(color.L) || 0),
     C: Math.max(0, Math.min(C_MAX, Number(color.C) || 0)),
     H: normHue(color.H, 0),
     alpha: color.alpha == null ? 1 : clamp01(Number(color.alpha)),
-    position: clampGradientPercent(position),
-    previousPosition: Number(position) || 0,
+    position: clampGradientPercent(representative),
+    previousPosition: Number(representative) || 0,
+    hasRange,
+    positionStart: hasRange ? Math.min(start, end) : null,
+    positionEnd: hasRange ? Math.max(start, end) : null,
     easeOpen: !!color.easeOpen,
     fieldsOpen: !!color.fieldsOpen,
     activeMidpointSide: color.activeMidpointSide || null,
@@ -4078,8 +4091,17 @@ function formatStopOKLCH(stop, alphaOverride = stop.alpha) {
 }
 function gradientColorToken(stop, fallback) { return fallback ? gradientStopFallbackCss(stop) : formatStopOKLCH(stop); }
 function gradientStopToCss(stop, options = {}) {
+  const positionMap = typeof options.positionMap === 'function' ? options.positionMap : (p => p);
   const position = options.position == null ? stop.position : options.position;
-  return `${gradientColorToken(stop, !!options.fallback)} ${fmtGradientNumber(position, 2)}%`;
+  const color = gradientColorToken(stop, !!options.fallback);
+  if (stop.hasRange && stop.positionStart != null && stop.positionEnd != null && options.preserveRange !== false) {
+    const a = clampGradientPercent(positionMap(stop.positionStart));
+    const b = clampGradientPercent(positionMap(stop.positionEnd));
+    const start = Math.min(a, b);
+    const end = Math.max(a, b);
+    return `${color} ${fmtGradientNumber(start, 2)}% ${fmtGradientNumber(end, 2)}%`;
+  }
+  return `${color} ${fmtGradientNumber(positionMap(position), 2)}%`;
 }
 function stopToHex(stop) {
   const [r, g, b] = stopRgbParts(stop);
@@ -4168,16 +4190,17 @@ function buildGradientStopsForType(type, fallback) {
   return buildStopsWithMidpointHints(stops, fallback, p => p);
 }
 function buildStopsWithMidpointHints(stops, fallback, positionMap) {
+  const map = typeof positionMap === 'function' ? positionMap : (p => p);
   const tokens = [];
   for (let i = 0; i < stops.length; i++) {
     const stop = stops[i];
-    tokens.push(gradientStopToCss(stop, { fallback, position: positionMap(stop.position) }));
+    tokens.push(gradientStopToCss(stop, { fallback, positionMap: map }));
     const next = stops[i + 1];
     if (!next) continue;
     const midpoint = getGradientPairMidpoint(stop.id, next.id);
     if (Math.abs(midpoint - 50) > 0.01) {
       const absolute = stop.position + (next.position - stop.position) * (midpoint / 100);
-      tokens.push(`${fmtGradientNumber(positionMap(absolute), 2)}%`);
+      tokens.push(`${fmtGradientNumber(map(absolute), 2)}%`);
     }
   }
   return tokens.join(', ');
@@ -4187,7 +4210,7 @@ function buildReflectedGradientStops(fallback) {
   const tokens = [];
   for (let i = 0; i < stops.length; i++) {
     const stop = stops[i];
-    tokens.push(gradientStopToCss(stop, { fallback, position: stop.position / 2 }));
+    tokens.push(gradientStopToCss(stop, { fallback, positionMap: p => p / 2 }));
     const next = stops[i + 1];
     if (next) {
       const midpoint = getGradientPairMidpoint(stop.id, next.id);
@@ -4204,7 +4227,7 @@ function buildReflectedGradientStops(fallback) {
       const absolute = left.position + (right.position - left.position) * (midpoint / 100);
       tokens.push(`${fmtGradientNumber(100 - absolute / 2, 2)}%`);
     }
-    tokens.push(gradientStopToCss(left, { fallback, position: 100 - left.position / 2 }));
+    tokens.push(gradientStopToCss(left, { fallback, positionMap: p => 100 - p / 2 }));
   }
   return tokens.join(', ');
 }
@@ -4568,7 +4591,15 @@ function pullPickerColorIntoStop(id) {
   const stop = findGradientStop(id);
   if (!stop) return;
   const next = makeGradientStop(stop.id, currentPickerFallbackColorAsOKLCH(), stop.position);
-  Object.assign(stop, next, { easeOpen: stop.easeOpen, fieldsOpen: stop.fieldsOpen, activeMidpointSide: stop.activeMidpointSide });
+  Object.assign(stop, next, {
+    hasRange: stop.hasRange,
+    positionStart: stop.positionStart,
+    positionEnd: stop.positionEnd,
+    position: stop.position,
+    easeOpen: stop.easeOpen,
+    fieldsOpen: stop.fieldsOpen,
+    activeMidpointSide: stop.activeMidpointSide
+  });
   S.gradient.selectedStopId = id;
   updateGradientPanel();
   showToast('Picker color pulled to stop');
@@ -4606,7 +4637,15 @@ function removeGradientStop(id) {
 function reverseGradientStops() {
   const g = S.gradient;
   if (!g) return;
-  g.stops = g.stops.map(stop => ({ ...stop, position: clampGradientPercent(100 - stop.position) })).reverse();
+  g.stops = g.stops.map(stop => {
+    const next = { ...stop, position: clampGradientPercent(100 - stop.position) };
+    if (stop.hasRange && stop.positionStart != null && stop.positionEnd != null) {
+      next.positionStart = clampGradientPercent(100 - stop.positionEnd);
+      next.positionEnd = clampGradientPercent(100 - stop.positionStart);
+      next.position = (next.positionStart + next.positionEnd) / 2;
+    }
+    return next;
+  }).reverse();
   normalizeGradientMidpoints();
   g.selectedStopId = g.stops[0]?.id || null;
   updateGradientPanel();
@@ -4615,11 +4654,26 @@ function scrollToPicker() {
   const pickerEl = document.querySelector('.picker');
   if (pickerEl) pickerEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
+function moveRangeStop(stop, newCenter) {
+  const center = clampGradientPercent(newCenter);
+  if (!stop.hasRange || stop.positionStart == null || stop.positionEnd == null) {
+    stop.position = center;
+    return;
+  }
+  const width = Math.max(0, clampGradientPercent(stop.positionEnd) - clampGradientPercent(stop.positionStart));
+  let start = center - width / 2;
+  let end = center + width / 2;
+  if (start < 0) { end -= start; start = 0; }
+  if (end > 100) { start -= end - 100; end = 100; }
+  stop.positionStart = clampGradientPercent(start);
+  stop.positionEnd = clampGradientPercent(end);
+  stop.position = (stop.positionStart + stop.positionEnd) / 2;
+}
 function setGradientStopPosition(id, value) {
   const stop = findGradientStop(id);
   if (!stop) return;
   stop.previousPosition = stop.position;
-  stop.position = clampGradientPercent(value);
+  moveRangeStop(stop, value);
   sortGradientStops();
   normalizeGradientMidpoints();
   S.gradient.selectedStopId = id;
@@ -4774,6 +4828,7 @@ function renderGradientContextGrid() {
     return `<button class="gradient-context-tile ${active ? 'active' : ''}" type="button" title="${pos.label}" data-context-tile="${tile}" aria-label="${pos.label}" ${disabled ? 'disabled' : ''}><span class="tile-label">${pos.label}</span></button>`;
   }).join('');
 }
+function splitGradientArgs(input) { return splitTopLevelCommas(input); }
 function splitTopLevelCommas(text) {
   const out = []; let depth = 0, start = 0;
   for (let i = 0; i < text.length; i++) {
@@ -4812,18 +4867,87 @@ function nearestGridTileFromPercent(x, y) {
   }
   return best;
 }
+function parsePercentTokens(text) {
+  return [...String(text || '').matchAll(/(-?\d+(?:\.\d+)?)%/g)].map(match => clampGradientPercent(parseFloat(match[1])));
+}
+function standaloneHintPercent(text) {
+  const match = String(text).trim().match(/^(-?\d+(?:\.\d+)?)%$/);
+  return match ? clampGradientPercent(parseFloat(match[1])) : null;
+}
+function inferGradientStopPositions(items) {
+  if (!items.length) return;
+  if (items[0].position == null) items[0].position = 0;
+  if (items[items.length - 1].position == null) items[items.length - 1].position = 100;
+  let anchor = 0;
+  while (anchor < items.length) {
+    let next = anchor + 1;
+    while (next < items.length && items[next].position == null) next++;
+    if (next >= items.length) break;
+    const start = items[anchor].position;
+    const end = items[next].position;
+    const gap = next - anchor;
+    for (let i = anchor + 1; i < next; i++) {
+      const t = (i - anchor) / gap;
+      items[i].position = clampGradientPercent(start + (end - start) * t);
+    }
+    anchor = next;
+  }
+}
 function parseGradientStops(args) {
-  const colorArgs = [];
-  for (const arg of args) { const extracted = extractColorStopToken(arg); if (extracted) colorArgs.push(extracted); }
-  if (colorArgs.length < 2) return null;
-  return colorArgs.map((item, i) => {
-    const color = makeGradientStop(`stop-${i + 1}`, { L: 0, C: 0, H: 0, alpha: 1 }, colorArgs.length === 1 ? 0 : (i / (colorArgs.length - 1)) * 100);
+  const colorItems = [];
+  const hintItems = [];
+
+  for (const arg of args) {
+    const hint = standaloneHintPercent(arg);
+    if (hint != null) {
+      hintItems.push({ prevIndex: colorItems.length - 1, absolute: hint });
+      continue;
+    }
+    const extracted = extractColorStopToken(arg);
+    if (!extracted) continue;
+    const positions = parsePercentTokens(extracted.rest);
+    const hasRange = positions.length >= 2;
+    const positionStart = hasRange ? positions[0] : null;
+    const positionEnd = hasRange ? positions[1] : null;
+    colorItems.push({
+      color: extracted.color,
+      positions,
+      hasRange,
+      positionStart,
+      positionEnd,
+      position: hasRange ? (Math.min(positionStart, positionEnd) + Math.max(positionStart, positionEnd)) / 2 : (positions.length ? positions[0] : null),
+    });
+  }
+
+  if (colorItems.length < 2) return null;
+  inferGradientStopPositions(colorItems);
+
+  const stops = colorItems.map((item, i) => {
+    const color = makeGradientStop(`stop-${i + 1}`, { L: 0, C: 0, H: 0, alpha: 1, hasRange: item.hasRange, positionStart: item.positionStart, positionEnd: item.positionEnd }, item.position);
     if (!applyGradientColorToStop(color, item.color)) return null;
-    const posMatch = item.rest.match(/(-?\d+(?:\.\d+)?)%/);
-    color.position = posMatch ? clampGradientPercent(parseFloat(posMatch[1])) : clampGradientPercent((i / (colorArgs.length - 1)) * 100);
+    color.position = clampGradientPercent(item.position);
+    if (item.hasRange) {
+      color.hasRange = true;
+      color.positionStart = Math.min(item.positionStart, item.positionEnd);
+      color.positionEnd = Math.max(item.positionStart, item.positionEnd);
+      color.position = (color.positionStart + color.positionEnd) / 2;
+    }
     color.easeOpen = false; color.fieldsOpen = false; color.activeMidpointSide = null;
     return color;
   }).filter(Boolean);
+
+  if (stops.length < 2) return null;
+  const midpoints = {};
+  for (const hint of hintItems) {
+    const prev = hint.prevIndex;
+    const next = prev + 1;
+    if (prev < 0 || next >= stops.length) continue;
+    const a = stops[prev], b = stops[next];
+    const span = b.position - a.position;
+    const relative = Math.abs(span) < 1e-6 ? 50 : clampGradientPercent(((hint.absolute - a.position) / span) * 100);
+    midpoints[gradientPairKey(a.id, b.id)] = relative;
+  }
+  return { stops, midpoints };
 }
 function applyParsedGradientCss(text) {
   const source = String(text).trim();
@@ -4833,8 +4957,9 @@ function applyParsedGradientCss(text) {
   const parts = splitTopLevelCommas(match[2]);
   if (parts.length < 3) return false;
   const first = stripInterpolationPrelude(parts[0]);
-  const stops = parseGradientStops(parts.slice(1));
-  if (!stops || stops.length < 2) return false;
+  const parsedStops = parseGradientStops(parts.slice(1));
+  if (!parsedStops || !parsedStops.stops || parsedStops.stops.length < 2) return false;
+  const stops = parsedStops.stops;
   ensureGradientState();
   const g = S.gradient;
   if (first.mode) g.interpolation.mode = first.mode;
@@ -4873,9 +4998,17 @@ function applyParsedGradientCss(text) {
     }
   }
   g.stops = stops.map((stop, i) => ({ ...stop, id: `stop-${i + 1}` }));
-  S.gradientStopSeq = stops.length;
+  S.gradientStopSeq = g.stops.length;
   g.selectedStopId = g.stops[0]?.id || null;
-  g.midpoints = {};
+  const importedMidpoints = {};
+  for (const [key, value] of Object.entries(parsedStops.midpoints || {})) {
+    const [a, b] = key.split('|');
+    const ai = Number(String(a).replace(/\D/g, '')) - 1;
+    const bi = Number(String(b).replace(/\D/g, '')) - 1;
+    const nextA = g.stops[ai], nextB = g.stops[bi];
+    if (nextA && nextB) importedMidpoints[gradientPairKey(nextA.id, nextB.id)] = clampGradientPercent(value);
+  }
+  g.midpoints = importedMidpoints;
   normalizeGradientMidpoints();
   return true;
 }
