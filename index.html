@@ -1900,6 +1900,1180 @@ body {
     0 0 0 3px rgba(255,255,255,0.12);
 }
 .gradient-stop-row:not(.fields-open) .gradient-stop-fields { display: none; }
+
+
+/* ─── VISUAL POLISH PASS: UI FONT + SOFTER GLASS DEPTH ───── */
+:root {
+  --ui-font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --code-font: 'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  --font: var(--ui-font);
+  --bg: #040406;
+  --card: rgba(16,16,22,0.84);
+  --surface: rgba(30,30,39,0.58);
+  --surface2: rgba(47,47,60,0.72);
+  --border: rgba(255,255,255,0.075);
+  --border2: rgba(255,255,255,0.18);
+  --soft-highlight: rgba(255,255,255,0.095);
+  --soft-shadow: rgba(0,0,0,0.48);
+  --button-bg: linear-gradient(180deg, rgba(255,255,255,0.105), rgba(255,255,255,0.052));
+  --button-bg-hover: linear-gradient(180deg, rgba(255,255,255,0.155), rgba(255,255,255,0.075));
+  --control-shadow:
+    0 1px 0 rgba(255,255,255,0.08) inset,
+    0 -1px 0 rgba(0,0,0,0.20) inset,
+    0 7px 16px -12px rgba(0,0,0,0.62);
+}
+
+body {
+  font-family: var(--ui-font);
+  background-image:
+    radial-gradient(ellipse 72% 52% at 22% 10%, rgba(110,100,180,0.105) 0%, transparent 68%),
+    radial-gradient(ellipse 52% 42% at 82% 88%, rgba(50,130,170,0.085) 0%, transparent 70%),
+    linear-gradient(180deg, rgba(255,255,255,0.018), transparent 24%);
+}
+
+.picker,
+.gradient-panel {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.018) 38%, rgba(0,0,0,0.045)),
+    var(--card);
+  border-color: rgba(255,255,255,0.075);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.09) inset,
+    0 -1px 0 rgba(0,0,0,0.28) inset,
+    0 28px 80px -28px rgba(0,0,0,0.82),
+    0 12px 34px -22px rgba(0,0,0,0.75);
+}
+
+.app-title,
+.gradient-title,
+.gradient-settings-title,
+.gradient-setting-label,
+.hslider-info-label,
+.vslider-label,
+.chip-label,
+.preview-split-label,
+.badge,
+.gradient-preview-label,
+.gradient-preview-copy-hint,
+.gradient-context-title,
+.gradient-feature-label {
+  font-family: var(--ui-font);
+  font-weight: 650;
+  letter-spacing: 0.12em;
+}
+
+.app-title,
+.gradient-title,
+.gradient-settings-title {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: rgba(245,245,249,0.60);
+}
+
+.chip-val,
+.hslider-info-val,
+.vslider-val,
+.gradient-css-field,
+.gradient-editable,
+.hslider-info-val[contenteditable="true"],
+.val-chip .chip-val,
+#codeVal,
+#hexVal,
+#fallbackCodeVal,
+#fallbackHexVal,
+#gradientCssVal {
+  font-family: var(--code-font) !important;
+  font-variant-ligatures: none;
+}
+
+button,
+select,
+option,
+.mode-btn,
+.gradient-type-btn,
+.gradient-button,
+.gradient-mini-button,
+.stop-action-btn,
+.gradient-context-mobile-trigger,
+.gradient-select,
+.gradient-setting-description,
+.toast {
+  font-family: var(--ui-font) !important;
+}
+
+.mode-toggle,
+.gradient-type-toggle {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.032)),
+    rgba(0,0,0,0.18);
+  border-color: rgba(255,255,255,0.07);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.08) inset,
+    0 10px 22px -18px rgba(0,0,0,0.8);
+}
+
+.mode-btn,
+.gradient-type-btn {
+  font-weight: 700;
+  letter-spacing: 0.105em;
+  text-transform: uppercase;
+}
+
+.mode-btn.active,
+.gradient-type-btn.active,
+.gradient-button.active,
+.gradient-mini-button.active,
+.gradient-toggle-group .gradient-button.active {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0.115));
+  color: var(--text);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.20) inset,
+    0 -1px 0 rgba(0,0,0,0.24) inset,
+    0 10px 18px -14px rgba(0,0,0,0.78);
+}
+
+.gradient-settings-card,
+.gradient-setting-group,
+.gradient-stop-row,
+.gradient-add-stop-card,
+.val-chip {
+  border-color: rgba(255,255,255,0.065) !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.050), rgba(255,255,255,0.024)),
+    rgba(24,24,31,0.58);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.07) inset,
+    0 -1px 0 rgba(0,0,0,0.22) inset,
+    0 9px 22px -20px rgba(0,0,0,0.72);
+}
+
+.gradient-stop-row,
+.gradient-add-stop-card {
+  background:
+    var(--stop-card-bg),
+    linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.024)),
+    rgba(24,24,31,0.62) !important;
+}
+
+.gradient-setting-group {
+  padding: 10px;
+}
+
+.gradient-setting-description {
+  color: rgba(245,245,249,0.58);
+  line-height: 1.35;
+  letter-spacing: 0.015em;
+}
+
+.gradient-button,
+.gradient-mini-button,
+.gradient-context-mobile-trigger,
+.gradient-select,
+.stop-action-btn {
+  background: var(--button-bg);
+  border-color: rgba(255,255,255,0.075);
+  color: rgba(245,245,249,0.72);
+  box-shadow: var(--control-shadow);
+  text-transform: uppercase;
+  font-weight: 750;
+}
+
+.gradient-select {
+  text-transform: none;
+  font-weight: 650;
+  letter-spacing: 0.035em;
+  color: rgba(245,245,249,0.82);
+}
+
+.gradient-select option {
+  background: #17171e;
+  color: #f5f5f9;
+  font-family: var(--ui-font) !important;
+}
+
+.gradient-button:hover,
+.gradient-mini-button:hover,
+.gradient-context-mobile-trigger:hover,
+.gradient-select:hover,
+.stop-action-btn:hover,
+.gradient-button:focus-visible,
+.gradient-mini-button:focus-visible,
+.gradient-context-mobile-trigger:focus-visible,
+.gradient-select:focus-visible {
+  background: var(--button-bg-hover);
+  border-color: rgba(255,255,255,0.14);
+  color: var(--text);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.14) inset,
+    0 -1px 0 rgba(0,0,0,0.22) inset,
+    0 10px 24px -16px rgba(0,0,0,0.82);
+}
+
+.stop-action-btn.danger {
+  color: rgba(255,185,185,0.88);
+  background: linear-gradient(180deg, rgba(255,100,100,0.12), rgba(255,255,255,0.035));
+}
+
+.stop-action-btn.danger:hover,
+.stop-action-btn.danger:focus-visible {
+  color: #ffd0d0;
+  border-color: rgba(255,145,145,0.26);
+}
+
+.gradient-preview-wrap,
+.preview-swatch,
+.hslider-track,
+.vslider-track,
+.hsl-field-wrap,
+.gradient-slider-track,
+.gradient-css-field {
+  border-color: rgba(255,255,255,0.075) !important;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.075) inset,
+    0 -1px 0 rgba(0,0,0,0.22) inset,
+    0 8px 20px -18px rgba(0,0,0,0.74);
+}
+
+.gradient-slider-track::after,
+.hslider-track::after,
+.vslider-track::after {
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.045) inset;
+}
+
+.gradient-css-field {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.042), rgba(255,255,255,0.020)),
+    rgba(11,11,15,0.42);
+  color: rgba(245,245,249,0.92);
+  border-color: rgba(255,255,255,0.08);
+}
+
+.gradient-css-field:focus {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.025)),
+    rgba(15,15,20,0.64);
+  border-color: rgba(255,255,255,0.18) !important;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.10) inset,
+    0 0 0 3px rgba(120,170,255,0.11),
+    0 12px 26px -20px rgba(0,0,0,0.72);
+}
+
+.gradient-output-actions {
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.context-dot {
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.toast {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.11), rgba(255,255,255,0.055)),
+    rgba(22,22,29,0.94);
+  border-color: rgba(255,255,255,0.13);
+  font-weight: 650;
+}
+
+
+
+/* ─── MODERN GLASS UI + MOBILE PREVIEW POPOUT OVERRIDES ─── */
+:root {
+  --glass-card-bg: rgba(18, 18, 24, 0.48);
+  --glass-card-bg-strong: rgba(22, 22, 30, 0.58);
+  --glass-button-bg: rgba(255,255,255,0.070);
+  --glass-button-bg-hover: rgba(255,255,255,0.105);
+  --glass-button-bg-active: rgba(255,255,255,0.135);
+  --glass-outline: rgba(255,255,255,0.11);
+  --glass-outline-soft: rgba(255,255,255,0.065);
+  --glass-shadow-soft: 0 16px 34px -24px rgba(0,0,0,0.72), 0 4px 16px -10px rgba(0,0,0,0.52);
+  --glass-shadow-card: 0 22px 46px -30px rgba(0,0,0,0.84), 0 8px 22px -16px rgba(0,0,0,0.56);
+}
+
+.top-bar,
+.gradient-top-bar {
+  display: grid !important;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  column-gap: 10px;
+}
+
+.top-bar .app-title,
+.gradient-top-bar .app-title {
+  grid-column: 1;
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  line-height: 1;
+}
+
+.top-bar .mode-toggle,
+.gradient-top-bar .gradient-type-toggle {
+  grid-column: 2;
+  justify-self: center;
+}
+
+.mode-toggle,
+.gradient-type-toggle,
+.gradient-toggle-group {
+  position: relative;
+  overflow: hidden;
+  padding: 3px !important;
+  gap: 0 !important;
+  border-color: var(--glass-outline-soft) !important;
+  background: linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.015)), rgba(10,10,14,0.22) !important;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.06) inset, var(--glass-shadow-soft) !important;
+  backdrop-filter: blur(18px) saturate(155%);
+  -webkit-backdrop-filter: blur(18px) saturate(155%);
+  isolation: isolate;
+}
+
+.segmented-indicator {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  height: calc(100% - 6px);
+  width: 0;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.085));
+  border: 1px solid rgba(255,255,255,0.11);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.12) inset,
+    0 -1px 0 rgba(0,0,0,0.16) inset,
+    0 10px 24px -18px rgba(0,0,0,0.75);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  transition:
+    transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    width 260ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 140ms ease;
+}
+
+.mode-btn,
+.gradient-type-btn,
+.gradient-toggle-group .gradient-button {
+  position: relative;
+  z-index: 1;
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.mode-btn.active,
+.gradient-type-btn.active,
+.gradient-toggle-group .gradient-button.active {
+  background: transparent !important;
+}
+
+.mode-btn,
+.gradient-type-btn {
+  min-height: 28px;
+}
+
+.gradient-button,
+.gradient-mini-button,
+.gradient-context-mobile-trigger,
+.gradient-select,
+.stop-action-btn,
+.gradient-preview-action {
+  background: linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.042)) !important;
+  border: 1px solid var(--glass-outline) !important;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.08) inset,
+    0 -1px 0 rgba(0,0,0,0.16) inset,
+    0 10px 18px -16px rgba(0,0,0,0.72) !important;
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+}
+
+.gradient-button:hover,
+.gradient-mini-button:hover,
+.gradient-context-mobile-trigger:hover,
+.gradient-select:hover,
+.stop-action-btn:hover,
+.gradient-preview-action:hover,
+.gradient-button:focus-visible,
+.gradient-mini-button:focus-visible,
+.gradient-context-mobile-trigger:focus-visible,
+.gradient-select:focus-visible,
+.stop-action-btn:focus-visible,
+.gradient-preview-action:focus-visible {
+  background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.055)) !important;
+  border-color: rgba(255,255,255,0.14) !important;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.10) inset,
+    0 -1px 0 rgba(0,0,0,0.16) inset,
+    0 12px 22px -18px rgba(0,0,0,0.78) !important;
+}
+
+.gradient-mini-button.active,
+.stop-action-btn.active,
+.gradient-button.active {
+  background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.07)) !important;
+  border-color: rgba(255,255,255,0.16) !important;
+  color: var(--text) !important;
+}
+
+.stop-action-btn,
+.stop-action-btn * {
+  font-family: var(--code-font) !important;
+  letter-spacing: 0.05em;
+}
+
+.stop-action-btn[data-gradient-action="toggle-fields"] {
+  font-size: 14px !important;
+  letter-spacing: 0;
+  padding-inline: 10px !important;
+}
+
+.stop-action-btn.danger,
+.gradient-mini-button.danger {
+  color: rgba(245,245,249,0.84) !important;
+  background: linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.04)) !important;
+  border-color: rgba(255,255,255,0.11) !important;
+}
+
+.stop-action-btn.danger:hover,
+.stop-action-btn.danger:focus-visible,
+.gradient-mini-button.danger:hover,
+.gradient-mini-button.danger:focus-visible {
+  color: rgba(255,255,255,0.94) !important;
+  border-color: rgba(255,255,255,0.17) !important;
+}
+
+.gradient-settings-card {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.052), rgba(255,255,255,0.012)),
+    rgba(14,14,20,0.28) !important;
+  border-color: rgba(255,255,255,0.08) !important;
+  backdrop-filter: blur(24px) saturate(165%);
+  -webkit-backdrop-filter: blur(24px) saturate(165%);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.09) inset,
+    0 -1px 0 rgba(0,0,0,0.18) inset,
+    var(--glass-shadow-card) !important;
+}
+
+.gradient-settings-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: var(--settings-card-bg, linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.0)));
+  background-size: cover;
+  background-position: center;
+  opacity: 0.30;
+  transform: scale(1.08);
+  filter: blur(26px) saturate(150%);
+  pointer-events: none;
+}
+
+.gradient-settings-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255,255,255,0.065), rgba(255,255,255,0.018) 46%, rgba(0,0,0,0.09));
+  pointer-events: none;
+}
+
+.gradient-settings-header,
+.gradient-settings-body {
+  position: relative;
+  z-index: 1;
+}
+
+.gradient-setting-group {
+  background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.025)), rgba(18,18,24,0.18) !important;
+  border-color: rgba(255,255,255,0.075) !important;
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.07) inset, 0 -1px 0 rgba(0,0,0,0.16) inset !important;
+}
+
+.gradient-stop-row,
+.gradient-add-stop-card {
+  background:
+    var(--stop-card-bg),
+    linear-gradient(180deg, rgba(255,255,255,0.072), rgba(255,255,255,0.018)),
+    rgba(12,12,18,0.22) !important;
+  border-color: rgba(255,255,255,0.085) !important;
+  backdrop-filter: blur(22px) saturate(170%);
+  -webkit-backdrop-filter: blur(22px) saturate(170%);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.10) inset,
+    0 -1px 0 rgba(0,0,0,0.14) inset,
+    0 18px 34px -28px rgba(0,0,0,0.84) !important;
+}
+
+.gradient-stop-row.is-selected {
+  border-color: rgba(255,255,255,0.16) !important;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.12) inset,
+    0 -1px 0 rgba(0,0,0,0.14) inset,
+    0 20px 40px -30px rgba(0,0,0,0.90),
+    0 0 0 1px rgba(255,255,255,0.04) !important;
+}
+
+.gradient-preview-wrap,
+.gradient-css-field,
+.preview-swatch,
+.hslider-track,
+.vslider-track,
+.hsl-field-wrap,
+.gradient-slider-track {
+  backdrop-filter: blur(20px) saturate(155%);
+  -webkit-backdrop-filter: blur(20px) saturate(155%);
+}
+
+.gradient-preview-wrap {
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.09) inset,
+    0 -1px 0 rgba(0,0,0,0.16) inset,
+    0 18px 28px -22px rgba(0,0,0,0.70) !important;
+}
+
+.gradient-preview-actions {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.gradient-preview-action {
+  width: 28px;
+  height: 28px;
+  min-height: 28px;
+  padding: 0;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,255,255,0.86);
+}
+
+.gradient-preview-action svg {
+  width: 14px;
+  height: 14px;
+  display: block;
+}
+
+.gradient-preview-action[hidden] {
+  display: none !important;
+}
+
+.gradient-preview-wrap.is-floating {
+  position: fixed !important;
+  top: 76px;
+  right: 12px;
+  left: auto;
+  width: min(46vw, 210px);
+  max-width: 210px;
+  min-width: 138px;
+  z-index: 9996;
+  cursor: grab;
+  touch-action: none;
+}
+
+.gradient-preview-wrap.is-floating .gradient-preview {
+  aspect-ratio: 3 / 2;
+}
+
+.gradient-preview-wrap.is-floating.is-minimized {
+  width: 118px;
+}
+.gradient-preview-wrap.is-floating.is-minimized[data-edge="right"] { transform: translateX(42%); }
+.gradient-preview-wrap.is-floating.is-minimized[data-edge="left"] { transform: translateX(-42%); }
+.gradient-preview-wrap.is-floating.is-minimized[data-edge="top"] { transform: translateY(-35%); }
+.gradient-preview-wrap.is-floating.is-minimized[data-edge="bottom"] { transform: translateY(35%); }
+.gradient-preview-wrap.is-floating.is-minimized .gradient-preview-copy-hint,
+.gradient-preview-wrap.is-floating.is-minimized .gradient-preview-label {
+  opacity: 0;
+}
+.gradient-preview-wrap.is-floating.dragging { cursor: grabbing; transform: none !important; }
+
+@media (max-width: 560px) {
+  .gradient-preview-wrap {
+    position: relative;
+    top: auto;
+  }
+  .gradient-preview-wrap.is-floating {
+    width: min(48vw, 208px);
+    max-width: 208px;
+  }
+}
+
+
+
+/* ─── FOLLOW-UP VISUAL FIXES: SEGMENT PADDING + CONTRAST + POPOUT SNAP ─── */
+.mode-toggle,
+.gradient-type-toggle {
+  min-width: max-content;
+}
+
+.mode-btn,
+.gradient-type-btn {
+  padding-left: 14px !important;
+  padding-right: 14px !important;
+  white-space: nowrap;
+}
+
+.gradient-type-btn {
+  padding-left: 12px !important;
+  padding-right: 12px !important;
+}
+
+.gradient-type-toggle {
+  max-width: 356px !important;
+}
+
+.segmented-indicator {
+  margin-left: 1px;
+  width: max(0px, calc(var(--segment-width, 0px) - 2px)) !important;
+}
+
+.gradient-settings-card::before {
+  opacity: 0.24 !important;
+  filter: blur(30px) saturate(145%) brightness(0.82) !important;
+}
+
+.gradient-settings-card::after {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,255,255,0.055), transparent 68%),
+    linear-gradient(180deg, rgba(3,3,6,0.38), rgba(3,3,6,0.30) 45%, rgba(3,3,6,0.40)) !important;
+}
+
+.gradient-settings-title,
+.gradient-setting-label,
+.gradient-feature-label,
+.gradient-setting-description,
+.gradient-settings-header,
+.gradient-setting-group {
+  text-shadow: 0 1px 2px rgba(0,0,0,0.72);
+}
+
+.gradient-settings-title,
+.gradient-setting-label {
+  color: rgba(248,248,252,0.78) !important;
+}
+
+.gradient-setting-description {
+  color: rgba(248,248,252,0.74) !important;
+}
+
+.gradient-setting-group {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.065), rgba(255,255,255,0.020)),
+    rgba(5,5,9,0.42) !important;
+  border-color: rgba(255,255,255,0.085) !important;
+}
+
+.gradient-preview-wrap.is-floating {
+  position: fixed !important;
+  z-index: 9996;
+  margin: 0 !important;
+  transform: none;
+  transition:
+    left 360ms cubic-bezier(0.22, 1, 0.36, 1),
+    top 360ms cubic-bezier(0.22, 1, 0.36, 1),
+    width 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    height 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-radius 260ms ease,
+    opacity 180ms ease;
+}
+
+.gradient-preview-wrap.is-floating.dragging {
+  transition: none !important;
+  cursor: grabbing;
+}
+
+.gradient-preview-wrap.is-floating .gradient-preview-label,
+.gradient-preview-wrap.is-floating .gradient-preview-copy-hint {
+  display: none !important;
+}
+
+.gradient-preview-wrap.is-floating .gradient-preview {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+}
+
+.gradient-preview-wrap.is-floating .gradient-preview-actions {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 220ms ease;
+}
+
+.gradient-preview-wrap.is-floating.show-chrome .gradient-preview-actions,
+.gradient-preview-wrap.is-floating.is-minimized .gradient-preview-actions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.gradient-preview-wrap.is-floating .gradient-preview-action {
+  background: rgba(5,5,8,0.42) !important;
+  border-color: rgba(255,255,255,0.20) !important;
+  color: rgba(255,255,255,0.95);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.16) inset,
+    0 8px 18px -12px rgba(0,0,0,0.85),
+    0 0 0 1px rgba(0,0,0,0.18);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.95);
+}
+
+.gradient-preview-wrap.is-floating .gradient-preview-actions {
+  top: 8px;
+  right: 8px;
+}
+
+.gradient-preview-wrap.is-floating.is-minimized {
+  width: 36px !important;
+  min-width: 36px !important;
+  height: 112px !important;
+  max-width: 36px !important;
+}
+
+.gradient-preview-wrap.is-floating.is-minimized[data-edge="right"] {
+  border-radius: 18px 0 0 18px;
+}
+
+.gradient-preview-wrap.is-floating.is-minimized[data-edge="left"] {
+  border-radius: 0 18px 18px 0;
+}
+
+.gradient-preview-wrap.is-floating.is-minimized .gradient-preview-actions {
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+.gradient-preview-wrap.is-floating.is-minimized .gradient-preview-action {
+  width: 30px;
+  height: 54px;
+  min-height: 54px;
+  border-radius: 999px;
+  padding: 0;
+}
+
+.gradient-preview-wrap.is-floating.is-minimized .gradient-preview-action svg {
+  width: 18px;
+  height: 18px;
+}
+
+@media (max-width: 560px) {
+  .gradient-top-bar,
+  .top-bar {
+    grid-template-columns: 1fr auto 1fr;
+  }
+
+  .gradient-type-toggle {
+    max-width: min(100%, 344px) !important;
+  }
+
+  .gradient-type-btn {
+    padding-left: 9px !important;
+    padding-right: 9px !important;
+  }
+
+  .mode-btn {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+
+  .gradient-preview-wrap.is-floating {
+    position: fixed !important;
+  }
+}
+
+
+
+/* ─── PATCH: EVEN SEGMENT PADDING + TRUE VIEWPORT POPOUT ─── */
+.mode-toggle,
+.gradient-type-toggle {
+  padding: 4px !important;
+}
+
+.mode-btn,
+.gradient-type-btn {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px !important;
+  text-align: center;
+  line-height: 1;
+}
+
+.mode-btn {
+  padding-left: 16px !important;
+  padding-right: 16px !important;
+}
+
+.gradient-type-btn {
+  padding-left: 18px !important;
+  padding-right: 18px !important;
+}
+
+.gradient-type-toggle {
+  gap: 2px !important;
+}
+
+.gradient-type-toggle .segmented-indicator,
+.mode-toggle .segmented-indicator {
+  top: 4px !important;
+  height: calc(100% - 8px) !important;
+  margin-left: 0 !important;
+  border-radius: 13px;
+}
+
+.segmented-indicator {
+  width: var(--segment-width, 0px) !important;
+}
+
+.gradient-settings-card::after {
+  background:
+    radial-gradient(ellipse 92% 68% at 50% 0%, rgba(255,255,255,0.052), transparent 62%),
+    linear-gradient(180deg, rgba(3,3,7,0.58), rgba(3,3,7,0.48) 44%, rgba(3,3,7,0.62)) !important;
+}
+
+.gradient-setting-description,
+.gradient-settings-title,
+.gradient-setting-label,
+.gradient-feature-label {
+  color: rgba(250,250,255,0.82) !important;
+  text-shadow:
+    0 1px 2px rgba(0,0,0,0.92),
+    0 0 12px rgba(0,0,0,0.38);
+}
+
+.gradient-setting-group {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.016)),
+    rgba(4,4,9,0.55) !important;
+}
+
+.gradient-preview-home-placeholder {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  margin-bottom: 10px;
+  border-radius: 18px;
+}
+
+.gradient-preview-wrap.is-floating {
+  position: fixed !important;
+  margin: 0 !important;
+  z-index: 2147483000 !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  will-change: left, top, width, height;
+}
+
+.gradient-preview-wrap.is-floating .gradient-preview-label,
+.gradient-preview-wrap.is-floating .gradient-preview-copy-hint {
+  display: none !important;
+}
+
+.gradient-preview-wrap.is-floating .gradient-preview-actions {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.gradient-preview-wrap.is-floating.show-chrome .gradient-preview-actions,
+.gradient-preview-wrap.is-floating.is-minimized .gradient-preview-actions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.gradient-preview-wrap.is-floating.is-minimized {
+  width: 34px !important;
+  height: 112px !important;
+  max-width: 34px !important;
+  min-width: 34px !important;
+  overflow: hidden;
+}
+
+.gradient-preview-wrap.is-floating.is-minimized[data-edge="right"] {
+  border-radius: 18px 0 0 18px !important;
+}
+
+.gradient-preview-wrap.is-floating.is-minimized[data-edge="left"] {
+  border-radius: 0 18px 18px 0 !important;
+}
+
+.gradient-preview-wrap.is-floating.is-minimized .gradient-preview {
+  width: 100%;
+  height: 100%;
+}
+
+.gradient-preview-wrap.is-floating.is-minimized .gradient-preview-actions {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
+}
+
+.gradient-preview-wrap.is-floating.is-minimized .gradient-preview-action {
+  width: 30px !important;
+  height: 70px !important;
+  min-height: 70px !important;
+  border-radius: 999px !important;
+}
+
+.gradient-preview-action {
+  color: #fff !important;
+  background: rgba(5,5,9,0.50) !important;
+  border-color: rgba(255,255,255,0.24) !important;
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.25),
+    0 1px 0 rgba(255,255,255,0.16) inset,
+    0 8px 22px -12px rgba(0,0,0,0.92) !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.95);
+}
+
+.gradient-preview-action svg {
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.9));
+}
+
+@media (max-width: 560px) {
+  .gradient-type-toggle {
+    max-width: calc(100vw - 42px) !important;
+  }
+
+  .gradient-type-btn {
+    padding-left: 11px !important;
+    padding-right: 11px !important;
+    letter-spacing: 0.075em !important;
+  }
+
+  .mode-btn {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+}
+
+
+
+/* ─── FINAL POPOUT INTERACTION PATCH: NO GAP + EDGE TAB GESTURES ─── */
+.gradient-preview-home-placeholder[hidden] {
+  display: none !important;
+}
+
+.gradient-preview-home-placeholder {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  margin-bottom: 10px;
+  border-radius: 18px;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.mode-toggle,
+.gradient-type-toggle {
+  padding: 4px !important;
+}
+
+.mode-btn,
+.gradient-type-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 30px !important;
+  line-height: 1 !important;
+  text-align: center !important;
+  box-sizing: border-box !important;
+}
+
+.mode-btn {
+  padding-inline: 16px !important;
+}
+
+.gradient-type-btn {
+  padding-inline: 18px !important;
+}
+
+.segmented-indicator {
+  width: var(--segment-width, 0px) !important;
+}
+
+.mode-toggle .segmented-indicator,
+.gradient-type-toggle .segmented-indicator {
+  top: 4px !important;
+  height: calc(100% - 8px) !important;
+}
+
+.gradient-preview-wrap.is-floating {
+  position: fixed !important;
+  margin: 0 !important;
+  z-index: 2147483000 !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  transition:
+    left 300ms cubic-bezier(0.22, 1, 0.36, 1),
+    top 300ms cubic-bezier(0.22, 1, 0.36, 1),
+    width 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    height 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-radius 220ms ease,
+    opacity 160ms ease;
+}
+
+.gradient-preview-wrap.is-floating.dragging {
+  transition: none !important;
+}
+
+.gradient-preview-wrap.is-floating.is-minimized {
+  width: 34px !important;
+  height: 112px !important;
+  min-width: 34px !important;
+  max-width: 34px !important;
+}
+
+.gradient-preview-wrap.is-floating.is-minimized[data-edge="right"] {
+  border-radius: 18px 0 0 18px !important;
+}
+
+.gradient-preview-wrap.is-floating.is-minimized[data-edge="left"] {
+  border-radius: 0 18px 18px 0 !important;
+}
+
+.gradient-preview-wrap.is-floating.is-minimized .gradient-preview-actions {
+  inset: 0 !important;
+  display: grid !important;
+  place-items: center !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+.gradient-preview-wrap.is-floating.is-minimized .gradient-preview-action {
+  width: 30px !important;
+  height: 70px !important;
+  min-height: 70px !important;
+  border-radius: 999px !important;
+}
+
+.gradient-preview-wrap.is-floating:not(.is-minimized) .gradient-preview-actions {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.gradient-preview-wrap.is-floating:not(.is-minimized).show-chrome .gradient-preview-actions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.gradient-settings-card::after {
+  background:
+    radial-gradient(ellipse 92% 68% at 50% 0%, rgba(255,255,255,0.052), transparent 62%),
+    linear-gradient(180deg, rgba(3,3,7,0.58), rgba(3,3,7,0.48) 44%, rgba(3,3,7,0.62)) !important;
+}
+
+.gradient-setting-description,
+.gradient-settings-title,
+.gradient-setting-label,
+.gradient-feature-label {
+  color: rgba(250,250,255,0.82) !important;
+  text-shadow:
+    0 1px 2px rgba(0,0,0,0.92),
+    0 0 12px rgba(0,0,0,0.38);
+}
+
+@media (max-width: 560px) {
+  .gradient-type-btn {
+    padding-inline: 11px !important;
+    letter-spacing: 0.075em !important;
+  }
+
+  .mode-btn {
+    padding-inline: 12px !important;
+  }
+}
+
+
+
+/* ─── EDGE TAB FORGIVENESS PATCH ─── */
+.gradient-preview-home-placeholder,
+.gradient-preview-home-placeholder[hidden],
+.gradient-preview-home-placeholder[data-active="false"] {
+  display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.gradient-preview-wrap.is-floating.is-minimized {
+  width: 34px !important;
+  height: 112px !important;
+  min-width: 34px !important;
+  max-width: 34px !important;
+}
+
+.gradient-preview-wrap.is-floating.tentative-edge {
+  opacity: 0.96;
+  transition: width 120ms ease, height 120ms ease, border-radius 120ms ease;
+}
+
+.gradient-preview-wrap.is-floating.dragging {
+  transition: none !important;
+}
+
+
+
+/* ─── HALF-OFFSCREEN EDGE DOCKING PATCH ─── */
+.gradient-preview-wrap.is-floating.dragging:not(.is-minimized) {
+  transition: none !important;
+}
+
+.gradient-preview-wrap.is-floating.tentative-edge {
+  transition:
+    left 125ms cubic-bezier(0.22, 1, 0.36, 1),
+    top 125ms cubic-bezier(0.22, 1, 0.36, 1),
+    width 125ms cubic-bezier(0.22, 1, 0.36, 1),
+    height 125ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-radius 125ms ease !important;
+}
+
+
+
+/* ─── FLOATING PREVIEW PINCH RESIZE ─── */
+.gradient-preview-wrap.is-floating.is-pinching {
+  transition: none !important;
+}
+
+.gradient-preview-wrap.is-floating:not(.is-minimized) {
+  max-width: none !important;
+}
+
+
+
+/* ─── IOS TOUCH PINCH SUPPORT ─── */
+.gradient-preview-wrap.is-floating {
+  touch-action: none !important;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.gradient-preview-wrap.is-floating.is-pinching {
+  transition: none !important;
+}
+
 </style>
 </head>
 
@@ -2020,6 +3194,7 @@ body {
     </div>
     <div class="gradient-output-actions">
       <button class="gradient-button" id="gradientCopyButton" type="button" data-copy-gradient-css aria-label="Copy gradient CSS">copy css</button>
+      <button class="gradient-button" id="gradientPasteButton" type="button" data-paste-gradient-css aria-label="Paste gradient CSS from clipboard">paste css</button>
     </div>
   </div>
 </div>
@@ -5049,14 +6224,50 @@ function fallbackCopyText(text, onSuccess) {
   document.body.removeChild(textarea);
 }
 
+
+function pasteGradientCssFromClipboard() {
+  const field = document.getElementById('gradientCssVal');
+  const applyText = text => {
+    const css = String(text || '').trim();
+    if (!css) { showToast('Clipboard empty'); return; }
+    if (!applyParsedGradientCss(css)) {
+      showToast('Invalid gradient');
+      if (field) field.value = buildFormattedGradientCss();
+      return;
+    }
+    updateGradientPanel();
+    showToast('Gradient CSS pasted');
+  };
+
+  if (navigator.clipboard && navigator.clipboard.readText) {
+    navigator.clipboard.readText()
+      .then(applyText)
+      .catch(() => {
+        if (field) {
+          field.focus();
+          field.select();
+        }
+        showToast('Paste into CSS field');
+      });
+    return;
+  }
+
+  if (field) {
+    field.focus();
+    field.select();
+  }
+  showToast('Paste into CSS field');
+}
+
 function setupGradientPanelEvents() {
   const panel = document.getElementById('gradientPanel');
   if (!panel || panel.dataset.gradientBound === 'true') return;
   panel.dataset.gradientBound = 'true';
   panel.addEventListener('click', e => {
     if (e.target.closest('[data-copy-gradient-css]')) { copyGradientCss(); return; }
+    if (e.target.closest('[data-paste-gradient-css]')) { pasteGradientCssFromClipboard(); return; }
     const previewWrap = e.target.closest('#gradientPreviewWrap');
-    if (previewWrap) { copyGradientCss(); previewWrap.classList.add('copied'); setTimeout(() => previewWrap.classList.remove('copied'), 180); return; }
+    if (previewWrap && !e.target.closest('[data-gradient-preview-action]')) { copyGradientCss(); previewWrap.classList.add('copied'); setTimeout(() => previewWrap.classList.remove('copied'), 180); return; }
     if (e.target.closest('.gradient-css-field')) return;
     if (e.target.closest('.gradient-editable')) return;
     const typeBtn = e.target.closest('[data-gradient-type]');
@@ -5256,6 +6467,2264 @@ window.addEventListener('resize', () => {
     updateUI();
   }, 60);
 });
+
+
+// ─── MODERN UI / TOGGLE INDICATORS / MOBILE PREVIEW FLOAT ───
+const __gradientPreviewIcons = {
+  popout: '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 7.5V4.75A1.75 1.75 0 0 1 5.75 3h2.75" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 12.5v2.75A1.75 1.75 0 0 1 14.25 17h-2.75" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M7.1 12.9 16.2 3.8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.8 3.8h4.4v4.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  dock: '<svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3.4" y="4" width="13.2" height="11.8" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M10 11.8 5.9 7.8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 11.8 14.1 7.8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 11.6V3.8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>',
+  minimize: '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 10h10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M14.2 6.8 17 9.6 14.2 12.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  restore: '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5.8 6.8 3 9.6l2.8 2.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 10H3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>'
+};
+const __gradientPreviewMedia = window.matchMedia('(max-width: 560px)');
+let __gradientPreviewDrag = null;
+
+function ensureGradientPreviewState() {
+  ensureGradientState();
+  if (!S.gradient.previewUi) {
+    S.gradient.previewUi = { floating: false, minimized: false, x: null, y: null, edge: 'right', suppressClick: false };
+  }
+  S.gradient.previewUi.edge = S.gradient.previewUi.edge || 'right';
+  return S.gradient.previewUi;
+}
+
+function ensureSegmentedIndicator(toggleEl) {
+  if (!toggleEl) return null;
+  let indicator = toggleEl.querySelector(':scope > .segmented-indicator');
+  if (!indicator) {
+    indicator = document.createElement('div');
+    indicator.className = 'segmented-indicator';
+    toggleEl.insertBefore(indicator, toggleEl.firstChild);
+  }
+  return indicator;
+}
+
+function updateSegmentedToggleIndicators() {
+  document.querySelectorAll('.mode-toggle, .gradient-type-toggle, .gradient-toggle-group').forEach(toggleEl => {
+    const indicator = ensureSegmentedIndicator(toggleEl);
+    const active = toggleEl.querySelector('.mode-btn.active, .gradient-type-btn.active, .gradient-button.active');
+    if (!indicator || !active) {
+      if (indicator) indicator.style.opacity = '0';
+      return;
+    }
+    const toggleRect = toggleEl.getBoundingClientRect();
+    const activeRect = active.getBoundingClientRect();
+    indicator.style.opacity = '1';
+    indicator.style.setProperty('--segment-width', `${activeRect.width}px`);
+    indicator.style.width = `${activeRect.width}px`;
+    indicator.style.transform = `translateX(${Math.round(activeRect.left - toggleRect.left)}px)`;
+  });
+}
+
+function ensureGradientPreviewActions() {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  if (!wrap) return;
+  let actions = wrap.querySelector('.gradient-preview-actions');
+  if (!actions) {
+    actions = document.createElement('div');
+    actions.className = 'gradient-preview-actions';
+    actions.innerHTML = `
+      <button class="gradient-preview-action" type="button" data-gradient-preview-action="popout" aria-label="Pop out gradient preview">${__gradientPreviewIcons.popout}</button>
+      <button class="gradient-preview-action" type="button" data-gradient-preview-action="dock" aria-label="Dock gradient preview" hidden>${__gradientPreviewIcons.dock}</button>
+      <button class="gradient-preview-action" type="button" data-gradient-preview-action="minimize" aria-label="Minimize gradient preview" hidden>${__gradientPreviewIcons.minimize}</button>
+    `;
+    wrap.appendChild(actions);
+  }
+  if (!wrap.dataset.previewChromeBound) {
+    wrap.dataset.previewChromeBound = 'true';
+    wrap.addEventListener('click', ev => {
+      if (ev.target.closest('[data-gradient-preview-action]')) {
+        ev.stopPropagation();
+        ev.preventDefault();
+        const action = ev.target.closest('[data-gradient-preview-action]').dataset.gradientPreviewAction;
+        if (action === 'popout') setGradientPreviewFloating(true);
+        else if (action === 'dock') setGradientPreviewFloating(false);
+        else if (action === 'minimize') toggleGradientPreviewMinimized();
+        return;
+      }
+      const state = ensureGradientPreviewState();
+      if (state.suppressClick) {
+        ev.stopPropagation();
+        ev.preventDefault();
+        state.suppressClick = false;
+      }
+    }, true);
+    wrap.addEventListener('pointerdown', onGradientPreviewPointerDown, true);
+  }
+  syncGradientPreviewActions();
+}
+
+function syncGradientPreviewActions() {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  if (!wrap) return;
+  const state = ensureGradientPreviewState();
+  const mobile = __gradientPreviewMedia.matches;
+  const floating = mobile && !!state.floating;
+  wrap.classList.toggle('is-floating', floating);
+  wrap.classList.toggle('is-minimized', floating && !!state.minimized);
+  wrap.dataset.edge = state.edge || 'right';
+  const popout = wrap.querySelector('[data-gradient-preview-action="popout"]');
+  const dock = wrap.querySelector('[data-gradient-preview-action="dock"]');
+  const minimize = wrap.querySelector('[data-gradient-preview-action="minimize"]');
+  if (popout) popout.hidden = !mobile || floating;
+  if (dock) dock.hidden = !mobile || !floating;
+  if (minimize) {
+    minimize.hidden = !mobile || !floating;
+    minimize.innerHTML = state.minimized ? __gradientPreviewIcons.restore : __gradientPreviewIcons.minimize;
+    minimize.setAttribute('aria-label', state.minimized ? 'Restore floating preview size' : 'Minimize floating preview');
+  }
+  if (!floating) {
+    wrap.style.left = '';
+    wrap.style.top = '';
+    wrap.style.right = '';
+    wrap.style.bottom = '';
+    wrap.style.width = '';
+    return;
+  }
+  applyGradientPreviewFloatPosition();
+}
+
+function defaultGradientPreviewFloatPosition() {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  const width = Math.min(window.innerWidth * 0.48, 208);
+  const height = width * (2/3);
+  return {
+    x: Math.max(8, window.innerWidth - width - 12),
+    y: Math.max(64, Math.min(window.innerHeight - height - 12, 84)),
+    width,
+    height,
+  };
+}
+
+function clampGradientPreviewPosition(x, y, width, height) {
+  return {
+    x: Math.min(Math.max(8, x), Math.max(8, window.innerWidth - width - 8)),
+    y: Math.min(Math.max(8, y), Math.max(8, window.innerHeight - height - 8)),
+  };
+}
+
+function applyGradientPreviewFloatPosition() {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  if (!wrap) return;
+  const state = ensureGradientPreviewState();
+  if (!(__gradientPreviewMedia.matches && state.floating)) return;
+  const fallback = defaultGradientPreviewFloatPosition();
+  const width = state.minimized ? 118 : fallback.width;
+  const height = width * (2/3);
+  if (!Number.isFinite(state.x) || !Number.isFinite(state.y)) {
+    state.x = fallback.x;
+    state.y = fallback.y;
+  }
+  const clamped = clampGradientPreviewPosition(state.x, state.y, width, height);
+  state.x = clamped.x;
+  state.y = clamped.y;
+  wrap.style.width = `${width}px`;
+  wrap.style.left = `${state.x}px`;
+  wrap.style.top = `${state.y}px`;
+}
+
+function snapGradientPreviewToNearestEdge() {
+  const state = ensureGradientPreviewState();
+  const fallback = defaultGradientPreviewFloatPosition();
+  const width = state.minimized ? 118 : fallback.width;
+  const height = width * (2/3);
+  const x = Number.isFinite(state.x) ? state.x : fallback.x;
+  const y = Number.isFinite(state.y) ? state.y : fallback.y;
+  const distances = {
+    left: x,
+    right: Math.abs(window.innerWidth - (x + width)),
+    top: y,
+    bottom: Math.abs(window.innerHeight - (y + height)),
+  };
+  const edge = Object.entries(distances).sort((a, b) => a[1] - b[1])[0][0];
+  state.edge = edge;
+  if (edge === 'left') state.x = 8;
+  else if (edge === 'right') state.x = Math.max(8, window.innerWidth - width - 8);
+  else if (edge === 'top') state.y = 8;
+  else if (edge === 'bottom') state.y = Math.max(8, window.innerHeight - height - 8);
+  const clamped = clampGradientPreviewPosition(state.x, state.y, width, height);
+  state.x = clamped.x;
+  state.y = clamped.y;
+  applyGradientPreviewFloatPosition();
+}
+
+function setGradientPreviewFloating(nextFloating) {
+  const state = ensureGradientPreviewState();
+  if (!__gradientPreviewMedia.matches && nextFloating) return;
+  state.floating = !!nextFloating;
+  if (!state.floating) {
+    state.minimized = false;
+    state.suppressClick = true;
+  }
+  syncGradientPreviewActions();
+}
+
+function toggleGradientPreviewMinimized() {
+  const state = ensureGradientPreviewState();
+  state.minimized = !state.minimized;
+  state.suppressClick = true;
+  syncGradientPreviewActions();
+}
+
+function onGradientPreviewPointerDown(ev) {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  if (!wrap) return;
+  const state = ensureGradientPreviewState();
+  if (!(__gradientPreviewMedia.matches && state.floating)) return;
+  if (ev.target.closest('[data-gradient-preview-action]')) return;
+  const rect = wrap.getBoundingClientRect();
+  __gradientPreviewDrag = {
+    pointerId: ev.pointerId,
+    startX: ev.clientX,
+    startY: ev.clientY,
+    originX: rect.left,
+    originY: rect.top,
+    moved: false,
+  };
+  wrap.classList.add('dragging');
+  try { wrap.setPointerCapture(ev.pointerId); } catch {}
+}
+
+function syncGradientGlassVisuals() {
+  ensureGradientPreviewActions();
+  updateSegmentedToggleIndicators();
+  const settingsCard = document.getElementById('gradientSettingsCard');
+  if (settingsCard) {
+    const bg = SUPPORT.cssOKLCH ? buildGradientCss() : buildGradientCss({ fallback: true });
+    settingsCard.style.setProperty('--settings-card-bg', bg);
+  }
+}
+
+const __originalStopCardBackground = stopCardBackground;
+stopCardBackground = function(stop) {
+  const [r, g, b] = stopRgbParts(stop);
+  const p = fmtGradientNumber(stop.position, 2);
+  const type = S.gradient.type;
+  if (type === 'radial') {
+    return `radial-gradient(circle at ${p}% 50%, rgba(${r},${g},${b},0.46), rgba(${r},${g},${b},0.18) 18%, rgba(${r},${g},${b},0.07) 44%, transparent 76%)`;
+  }
+  if (type === 'conical') {
+    const deg = fmtGradientNumber((stop.position / 100) * 360 + Number(S.gradient.conic.angle || 0), 2);
+    return `conic-gradient(from ${deg}deg at 50% 50%, rgba(${r},${g},${b},0.06), rgba(${r},${g},${b},0.36) 14deg, rgba(${r},${g},${b},0.13) 55deg, rgba(${r},${g},${b},0.02) 110deg, transparent 180deg)`;
+  }
+  if (type === 'reflected') {
+    const center = stop.position / 2;
+    return `linear-gradient(90deg, transparent 0%, rgba(${r},${g},${b},0.05) ${Math.max(0, center - 24)}%, rgba(${r},${g},${b},0.34) ${center}%, rgba(${r},${g},${b},0.16) ${Math.min(100, center + 10)}%, rgba(${r},${g},${b},0.34) ${Math.min(100, 100 - center)}%, transparent 100%)`;
+  }
+  const angle = fmtGradientNumber(S.gradient.linear.angle || 90, 2);
+  return `linear-gradient(${angle}deg, transparent 0%, rgba(${r},${g},${b},0.05) ${Math.max(0, stop.position - 28)}%, rgba(${r},${g},${b},0.40) ${p}%, rgba(${r},${g},${b},0.14) ${Math.min(100, stop.position + 10)}%, transparent ${Math.min(100, stop.position + 42)}%)`;
+};
+
+const __originalUpdateGradientPanel = updateGradientPanel;
+updateGradientPanel = function(...args) {
+  const result = __originalUpdateGradientPanel.apply(this, args);
+  requestAnimationFrame(syncGradientGlassVisuals);
+  return result;
+};
+
+const __originalRebuildUI = rebuildUI;
+rebuildUI = function(...args) {
+  const result = __originalRebuildUI.apply(this, args);
+  requestAnimationFrame(syncGradientGlassVisuals);
+  return result;
+};
+
+window.addEventListener('pointermove', ev => {
+  if (!__gradientPreviewDrag) return;
+  const state = ensureGradientPreviewState();
+  const fallback = defaultGradientPreviewFloatPosition();
+  const width = state.minimized ? 118 : fallback.width;
+  const height = width * (2/3);
+  const dx = ev.clientX - __gradientPreviewDrag.startX;
+  const dy = ev.clientY - __gradientPreviewDrag.startY;
+  if (Math.abs(dx) > 3 || Math.abs(dy) > 3) __gradientPreviewDrag.moved = true;
+  const next = clampGradientPreviewPosition(__gradientPreviewDrag.originX + dx, __gradientPreviewDrag.originY + dy, width, height);
+  state.x = next.x;
+  state.y = next.y;
+  applyGradientPreviewFloatPosition();
+});
+
+window.addEventListener('pointerup', ev => {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  if (!__gradientPreviewDrag) return;
+  const state = ensureGradientPreviewState();
+  if (wrap) wrap.classList.remove('dragging');
+  if (__gradientPreviewDrag.moved) {
+    state.suppressClick = true;
+    snapGradientPreviewToNearestEdge();
+  }
+  __gradientPreviewDrag = null;
+});
+
+window.addEventListener('resize', () => {
+  requestAnimationFrame(() => {
+    updateSegmentedToggleIndicators();
+    syncGradientPreviewActions();
+  });
+});
+if (__gradientPreviewMedia.addEventListener) {
+  __gradientPreviewMedia.addEventListener('change', () => {
+    const state = ensureGradientPreviewState();
+    if (!__gradientPreviewMedia.matches) {
+      state.floating = false;
+      state.minimized = false;
+    }
+    syncGradientPreviewActions();
+    updateSegmentedToggleIndicators();
+  });
+}
+
+
+// ─── POPOUT PREVIEW SNAP + LOW-CHROME CONTROLS OVERRIDE ───
+let __gradientPreviewChromeTimer = null;
+
+function gradientPreviewChevronSvg(direction = 'left') {
+  const d = direction === 'right'
+    ? 'M7.5 4.5 13 10l-5.5 5.5'
+    : 'M12.5 4.5 7 10l5.5 5.5';
+  return `<svg viewBox="0 0 20 20" aria-hidden="true"><path d="${d}" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+}
+
+function gradientPreviewPopoutSvg() {
+  return '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 7.5V4.75A1.75 1.75 0 0 1 5.75 3h2.75" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 12.5v2.75A1.75 1.75 0 0 1 14.25 17h-2.75" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M7.1 12.9 16.2 3.8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.8 3.8h4.4v4.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+}
+
+function showGradientPreviewChrome(duration = 2200) {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  if (!wrap) return;
+  wrap.classList.add('show-chrome');
+  clearTimeout(__gradientPreviewChromeTimer);
+  if (!wrap.classList.contains('is-minimized')) {
+    __gradientPreviewChromeTimer = setTimeout(() => wrap.classList.remove('show-chrome'), duration);
+  }
+}
+
+function ensureGradientPreviewState() {
+  ensureGradientState();
+  if (!S.gradient.previewUi) {
+    S.gradient.previewUi = { floating: false, minimized: false, x: null, y: null, edge: 'right', spot: 'top-right', suppressClick: false };
+  }
+  const ui = S.gradient.previewUi;
+  ui.edge = ui.edge || 'right';
+  ui.spot = ui.spot || 'top-right';
+  return ui;
+}
+
+function ensureGradientPreviewActions() {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  if (!wrap) return;
+  let actions = wrap.querySelector('.gradient-preview-actions');
+  if (!actions) {
+    actions = document.createElement('div');
+    actions.className = 'gradient-preview-actions';
+    wrap.appendChild(actions);
+  }
+  // Keep only one control: pop out while docked, edge-collapse/restore while floating.
+  actions.innerHTML = '<button class="gradient-preview-action" type="button" data-gradient-preview-action="popout" aria-label="Pop out gradient preview"></button>';
+
+  if (!wrap.dataset.previewSnapBound) {
+    wrap.dataset.previewSnapBound = 'true';
+    wrap.addEventListener('click', ev => {
+      const actionBtn = ev.target.closest('[data-gradient-preview-action]');
+      if (actionBtn) {
+        ev.stopPropagation();
+        ev.preventDefault();
+        const action = actionBtn.dataset.gradientPreviewAction;
+        if (action === 'popout') setGradientPreviewFloating(true);
+        else if (action === 'minimize') toggleGradientPreviewMinimized();
+        return;
+      }
+      const state = ensureGradientPreviewState();
+      if (state.suppressClick) {
+        ev.stopPropagation();
+        ev.preventDefault();
+        state.suppressClick = false;
+      }
+    }, true);
+    wrap.addEventListener('pointerdown', onGradientPreviewPointerDown, true);
+    wrap.addEventListener('pointerenter', () => {
+      if (wrap.classList.contains('is-floating')) showGradientPreviewChrome();
+    });
+  }
+
+  syncGradientPreviewActions();
+}
+
+function gradientPreviewSize(minimized = false) {
+  if (minimized) return { width: 36, height: 112 };
+  const width = Math.min(window.innerWidth * 0.48, 208);
+  return { width, height: width * (2 / 3) };
+}
+
+function gradientPreviewSnapSpots() {
+  const normal = gradientPreviewSize(false);
+  const tab = gradientPreviewSize(true);
+  const margin = 12;
+  const top = Math.max(54, Math.min(86, window.innerHeight * 0.11));
+  const bottom = Math.max(top, window.innerHeight - normal.height - margin);
+  const left = margin;
+  const right = window.innerWidth - normal.width - margin;
+  const centerY = (window.innerHeight - normal.height) / 2;
+  return {
+    'top-left': { x: left, y: top, minimized: false, edge: 'left' },
+    'top-right': { x: right, y: top, minimized: false, edge: 'right' },
+    'bottom-left': { x: left, y: bottom, minimized: false, edge: 'left' },
+    'bottom-right': { x: right, y: bottom, minimized: false, edge: 'right' },
+    'left': { x: -6, y: (window.innerHeight - tab.height) / 2, minimized: true, edge: 'left' },
+    'right': { x: window.innerWidth - tab.width + 6, y: (window.innerHeight - tab.height) / 2, minimized: true, edge: 'right' },
+  };
+}
+
+function clampGradientPreviewPosition(x, y, width, height) {
+  return {
+    x: Math.min(Math.max(-8, x), Math.max(-8, window.innerWidth - width + 8)),
+    y: Math.min(Math.max(8, y), Math.max(8, window.innerHeight - height - 8)),
+  };
+}
+
+function nearestGradientPreviewSpot(x, y, width, height) {
+  const cx = x + width / 2;
+  const cy = y + height / 2;
+  const spots = gradientPreviewSnapSpots();
+  let best = 'top-right';
+  let bestDist = Infinity;
+  Object.entries(spots).forEach(([name, spot]) => {
+    const size = gradientPreviewSize(spot.minimized);
+    const sx = spot.x + size.width / 2;
+    const sy = spot.y + size.height / 2;
+    const dist = Math.hypot(cx - sx, cy - sy);
+    if (dist < bestDist) {
+      best = name;
+      bestDist = dist;
+    }
+  });
+  return best;
+}
+
+function applyGradientPreviewSpot(spotName) {
+  const state = ensureGradientPreviewState();
+  const spots = gradientPreviewSnapSpots();
+  const spot = spots[spotName] || spots['top-right'];
+  state.spot = spotName;
+  state.edge = spot.edge;
+  state.minimized = !!spot.minimized;
+  state.x = spot.x;
+  state.y = spot.y;
+  applyGradientPreviewFloatPosition();
+}
+
+function applyGradientPreviewFloatPosition() {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  if (!wrap) return;
+  const state = ensureGradientPreviewState();
+  if (!(__gradientPreviewMedia.matches && state.floating)) return;
+
+  const size = gradientPreviewSize(!!state.minimized);
+  if (!Number.isFinite(state.x) || !Number.isFinite(state.y)) {
+    const spots = gradientPreviewSnapSpots();
+    const spot = spots[state.spot] || spots['top-right'];
+    state.x = spot.x;
+    state.y = spot.y;
+    state.edge = spot.edge;
+    state.minimized = !!spot.minimized;
+  }
+
+  wrap.style.width = `${size.width}px`;
+  wrap.style.height = `${size.height}px`;
+  wrap.style.left = `${state.x}px`;
+  wrap.style.top = `${state.y}px`;
+  wrap.style.right = 'auto';
+  wrap.style.bottom = 'auto';
+}
+
+function syncGradientPreviewActions() {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  if (!wrap) return;
+  const state = ensureGradientPreviewState();
+  const mobile = __gradientPreviewMedia.matches;
+  const floating = mobile && !!state.floating;
+
+  wrap.classList.toggle('is-floating', floating);
+  wrap.classList.toggle('is-minimized', floating && !!state.minimized);
+  wrap.dataset.edge = state.edge || 'right';
+
+  const action = wrap.querySelector('[data-gradient-preview-action]');
+  if (action) {
+    if (!mobile || !floating) {
+      action.dataset.gradientPreviewAction = 'popout';
+      action.innerHTML = gradientPreviewPopoutSvg();
+      action.setAttribute('aria-label', 'Pop out gradient preview');
+      action.hidden = !mobile;
+    } else {
+      action.dataset.gradientPreviewAction = 'minimize';
+      const direction = state.edge === 'left' ? 'right' : 'left';
+      action.innerHTML = gradientPreviewChevronSvg(direction);
+      action.setAttribute('aria-label', state.minimized ? 'Restore floating preview' : 'Collapse floating preview to edge');
+      action.hidden = false;
+    }
+  }
+
+  if (!floating) {
+    wrap.style.left = '';
+    wrap.style.top = '';
+    wrap.style.right = '';
+    wrap.style.bottom = '';
+    wrap.style.width = '';
+    wrap.style.height = '';
+    wrap.classList.remove('show-chrome');
+    return;
+  }
+
+  applyGradientPreviewFloatPosition();
+  if (state.minimized) wrap.classList.add('show-chrome');
+}
+
+function setGradientPreviewFloating(nextFloating) {
+  const state = ensureGradientPreviewState();
+  if (!__gradientPreviewMedia.matches && nextFloating) return;
+  state.floating = !!nextFloating;
+  state.suppressClick = true;
+  if (state.floating) {
+    applyGradientPreviewSpot(state.spot || 'top-right');
+    showGradientPreviewChrome(2600);
+  } else {
+    state.minimized = false;
+  }
+  syncGradientPreviewActions();
+}
+
+function toggleGradientPreviewMinimized() {
+  const state = ensureGradientPreviewState();
+  state.suppressClick = true;
+  if (state.minimized) {
+    const spots = gradientPreviewSnapSpots();
+    const normalSpot = state.edge === 'left'
+      ? (state.y > window.innerHeight / 2 ? 'bottom-left' : 'top-left')
+      : (state.y > window.innerHeight / 2 ? 'bottom-right' : 'top-right');
+    const spot = spots[normalSpot];
+    state.spot = normalSpot;
+    state.minimized = false;
+    state.edge = spot.edge;
+    state.x = spot.x;
+    state.y = Math.min(Math.max(spot.y, 54), window.innerHeight - gradientPreviewSize(false).height - 12);
+  } else {
+    const spotName = state.edge === 'left' || state.x < window.innerWidth / 2 ? 'left' : 'right';
+    applyGradientPreviewSpot(spotName);
+  }
+  syncGradientPreviewActions();
+  showGradientPreviewChrome(2000);
+}
+
+function onGradientPreviewPointerDown(ev) {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  if (!wrap) return;
+  const state = ensureGradientPreviewState();
+  if (!(__gradientPreviewMedia.matches && state.floating)) return;
+  if (ev.target.closest('[data-gradient-preview-action]')) return;
+  const rect = wrap.getBoundingClientRect();
+  __gradientPreviewDrag = {
+    pointerId: ev.pointerId,
+    startX: ev.clientX,
+    startY: ev.clientY,
+    originX: rect.left,
+    originY: rect.top,
+    moved: false,
+  };
+  state.minimized = false;
+  wrap.classList.remove('is-minimized');
+  wrap.classList.add('dragging');
+  showGradientPreviewChrome(3000);
+  try { wrap.setPointerCapture(ev.pointerId); } catch {}
+}
+
+function snapGradientPreviewToNearestEdge() {
+  const state = ensureGradientPreviewState();
+  const currentSize = gradientPreviewSize(false);
+  const spotName = nearestGradientPreviewSpot(state.x, state.y, currentSize.width, currentSize.height);
+  applyGradientPreviewSpot(spotName);
+  showGradientPreviewChrome(state.minimized ? 999999 : 2200);
+}
+
+const __originalSyncGradientGlassVisuals = syncGradientGlassVisuals;
+syncGradientGlassVisuals = function() {
+  __originalSyncGradientGlassVisuals();
+  updateSegmentedToggleIndicators();
+  syncGradientPreviewActions();
+};
+
+
+
+// ─── PATCH: BODY-PORTALLED POPOUT WITH SIX SNAP SPOTS ───
+let __gradientPreviewHome = null;
+
+function gradientPreviewHomeSvg() {
+  return '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 9.6 10 4l6 5.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.2 8.7v6.1A1.2 1.2 0 0 0 7.4 16h5.2a1.2 1.2 0 0 0 1.2-1.2V8.7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+}
+
+function gradientPreviewChevronSvg(direction = 'left') {
+  const d = direction === 'right'
+    ? 'M7.2 4.2 13.2 10l-6 5.8'
+    : 'M12.8 4.2 6.8 10l6 5.8';
+  return `<svg viewBox="0 0 20 20" aria-hidden="true"><path d="${d}" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+}
+
+function captureGradientPreviewHome(wrap) {
+  if (__gradientPreviewHome || !wrap || !wrap.parentNode) return;
+  const placeholder = document.createElement('div');
+  placeholder.className = 'gradient-preview-home-placeholder';
+  placeholder.hidden = true;
+  wrap.parentNode.insertBefore(placeholder, wrap.nextSibling);
+  __gradientPreviewHome = { parent: wrap.parentNode, next: placeholder, placeholder };
+}
+
+function portalGradientPreviewToBody() {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  if (!wrap) return;
+  captureGradientPreviewHome(wrap);
+  if (__gradientPreviewHome?.placeholder) __gradientPreviewHome.placeholder.hidden = false;
+  if (wrap.parentNode !== document.body) document.body.appendChild(wrap);
+}
+
+function restoreGradientPreviewHome() {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  if (!wrap || !__gradientPreviewHome) return;
+  const { parent, placeholder } = __gradientPreviewHome;
+  parent.insertBefore(wrap, placeholder);
+  placeholder.hidden = true;
+}
+
+function ensureGradientPreviewActions() {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  if (!wrap) return;
+
+  let actions = wrap.querySelector('.gradient-preview-actions');
+  if (!actions) {
+    actions = document.createElement('div');
+    actions.className = 'gradient-preview-actions';
+    wrap.appendChild(actions);
+  }
+  if (!actions.querySelector('[data-gradient-preview-action]')) {
+    actions.innerHTML = '<button class="gradient-preview-action" type="button" data-gradient-preview-action="popout" aria-label="Pop out gradient preview"></button>';
+  }
+
+  if (!wrap.dataset.previewPortalBound) {
+    wrap.dataset.previewPortalBound = 'true';
+
+    wrap.addEventListener('click', ev => {
+      const actionBtn = ev.target.closest('[data-gradient-preview-action]');
+      if (actionBtn) {
+        ev.stopPropagation();
+        ev.preventDefault();
+        const action = actionBtn.dataset.gradientPreviewAction;
+        if (action === 'popout') setGradientPreviewFloating(true);
+        else if (action === 'home') setGradientPreviewFloating(false);
+        else if (action === 'restore') restoreFromGradientPreviewEdgeTab();
+        return;
+      }
+
+      const state = ensureGradientPreviewState();
+      if (state.suppressClick) {
+        ev.stopPropagation();
+        ev.preventDefault();
+        state.suppressClick = false;
+        return;
+      }
+
+      // When portalled to body, panel event delegation cannot see the preview.
+      if (wrap.classList.contains('is-floating')) {
+        ev.stopPropagation();
+        copyGradientCss();
+      }
+    }, true);
+
+    wrap.addEventListener('pointerdown', onGradientPreviewPointerDown, true);
+    wrap.addEventListener('pointerenter', () => {
+      if (wrap.classList.contains('is-floating') && !wrap.classList.contains('is-minimized')) {
+        showGradientPreviewChrome();
+      }
+    });
+    wrap.addEventListener('pointermove', () => {
+      if (wrap.classList.contains('is-floating') && !wrap.classList.contains('is-minimized')) {
+        showGradientPreviewChrome();
+      }
+    });
+  }
+
+  syncGradientPreviewActions();
+}
+
+function syncGradientPreviewActions() {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  if (!wrap) return;
+  const state = ensureGradientPreviewState();
+  const mobile = __gradientPreviewMedia.matches;
+  const floating = mobile && !!state.floating;
+
+  if (floating) portalGradientPreviewToBody();
+  else restoreGradientPreviewHome();
+
+  wrap.classList.toggle('is-floating', floating);
+  wrap.classList.toggle('is-minimized', floating && !!state.minimized);
+  wrap.dataset.edge = state.edge || 'right';
+
+  const action = wrap.querySelector('[data-gradient-preview-action]');
+  if (action) {
+    if (!mobile || !floating) {
+      action.dataset.gradientPreviewAction = 'popout';
+      action.innerHTML = gradientPreviewPopoutSvg();
+      action.setAttribute('aria-label', 'Pop out gradient preview');
+      action.hidden = !mobile;
+    } else if (state.minimized) {
+      action.dataset.gradientPreviewAction = 'restore';
+      const direction = state.edge === 'left' ? 'right' : 'left';
+      action.innerHTML = gradientPreviewChevronSvg(direction);
+      action.setAttribute('aria-label', 'Restore floating preview');
+      action.hidden = false;
+    } else {
+      action.dataset.gradientPreviewAction = 'home';
+      action.innerHTML = gradientPreviewHomeSvg();
+      action.setAttribute('aria-label', 'Return gradient preview home');
+      action.hidden = false;
+    }
+  }
+
+  if (!floating) {
+    wrap.style.left = '';
+    wrap.style.top = '';
+    wrap.style.right = '';
+    wrap.style.bottom = '';
+    wrap.style.width = '';
+    wrap.style.height = '';
+    wrap.classList.remove('show-chrome', 'is-minimized', 'dragging');
+    return;
+  }
+
+  applyGradientPreviewFloatPosition();
+  if (state.minimized) wrap.classList.add('show-chrome');
+}
+
+function gradientPreviewSize(minimized = false) {
+  if (minimized) return { width: 34, height: 112 };
+  const width = Math.min(window.innerWidth * 0.46, 204);
+  return { width, height: width * (2 / 3) };
+}
+
+function gradientPreviewSnapSpots() {
+  const normal = gradientPreviewSize(false);
+  const tab = gradientPreviewSize(true);
+  const margin = 14;
+  const top = Math.max(64, Math.min(92, window.innerHeight * 0.12));
+  const bottom = Math.max(top, window.innerHeight - normal.height - margin);
+  return {
+    'top-left': { x: margin, y: top, minimized: false, edge: 'left' },
+    'top-right': { x: window.innerWidth - normal.width - margin, y: top, minimized: false, edge: 'right' },
+    'bottom-left': { x: margin, y: bottom, minimized: false, edge: 'left' },
+    'bottom-right': { x: window.innerWidth - normal.width - margin, y: bottom, minimized: false, edge: 'right' },
+    'left': { x: 0, y: (window.innerHeight - tab.height) / 2, minimized: true, edge: 'left' },
+    'right': { x: window.innerWidth - tab.width, y: (window.innerHeight - tab.height) / 2, minimized: true, edge: 'right' },
+  };
+}
+
+function nearestGradientPreviewSpot(x, y, width, height) {
+  // Collapse only when deliberately dragged close to a browser edge.
+  const edgeThreshold = 28;
+  if (x <= edgeThreshold) return 'left';
+  if (x + width >= window.innerWidth - edgeThreshold) return 'right';
+
+  const cx = x + width / 2;
+  const cy = y + height / 2;
+  const top = cy < window.innerHeight / 2;
+  const left = cx < window.innerWidth / 2;
+  if (top && left) return 'top-left';
+  if (top && !left) return 'top-right';
+  if (!top && left) return 'bottom-left';
+  return 'bottom-right';
+}
+
+function applyGradientPreviewSpot(spotName) {
+  const state = ensureGradientPreviewState();
+  const spots = gradientPreviewSnapSpots();
+  const spot = spots[spotName] || spots['top-right'];
+  state.spot = spotName;
+  state.edge = spot.edge;
+  state.minimized = !!spot.minimized;
+  state.x = spot.x;
+  state.y = spot.y;
+  applyGradientPreviewFloatPosition();
+}
+
+function applyGradientPreviewFloatPosition() {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  if (!wrap) return;
+  const state = ensureGradientPreviewState();
+  if (!(__gradientPreviewMedia.matches && state.floating)) return;
+
+  const size = gradientPreviewSize(!!state.minimized);
+  if (!Number.isFinite(state.x) || !Number.isFinite(state.y)) {
+    const spots = gradientPreviewSnapSpots();
+    const spot = spots[state.spot] || spots['top-right'];
+    state.x = spot.x;
+    state.y = spot.y;
+    state.edge = spot.edge;
+    state.minimized = !!spot.minimized;
+  }
+
+  wrap.style.width = `${size.width}px`;
+  wrap.style.height = `${size.height}px`;
+  wrap.style.left = `${state.x}px`;
+  wrap.style.top = `${state.y}px`;
+  wrap.style.right = 'auto';
+  wrap.style.bottom = 'auto';
+}
+
+function setGradientPreviewFloating(nextFloating) {
+  const state = ensureGradientPreviewState();
+  if (!__gradientPreviewMedia.matches && nextFloating) return;
+  state.floating = !!nextFloating;
+  state.suppressClick = true;
+
+  if (state.floating) {
+    state.minimized = false;
+    if (!state.spot || state.spot === 'left' || state.spot === 'right') state.spot = 'top-right';
+    applyGradientPreviewSpot(state.spot);
+    showGradientPreviewChrome(2400);
+  } else {
+    state.minimized = false;
+    state.x = null;
+    state.y = null;
+  }
+
+  syncGradientPreviewActions();
+}
+
+function restoreFromGradientPreviewEdgeTab() {
+  const state = ensureGradientPreviewState();
+  const edge = state.edge || 'right';
+  const topHalf = Number(state.y) < window.innerHeight / 2;
+  const spotName = edge === 'left'
+    ? (topHalf ? 'top-left' : 'bottom-left')
+    : (topHalf ? 'top-right' : 'bottom-right');
+  state.minimized = false;
+  applyGradientPreviewSpot(spotName);
+  state.suppressClick = true;
+  syncGradientPreviewActions();
+  showGradientPreviewChrome(2400);
+}
+
+function toggleGradientPreviewMinimized() {
+  const state = ensureGradientPreviewState();
+  if (state.minimized) restoreFromGradientPreviewEdgeTab();
+  else {
+    const spotName = Number(state.x) < window.innerWidth / 2 ? 'left' : 'right';
+    applyGradientPreviewSpot(spotName);
+    state.suppressClick = true;
+    syncGradientPreviewActions();
+  }
+}
+
+function onGradientPreviewPointerDown(ev) {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  if (!wrap) return;
+  const state = ensureGradientPreviewState();
+  if (!(__gradientPreviewMedia.matches && state.floating)) return;
+
+  if (ev.target.closest('[data-gradient-preview-action]')) return;
+
+  const wasMinimized = !!state.minimized;
+  const normal = gradientPreviewSize(false);
+
+  if (wasMinimized) {
+    // Dragging the edge tab should immediately undock to a full floating preview under the finger.
+    state.minimized = false;
+    state.x = ev.clientX - normal.width / 2;
+    state.y = ev.clientY - normal.height / 2;
+    applyGradientPreviewFloatPosition();
+    syncGradientPreviewActions();
+  }
+
+  const rect = wrap.getBoundingClientRect();
+  __gradientPreviewDrag = {
+    pointerId: ev.pointerId,
+    startX: ev.clientX,
+    startY: ev.clientY,
+    originX: rect.left,
+    originY: rect.top,
+    moved: wasMinimized,
+  };
+  wrap.classList.add('dragging');
+  showGradientPreviewChrome(3000);
+  try { wrap.setPointerCapture(ev.pointerId); } catch {}
+}
+
+function snapGradientPreviewToNearestEdge() {
+  const state = ensureGradientPreviewState();
+  const size = gradientPreviewSize(false);
+  const spotName = nearestGradientPreviewSpot(state.x, state.y, size.width, size.height);
+  applyGradientPreviewSpot(spotName);
+  showGradientPreviewChrome(state.minimized ? 999999 : 2200);
+}
+
+
+
+// ─── FINAL POPOUT STATE MACHINE PATCH ───
+let __gradientFinalChromeTimer = null;
+let __gradientFinalClickSuppressUntil = 0;
+
+function gradientPreviewHomeSvg() {
+  return '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 9.6 10 4l6 5.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.2 8.7v6.1A1.2 1.2 0 0 0 7.4 16h5.2a1.2 1.2 0 0 0 1.2-1.2V8.7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+}
+
+function gradientPreviewChevronSvg(direction = 'left') {
+  const d = direction === 'right'
+    ? 'M7 4.2 13 10l-6 5.8'
+    : 'M13 4.2 7 10l6 5.8';
+  return `<svg viewBox="0 0 20 20" aria-hidden="true"><path d="${d}" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+}
+
+function showGradientPreviewChrome(duration = 2200) {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  if (!wrap) return;
+  wrap.classList.add('show-chrome');
+  clearTimeout(__gradientFinalChromeTimer);
+  if (!wrap.classList.contains('is-minimized')) {
+    __gradientFinalChromeTimer = setTimeout(() => wrap.classList.remove('show-chrome'), duration);
+  }
+}
+
+function ensureGradientPreviewState() {
+  ensureGradientState();
+  if (!S.gradient.previewUi) {
+    S.gradient.previewUi = { floating: false, minimized: false, x: null, y: null, edge: 'right', spot: 'top-right', suppressClick: false };
+  }
+  const ui = S.gradient.previewUi;
+  ui.edge = ui.edge || 'right';
+  ui.spot = ui.spot || 'top-right';
+  return ui;
+}
+
+function captureGradientPreviewHome(wrap) {
+  if (__gradientPreviewHome || !wrap || !wrap.parentNode) return;
+  const placeholder = document.createElement('div');
+  placeholder.className = 'gradient-preview-home-placeholder';
+  placeholder.hidden = true;
+  wrap.parentNode.insertBefore(placeholder, wrap.nextSibling);
+  __gradientPreviewHome = { parent: wrap.parentNode, placeholder };
+}
+
+function portalGradientPreviewToBody() {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  if (!wrap) return;
+  captureGradientPreviewHome(wrap);
+  if (__gradientPreviewHome?.placeholder) __gradientPreviewHome.placeholder.hidden = false;
+  if (wrap.parentNode !== document.body) document.body.appendChild(wrap);
+}
+
+function restoreGradientPreviewHome() {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  if (!wrap || !__gradientPreviewHome) return;
+  const { parent, placeholder } = __gradientPreviewHome;
+  parent.insertBefore(wrap, placeholder);
+  placeholder.hidden = true;
+}
+
+function gradientPreviewSize(minimized = false) {
+  if (minimized) return { width: 34, height: 112 };
+  const width = Math.min(window.innerWidth * 0.46, 204);
+  return { width, height: width * (2 / 3) };
+}
+
+function gradientPreviewSnapSpots() {
+  const normal = gradientPreviewSize(false);
+  const tab = gradientPreviewSize(true);
+  const margin = 14;
+  const top = Math.max(64, Math.min(92, window.innerHeight * 0.12));
+  const bottom = Math.max(top, window.innerHeight - normal.height - margin);
+  return {
+    'top-left': { x: margin, y: top, minimized: false, edge: 'left' },
+    'top-right': { x: window.innerWidth - normal.width - margin, y: top, minimized: false, edge: 'right' },
+    'bottom-left': { x: margin, y: bottom, minimized: false, edge: 'left' },
+    'bottom-right': { x: window.innerWidth - normal.width - margin, y: bottom, minimized: false, edge: 'right' },
+    'left': { x: 0, y: Math.max(52, Math.min(window.innerHeight - tab.height - 10, (window.innerHeight - tab.height) / 2)), minimized: true, edge: 'left' },
+    'right': { x: window.innerWidth - tab.width, y: Math.max(52, Math.min(window.innerHeight - tab.height - 10, (window.innerHeight - tab.height) / 2)), minimized: true, edge: 'right' },
+  };
+}
+
+function clampGradientPreviewPosition(x, y, width, height, allowEdge = false) {
+  const edgeSlack = allowEdge ? 0 : 8;
+  return {
+    x: Math.min(Math.max(allowEdge ? 0 : 8, x), Math.max(allowEdge ? 0 : 8, window.innerWidth - width - (allowEdge ? 0 : 8))),
+    y: Math.min(Math.max(8, y), Math.max(8, window.innerHeight - height - 8)),
+  };
+}
+
+function applyGradientPreviewFloatPosition() {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  if (!wrap) return;
+  const state = ensureGradientPreviewState();
+  if (!(__gradientPreviewMedia.matches && state.floating)) return;
+
+  const size = gradientPreviewSize(!!state.minimized);
+  if (!Number.isFinite(state.x) || !Number.isFinite(state.y)) {
+    const spots = gradientPreviewSnapSpots();
+    const spot = spots[state.spot] || spots['top-right'];
+    state.x = spot.x;
+    state.y = spot.y;
+    state.edge = spot.edge;
+    state.minimized = !!spot.minimized;
+  }
+
+  const clamped = clampGradientPreviewPosition(state.x, state.y, size.width, size.height, !!state.minimized);
+  state.x = clamped.x;
+  state.y = clamped.y;
+
+  wrap.style.width = `${size.width}px`;
+  wrap.style.height = `${size.height}px`;
+  wrap.style.left = `${state.x}px`;
+  wrap.style.top = `${state.y}px`;
+  wrap.style.right = 'auto';
+  wrap.style.bottom = 'auto';
+}
+
+function applyGradientPreviewSpot(spotName, yOverride = null) {
+  const state = ensureGradientPreviewState();
+  const spots = gradientPreviewSnapSpots();
+  const spot = spots[spotName] || spots['top-right'];
+  state.spot = spotName;
+  state.edge = spot.edge;
+  state.minimized = !!spot.minimized;
+  state.x = spot.x;
+  state.y = yOverride == null ? spot.y : yOverride;
+  applyGradientPreviewFloatPosition();
+}
+
+function nearestGradientPreviewSpot(x, y, width, height, drag = null) {
+  const dockThreshold = 4; // deliberate edge push only
+  if (x <= dockThreshold) return 'left';
+  if (x + width >= window.innerWidth - dockThreshold) return 'right';
+
+  if (drag) {
+    const dt = Math.max(16, performance.now() - (drag.lastT || drag.startT || performance.now()));
+    const vx = ((drag.lastX ?? drag.startX) - drag.startX) / dt;
+    const vy = ((drag.lastY ?? drag.startY) - drag.startY) / dt;
+    const speed = Math.hypot(vx, vy);
+    if (speed > 0.75) {
+      const horizontal = Math.abs(vx) > Math.abs(vy) * 0.65;
+      const vertical = Math.abs(vy) > Math.abs(vx) * 0.65;
+      const right = horizontal ? vx > 0 : (x + width / 2) > window.innerWidth / 2;
+      const bottom = vertical ? vy > 0 : (y + height / 2) > window.innerHeight / 2;
+      return `${bottom ? 'bottom' : 'top'}-${right ? 'right' : 'left'}`;
+    }
+  }
+
+  const cx = x + width / 2;
+  const cy = y + height / 2;
+  return `${cy > window.innerHeight / 2 ? 'bottom' : 'top'}-${cx > window.innerWidth / 2 ? 'right' : 'left'}`;
+}
+
+function edgeRestoreSpot(edge, y) {
+  const bottom = y > window.innerHeight / 2;
+  return `${bottom ? 'bottom' : 'top'}-${edge === 'left' ? 'left' : 'right'}`;
+}
+
+function restoreFromGradientPreviewEdgeTab() {
+  const state = ensureGradientPreviewState();
+  const spot = edgeRestoreSpot(state.edge || 'right', Number(state.y) || window.innerHeight / 2);
+  state.minimized = false;
+  applyGradientPreviewSpot(spot);
+  state.suppressClick = true;
+  __gradientFinalClickSuppressUntil = Date.now() + 120;
+  syncGradientPreviewActions();
+  showGradientPreviewChrome(2400);
+}
+
+function setGradientPreviewFloating(nextFloating) {
+  const state = ensureGradientPreviewState();
+  if (!__gradientPreviewMedia.matches && nextFloating) return;
+  state.floating = !!nextFloating;
+  state.suppressClick = true;
+  __gradientFinalClickSuppressUntil = Date.now() + 140;
+
+  if (state.floating) {
+    state.minimized = false;
+    if (!state.spot || state.spot === 'left' || state.spot === 'right') state.spot = 'top-right';
+    applyGradientPreviewSpot(state.spot);
+    showGradientPreviewChrome(2400);
+  } else {
+    state.minimized = false;
+    state.x = null;
+    state.y = null;
+  }
+
+  syncGradientPreviewActions();
+}
+
+function syncGradientPreviewActions() {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  if (!wrap) return;
+  const state = ensureGradientPreviewState();
+  const mobile = __gradientPreviewMedia.matches;
+  const floating = mobile && !!state.floating;
+
+  if (floating) portalGradientPreviewToBody();
+  else restoreGradientPreviewHome();
+
+  const edgeTab = floating && (state.minimized || state.spot === 'left' || state.spot === 'right');
+  if (edgeTab) state.minimized = true;
+
+  wrap.classList.toggle('is-floating', floating);
+  wrap.classList.toggle('is-minimized', edgeTab);
+  wrap.dataset.edge = state.edge || 'right';
+
+  const action = wrap.querySelector('[data-gradient-preview-action]');
+  if (action) {
+    if (!mobile || !floating) {
+      action.dataset.gradientPreviewAction = 'popout';
+      action.innerHTML = gradientPreviewPopoutSvg();
+      action.setAttribute('aria-label', 'Pop out gradient preview');
+      action.hidden = !mobile;
+    } else if (edgeTab) {
+      action.dataset.gradientPreviewAction = 'restore';
+      const direction = state.edge === 'left' ? 'right' : 'left';
+      action.innerHTML = gradientPreviewChevronSvg(direction);
+      action.setAttribute('aria-label', 'Restore floating preview');
+      action.hidden = false;
+    } else {
+      action.dataset.gradientPreviewAction = 'home';
+      action.innerHTML = gradientPreviewHomeSvg();
+      action.setAttribute('aria-label', 'Return gradient preview home');
+      action.hidden = false;
+    }
+  }
+
+  if (!floating) {
+    wrap.style.left = '';
+    wrap.style.top = '';
+    wrap.style.right = '';
+    wrap.style.bottom = '';
+    wrap.style.width = '';
+    wrap.style.height = '';
+    wrap.classList.remove('show-chrome', 'is-minimized', 'dragging');
+    return;
+  }
+
+  applyGradientPreviewFloatPosition();
+  if (edgeTab) wrap.classList.add('show-chrome');
+}
+
+function ensureGradientPreviewActions() {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  if (!wrap) return;
+
+  let actions = wrap.querySelector('.gradient-preview-actions');
+  if (!actions) {
+    actions = document.createElement('div');
+    actions.className = 'gradient-preview-actions';
+    wrap.appendChild(actions);
+  }
+  if (!actions.querySelector('[data-gradient-preview-action]')) {
+    actions.innerHTML = '<button class="gradient-preview-action" type="button" data-gradient-preview-action="popout" aria-label="Pop out gradient preview"></button>';
+  }
+
+  if (!wrap.dataset.previewFinalBound) {
+    wrap.dataset.previewFinalBound = 'true';
+
+    wrap.addEventListener('click', ev => {
+      const actionBtn = ev.target.closest('[data-gradient-preview-action]');
+      const state = ensureGradientPreviewState();
+
+      if (actionBtn) {
+        ev.stopPropagation();
+        ev.preventDefault();
+        ev.stopImmediatePropagation();
+        const action = actionBtn.dataset.gradientPreviewAction;
+        if (action === 'popout') setGradientPreviewFloating(true);
+        else if (action === 'home') setGradientPreviewFloating(false);
+        else if (action === 'restore') restoreFromGradientPreviewEdgeTab();
+        return;
+      }
+
+      if (Date.now() < __gradientFinalClickSuppressUntil || state.suppressClick) {
+        ev.stopPropagation();
+        ev.preventDefault();
+        ev.stopImmediatePropagation();
+        state.suppressClick = false;
+        return;
+      }
+
+      if (wrap.classList.contains('is-floating') && wrap.classList.contains('is-minimized')) {
+        ev.stopPropagation();
+        ev.preventDefault();
+        ev.stopImmediatePropagation();
+        restoreFromGradientPreviewEdgeTab();
+        return;
+      }
+
+      if (wrap.classList.contains('is-floating')) {
+        ev.stopPropagation();
+        ev.preventDefault();
+        ev.stopImmediatePropagation();
+        copyGradientCss();
+      }
+    }, true);
+
+    wrap.addEventListener('pointerdown', onGradientPreviewPointerDown, true);
+    wrap.addEventListener('pointerenter', () => {
+      if (wrap.classList.contains('is-floating') && !wrap.classList.contains('is-minimized')) showGradientPreviewChrome();
+    });
+    wrap.addEventListener('pointermove', () => {
+      if (wrap.classList.contains('is-floating') && !wrap.classList.contains('is-minimized')) showGradientPreviewChrome();
+    });
+  }
+
+  syncGradientPreviewActions();
+}
+
+function onGradientPreviewPointerDown(ev) {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  if (!wrap) return;
+  const state = ensureGradientPreviewState();
+  if (!(__gradientPreviewMedia.matches && state.floating)) return;
+
+  if (ev.target.closest('[data-gradient-preview-action]')) return;
+
+  const wasMinimized = !!state.minimized || state.spot === 'left' || state.spot === 'right';
+  const rect = wrap.getBoundingClientRect();
+  __gradientPreviewDrag = {
+    pointerId: ev.pointerId,
+    startX: ev.clientX,
+    startY: ev.clientY,
+    lastX: ev.clientX,
+    lastY: ev.clientY,
+    startT: performance.now(),
+    lastT: performance.now(),
+    originX: rect.left,
+    originY: rect.top,
+    moved: false,
+    startedMinimized: wasMinimized,
+    mode: wasMinimized ? 'edge-pending' : 'floating',
+    edge: state.edge || (rect.left < window.innerWidth / 2 ? 'left' : 'right'),
+  };
+  wrap.classList.add('dragging');
+  showGradientPreviewChrome(3000);
+  try { wrap.setPointerCapture(ev.pointerId); } catch {}
+}
+
+function updateGradientPreviewDragState(ev) {
+  if (!__gradientPreviewDrag) return;
+  const wrap = document.getElementById('gradientPreviewWrap');
+  if (!wrap) return;
+  const state = ensureGradientPreviewState();
+  const drag = __gradientPreviewDrag;
+  const dx = ev.clientX - drag.startX;
+  const dy = ev.clientY - drag.startY;
+  drag.lastX = ev.clientX;
+  drag.lastY = ev.clientY;
+  drag.lastT = performance.now();
+
+  if (Math.abs(dx) > 3 || Math.abs(dy) > 3) drag.moved = true;
+
+  if (drag.startedMinimized) {
+    const inward = drag.edge === 'left' ? dx > 10 : dx < -10;
+    const vertical = Math.abs(dy) > Math.abs(dx) + 4 && Math.abs(dy) > 8;
+
+    if (drag.mode === 'edge-pending') {
+      if (inward) drag.mode = 'restore-drag';
+      else if (vertical) drag.mode = 'edge-reposition';
+      else return;
+    }
+
+    if (drag.mode === 'edge-reposition') {
+      const size = gradientPreviewSize(true);
+      state.minimized = true;
+      state.spot = drag.edge;
+      state.edge = drag.edge;
+      state.x = drag.edge === 'left' ? 0 : window.innerWidth - size.width;
+      state.y = Math.min(Math.max(8, drag.originY + dy), window.innerHeight - size.height - 8);
+      applyGradientPreviewFloatPosition();
+      syncGradientPreviewActions();
+      return;
+    }
+
+    if (drag.mode === 'restore-drag') {
+      const size = gradientPreviewSize(false);
+      state.minimized = false;
+      state.spot = edgeRestoreSpot(drag.edge, ev.clientY);
+      state.x = ev.clientX - size.width / 2;
+      state.y = ev.clientY - size.height / 2;
+      applyGradientPreviewFloatPosition();
+      syncGradientPreviewActions();
+      return;
+    }
+  }
+
+  const size = gradientPreviewSize(false);
+  const proposedX = drag.originX + dx;
+  const proposedY = drag.originY + dy;
+  const dockThreshold = 4;
+  const shouldDockLeft = proposedX <= dockThreshold;
+  const shouldDockRight = proposedX + size.width >= window.innerWidth - dockThreshold;
+
+  if (shouldDockLeft || shouldDockRight) {
+    const tabSize = gradientPreviewSize(true);
+    state.minimized = true;
+    state.spot = shouldDockLeft ? 'left' : 'right';
+    state.edge = shouldDockLeft ? 'left' : 'right';
+    state.x = shouldDockLeft ? 0 : window.innerWidth - tabSize.width;
+    state.y = Math.min(Math.max(8, ev.clientY - tabSize.height / 2), window.innerHeight - tabSize.height - 8);
+    drag.mode = 'edge-reposition';
+    applyGradientPreviewFloatPosition();
+    syncGradientPreviewActions();
+    return;
+  }
+
+  state.minimized = false;
+  state.x = Math.min(Math.max(8, proposedX), window.innerWidth - size.width - 8);
+  state.y = Math.min(Math.max(8, proposedY), window.innerHeight - size.height - 8);
+  drag.mode = 'floating';
+  applyGradientPreviewFloatPosition();
+  syncGradientPreviewActions();
+}
+
+function snapGradientPreviewToNearestEdge() {
+  const state = ensureGradientPreviewState();
+  const drag = __gradientPreviewDrag;
+
+  if (drag?.startedMinimized && drag.mode === 'edge-reposition') {
+    const size = gradientPreviewSize(true);
+    state.minimized = true;
+    state.spot = drag.edge || state.edge || 'right';
+    state.edge = state.spot;
+    state.x = state.edge === 'left' ? 0 : window.innerWidth - size.width;
+    state.y = Math.min(Math.max(8, state.y), window.innerHeight - size.height - 8);
+    applyGradientPreviewFloatPosition();
+    syncGradientPreviewActions();
+    return;
+  }
+
+  if (state.minimized || state.spot === 'left' || state.spot === 'right') {
+    const size = gradientPreviewSize(true);
+    state.minimized = true;
+    state.spot = state.edge || (state.x < window.innerWidth / 2 ? 'left' : 'right');
+    state.edge = state.spot;
+    state.x = state.edge === 'left' ? 0 : window.innerWidth - size.width;
+    state.y = Math.min(Math.max(8, state.y), window.innerHeight - size.height - 8);
+    applyGradientPreviewFloatPosition();
+    syncGradientPreviewActions();
+    return;
+  }
+
+  const size = gradientPreviewSize(false);
+  const spotName = nearestGradientPreviewSpot(state.x, state.y, size.width, size.height, drag);
+  applyGradientPreviewSpot(spotName);
+  showGradientPreviewChrome(2200);
+}
+
+// Later capture listener corrects the older pointermove listener that was already registered above.
+window.addEventListener('pointermove', ev => {
+  if (!__gradientPreviewDrag) return;
+  updateGradientPreviewDragState(ev);
+}, true);
+
+
+
+// ─── PATCH: FORGIVING TENTATIVE EDGE-COLLAPSE GESTURES ───
+function portalGradientPreviewToBody() {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  if (!wrap) return;
+  captureGradientPreviewHome(wrap);
+  if (__gradientPreviewHome?.placeholder) {
+    __gradientPreviewHome.placeholder.hidden = true;
+    __gradientPreviewHome.placeholder.dataset.active = 'false';
+  }
+  if (wrap.parentNode !== document.body) document.body.appendChild(wrap);
+}
+
+function restoreGradientPreviewHome() {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  if (!wrap || !__gradientPreviewHome) return;
+  const { parent, placeholder } = __gradientPreviewHome;
+  parent.insertBefore(wrap, placeholder);
+  placeholder.hidden = true;
+  placeholder.dataset.active = 'false';
+}
+
+function edgeRestoreSpot(edge, y) {
+  const bottom = y > window.innerHeight / 2;
+  return `${bottom ? 'bottom' : 'top'}-${edge === 'left' ? 'left' : 'right'}`;
+}
+
+function syncGradientPreviewActions() {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  if (!wrap) return;
+  const state = ensureGradientPreviewState();
+  const mobile = __gradientPreviewMedia.matches;
+  const floating = mobile && !!state.floating;
+
+  if (floating) portalGradientPreviewToBody();
+  else restoreGradientPreviewHome();
+
+  const edgeTab = floating && (state.minimized || state.spot === 'left' || state.spot === 'right');
+  if (edgeTab) state.minimized = true;
+
+  wrap.classList.toggle('is-floating', floating);
+  wrap.classList.toggle('is-minimized', edgeTab);
+  wrap.dataset.edge = state.edge || 'right';
+
+  const action = wrap.querySelector('[data-gradient-preview-action]');
+  if (action) {
+    if (!mobile || !floating) {
+      action.dataset.gradientPreviewAction = 'popout';
+      action.innerHTML = gradientPreviewPopoutSvg();
+      action.setAttribute('aria-label', 'Pop out gradient preview');
+      action.hidden = !mobile;
+    } else if (edgeTab) {
+      action.dataset.gradientPreviewAction = 'restore';
+      const direction = state.edge === 'left' ? 'right' : 'left';
+      action.innerHTML = gradientPreviewChevronSvg(direction);
+      action.setAttribute('aria-label', 'Restore floating preview');
+      action.hidden = false;
+    } else {
+      action.dataset.gradientPreviewAction = 'home';
+      action.innerHTML = gradientPreviewHomeSvg();
+      action.setAttribute('aria-label', 'Return gradient preview home');
+      action.hidden = false;
+    }
+  }
+
+  if (!floating) {
+    wrap.style.left = '';
+    wrap.style.top = '';
+    wrap.style.right = '';
+    wrap.style.bottom = '';
+    wrap.style.width = '';
+    wrap.style.height = '';
+    wrap.classList.remove('show-chrome', 'is-minimized', 'dragging', 'tentative-edge');
+    return;
+  }
+
+  applyGradientPreviewFloatPosition();
+  if (edgeTab) wrap.classList.add('show-chrome');
+}
+
+function restoreFromGradientPreviewEdgeTab() {
+  const state = ensureGradientPreviewState();
+  const edge = state.edge || 'right';
+  const y = Number(state.y) || window.innerHeight / 2;
+  const normal = gradientPreviewSize(false);
+  state.minimized = false;
+  state.spot = edgeRestoreSpot(edge, y);
+  state.x = edge === 'left' ? 14 : window.innerWidth - normal.width - 14;
+  state.y = Math.min(Math.max(54, y - normal.height / 2), window.innerHeight - normal.height - 14);
+  state.suppressClick = true;
+  __gradientFinalClickSuppressUntil = Date.now() + 120;
+  applyGradientPreviewFloatPosition();
+  syncGradientPreviewActions();
+  showGradientPreviewChrome(2400);
+}
+
+function onGradientPreviewPointerDown(ev) {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  if (!wrap) return;
+  const state = ensureGradientPreviewState();
+  if (!(__gradientPreviewMedia.matches && state.floating)) return;
+  if (ev.target.closest('[data-gradient-preview-action]')) return;
+
+  const wasMinimized = !!state.minimized || state.spot === 'left' || state.spot === 'right';
+  const rect = wrap.getBoundingClientRect();
+  __gradientPreviewDrag = {
+    pointerId: ev.pointerId,
+    startX: ev.clientX,
+    startY: ev.clientY,
+    lastX: ev.clientX,
+    lastY: ev.clientY,
+    startT: performance.now(),
+    lastT: performance.now(),
+    originX: rect.left,
+    originY: rect.top,
+    grabOffsetX: ev.clientX - rect.left,
+    grabOffsetY: ev.clientY - rect.top,
+    moved: false,
+    startedMinimized: wasMinimized,
+    mode: wasMinimized ? 'edge-pending' : 'floating',
+    edge: state.edge || (rect.left < window.innerWidth / 2 ? 'left' : 'right'),
+    tentativeEdge: null,
+  };
+  wrap.classList.add('dragging');
+  showGradientPreviewChrome(3000);
+  try { wrap.setPointerCapture(ev.pointerId); } catch {}
+}
+
+function previewPointerNearEdge(ev, edgePx = 8) {
+  if (ev.clientX <= edgePx) return 'left';
+  if (ev.clientX >= window.innerWidth - edgePx) return 'right';
+  return null;
+}
+
+function updateGradientPreviewDragState(ev) {
+  if (!__gradientPreviewDrag) return;
+  ev.preventDefault?.();
+  ev.stopImmediatePropagation?.();
+
+  const wrap = document.getElementById('gradientPreviewWrap');
+  if (!wrap) return;
+  const state = ensureGradientPreviewState();
+  const drag = __gradientPreviewDrag;
+  const dx = ev.clientX - drag.startX;
+  const dy = ev.clientY - drag.startY;
+  drag.lastX = ev.clientX;
+  drag.lastY = ev.clientY;
+  drag.lastT = performance.now();
+
+  if (Math.abs(dx) > 3 || Math.abs(dy) > 3) drag.moved = true;
+
+  const tabSize = gradientPreviewSize(true);
+  const normalSize = gradientPreviewSize(false);
+
+  if (drag.startedMinimized) {
+    const inward = drag.edge === 'left' ? dx > 12 : dx < -12;
+    const vertical = Math.abs(dy) > Math.abs(dx) + 4 && Math.abs(dy) > 8;
+
+    if (drag.mode === 'edge-pending') {
+      if (inward) drag.mode = 'restore-drag';
+      else if (vertical) drag.mode = 'edge-reposition';
+      else return;
+    }
+
+    if (drag.mode === 'edge-reposition') {
+      const canUndockNow = drag.edge === 'left' ? ev.clientX > 46 : ev.clientX < window.innerWidth - 46;
+      if (canUndockNow && Math.abs(dx) > Math.abs(dy) * 0.55) {
+        drag.mode = 'restore-drag';
+      } else {
+        state.minimized = true;
+        state.spot = drag.edge;
+        state.edge = drag.edge;
+        state.x = drag.edge === 'left' ? 0 : window.innerWidth - tabSize.width;
+        state.y = Math.min(Math.max(8, drag.originY + dy), window.innerHeight - tabSize.height - 8);
+        wrap.classList.remove('tentative-edge');
+        applyGradientPreviewFloatPosition();
+        syncGradientPreviewActions();
+        return;
+      }
+    }
+
+    if (drag.mode === 'restore-drag') {
+      state.minimized = false;
+      state.spot = edgeRestoreSpot(drag.edge, ev.clientY);
+      state.edge = drag.edge;
+      state.x = Math.min(Math.max(8, ev.clientX - normalSize.width / 2), window.innerWidth - normalSize.width - 8);
+      state.y = Math.min(Math.max(8, ev.clientY - normalSize.height / 2), window.innerHeight - normalSize.height - 8);
+      wrap.classList.remove('tentative-edge');
+      applyGradientPreviewFloatPosition();
+      syncGradientPreviewActions();
+      return;
+    }
+  }
+
+  const nearEdge = previewPointerNearEdge(ev, 8);
+  const cancelTentative = !nearEdge && drag.mode === 'tentative-collapse' && (
+    (drag.tentativeEdge === 'left' && ev.clientX > 54) ||
+    (drag.tentativeEdge === 'right' && ev.clientX < window.innerWidth - 54)
+  );
+
+  if (nearEdge || (drag.mode === 'tentative-collapse' && !cancelTentative)) {
+    const edge = nearEdge || drag.tentativeEdge || 'right';
+    drag.mode = 'tentative-collapse';
+    drag.tentativeEdge = edge;
+    state.minimized = true;
+    state.spot = edge;
+    state.edge = edge;
+    state.x = edge === 'left' ? 0 : window.innerWidth - tabSize.width;
+    state.y = Math.min(Math.max(8, ev.clientY - tabSize.height / 2), window.innerHeight - tabSize.height - 8);
+    wrap.classList.add('tentative-edge');
+    applyGradientPreviewFloatPosition();
+    syncGradientPreviewActions();
+    return;
+  }
+
+  // Cancel tentative collapse while the finger is still down by dragging away.
+  if (cancelTentative) {
+    drag.mode = 'floating';
+    drag.tentativeEdge = null;
+    wrap.classList.remove('tentative-edge');
+  }
+
+  state.minimized = false;
+  const proposedX = ev.clientX - (Number.isFinite(drag.grabOffsetX) ? drag.grabOffsetX : normalSize.width / 2);
+  const proposedY = ev.clientY - (Number.isFinite(drag.grabOffsetY) ? drag.grabOffsetY : normalSize.height / 2);
+  state.x = Math.min(Math.max(8, proposedX), window.innerWidth - normalSize.width - 8);
+  state.y = Math.min(Math.max(8, proposedY), window.innerHeight - normalSize.height - 8);
+  drag.mode = 'floating';
+  wrap.classList.remove('tentative-edge');
+  applyGradientPreviewFloatPosition();
+  syncGradientPreviewActions();
+}
+
+function nearestGradientPreviewSpot(x, y, width, height, drag = null) {
+  const cx = x + width / 2;
+  const cy = y + height / 2;
+  if (drag) {
+    const dt = Math.max(16, performance.now() - (drag.lastT || drag.startT || performance.now()));
+    const vx = ((drag.lastX ?? drag.startX) - drag.startX) / dt;
+    const vy = ((drag.lastY ?? drag.startY) - drag.startY) / dt;
+    const speed = Math.hypot(vx, vy);
+    if (speed > 0.75) {
+      const right = Math.abs(vx) > Math.abs(vy) * 0.65 ? vx > 0 : cx > window.innerWidth / 2;
+      const bottom = Math.abs(vy) > Math.abs(vx) * 0.65 ? vy > 0 : cy > window.innerHeight / 2;
+      return `${bottom ? 'bottom' : 'top'}-${right ? 'right' : 'left'}`;
+    }
+  }
+  return `${cy > window.innerHeight / 2 ? 'bottom' : 'top'}-${cx > window.innerWidth / 2 ? 'right' : 'left'}`;
+}
+
+function snapGradientPreviewToNearestEdge() {
+  const state = ensureGradientPreviewState();
+  const drag = __gradientPreviewDrag;
+  const wrap = document.getElementById('gradientPreviewWrap');
+  wrap?.classList.remove('tentative-edge');
+
+  if (drag?.mode === 'tentative-collapse') {
+    const edge = drag.tentativeEdge || state.edge || 'right';
+    const size = gradientPreviewSize(true);
+    state.minimized = true;
+    state.spot = edge;
+    state.edge = edge;
+    state.x = edge === 'left' ? 0 : window.innerWidth - size.width;
+    state.y = Math.min(Math.max(8, state.y), window.innerHeight - size.height - 8);
+    applyGradientPreviewFloatPosition();
+    syncGradientPreviewActions();
+    return;
+  }
+
+  if (drag?.startedMinimized && drag.mode === 'edge-reposition') {
+    const size = gradientPreviewSize(true);
+    state.minimized = true;
+    state.spot = drag.edge || state.edge || 'right';
+    state.edge = state.spot;
+    state.x = state.edge === 'left' ? 0 : window.innerWidth - size.width;
+    state.y = Math.min(Math.max(8, state.y), window.innerHeight - size.height - 8);
+    applyGradientPreviewFloatPosition();
+    syncGradientPreviewActions();
+    return;
+  }
+
+  if (state.minimized || state.spot === 'left' || state.spot === 'right') {
+    // If the user dragged a tentatively minimized preview back out, do not force it back into a tab.
+    if (drag?.mode === 'floating') {
+      state.minimized = false;
+    } else {
+      const size = gradientPreviewSize(true);
+      state.minimized = true;
+      state.spot = state.edge || (state.x < window.innerWidth / 2 ? 'left' : 'right');
+      state.edge = state.spot;
+      state.x = state.edge === 'left' ? 0 : window.innerWidth - size.width;
+      state.y = Math.min(Math.max(8, state.y), window.innerHeight - size.height - 8);
+      applyGradientPreviewFloatPosition();
+      syncGradientPreviewActions();
+      return;
+    }
+  }
+
+  const size = gradientPreviewSize(false);
+  const spotName = nearestGradientPreviewSpot(state.x, state.y, size.width, size.height, drag);
+  applyGradientPreviewSpot(spotName);
+  showGradientPreviewChrome(2200);
+}
+
+
+// ─── HALF-OFFSCREEN EDGE DOCKING PATCH ───
+function onGradientPreviewPointerDown(ev) {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  if (!wrap) return;
+  const state = ensureGradientPreviewState();
+  if (!(__gradientPreviewMedia.matches && state.floating)) return;
+
+  const wasMinimized = !!state.minimized || state.spot === 'left' || state.spot === 'right';
+
+  // Allow dragging from the chevron while docked; only non-docked action buttons block dragging.
+  if (ev.target.closest('[data-gradient-preview-action]') && !wasMinimized) return;
+
+  const rect = wrap.getBoundingClientRect();
+  __gradientPreviewDrag = {
+    pointerId: ev.pointerId,
+    startX: ev.clientX,
+    startY: ev.clientY,
+    lastX: ev.clientX,
+    lastY: ev.clientY,
+    startT: performance.now(),
+    lastT: performance.now(),
+    originX: rect.left,
+    originY: rect.top,
+    grabOffsetX: ev.clientX - rect.left,
+    grabOffsetY: ev.clientY - rect.top,
+    moved: false,
+    startedMinimized: wasMinimized,
+    mode: wasMinimized ? 'edge-pending' : 'floating',
+    edge: state.edge || (rect.left < window.innerWidth / 2 ? 'left' : 'right'),
+    tentativeEdge: null,
+  };
+  wrap.classList.add('dragging');
+  showGradientPreviewChrome(3000);
+  try { wrap.setPointerCapture(ev.pointerId); } catch {}
+}
+
+function applyGradientPreviewFloatPosition() {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  if (!wrap) return;
+  const state = ensureGradientPreviewState();
+  if (!(__gradientPreviewMedia.matches && state.floating)) return;
+
+  const size = gradientPreviewSize(!!state.minimized);
+  if (!Number.isFinite(state.x) || !Number.isFinite(state.y)) {
+    const spots = gradientPreviewSnapSpots();
+    const spot = spots[state.spot] || spots['top-right'];
+    state.x = spot.x;
+    state.y = spot.y;
+    state.edge = spot.edge;
+    state.minimized = !!spot.minimized;
+  }
+
+  let x = state.x;
+  let y = Math.min(Math.max(8, state.y), Math.max(8, window.innerHeight - size.height - 8));
+
+  if (state.minimized) {
+    x = state.edge === 'left' ? 0 : window.innerWidth - size.width;
+  } else if (__gradientPreviewDrag) {
+    // While held, allow the preview to travel halfway offscreen so docking can be previewed.
+    x = Math.min(Math.max(-(size.width * 0.55), x), window.innerWidth - size.width + (size.width * 0.55));
+  } else {
+    x = Math.min(Math.max(8, x), Math.max(8, window.innerWidth - size.width - 8));
+  }
+
+  state.x = x;
+  state.y = y;
+
+  wrap.style.width = `${size.width}px`;
+  wrap.style.height = `${size.height}px`;
+  wrap.style.left = `${state.x}px`;
+  wrap.style.top = `${state.y}px`;
+  wrap.style.right = 'auto';
+  wrap.style.bottom = 'auto';
+}
+
+function updateGradientPreviewDragState(ev) {
+  if (!__gradientPreviewDrag) return;
+  ev.preventDefault?.();
+  ev.stopImmediatePropagation?.();
+
+  const wrap = document.getElementById('gradientPreviewWrap');
+  if (!wrap) return;
+  const state = ensureGradientPreviewState();
+  const drag = __gradientPreviewDrag;
+
+  const dx = ev.clientX - drag.startX;
+  const dy = ev.clientY - drag.startY;
+  drag.lastX = ev.clientX;
+  drag.lastY = ev.clientY;
+  drag.lastT = performance.now();
+
+  if (Math.abs(dx) > 3 || Math.abs(dy) > 3) drag.moved = true;
+
+  const tabSize = gradientPreviewSize(true);
+  const normalSize = gradientPreviewSize(false);
+
+  if (drag.startedMinimized) {
+    const inward = drag.edge === 'left' ? dx > 10 : dx < -10;
+    const verticalOnly = Math.abs(dy) > Math.abs(dx) + 4 && Math.abs(dy) > 8;
+
+    if (drag.mode === 'edge-pending') {
+      if (inward) drag.mode = 'restore-drag';
+      else if (verticalOnly) drag.mode = 'edge-reposition';
+      else return;
+    }
+
+    if (drag.mode === 'edge-reposition') {
+      const nowInward = drag.edge === 'left' ? dx > 16 : dx < -16;
+      if (nowInward && Math.abs(dx) > Math.abs(dy) * 0.45) {
+        drag.mode = 'restore-drag';
+      } else {
+        state.minimized = true;
+        state.spot = drag.edge;
+        state.edge = drag.edge;
+        state.x = drag.edge === 'left' ? 0 : window.innerWidth - tabSize.width;
+        state.y = Math.min(Math.max(8, drag.originY + dy), window.innerHeight - tabSize.height - 8);
+        wrap.classList.remove('tentative-edge');
+        applyGradientPreviewFloatPosition();
+        syncGradientPreviewActions();
+        return;
+      }
+    }
+
+    if (drag.mode === 'restore-drag') {
+      state.minimized = false;
+      state.spot = edgeRestoreSpot(drag.edge, ev.clientY);
+      state.edge = drag.edge;
+      state.x = Math.min(Math.max(8, ev.clientX - normalSize.width / 2), window.innerWidth - normalSize.width - 8);
+      state.y = Math.min(Math.max(8, ev.clientY - normalSize.height / 2), window.innerHeight - normalSize.height - 8);
+      wrap.classList.remove('tentative-edge');
+      applyGradientPreviewFloatPosition();
+      syncGradientPreviewActions();
+      return;
+    }
+  }
+
+  const grabX = Number.isFinite(drag.grabOffsetX) ? drag.grabOffsetX : normalSize.width / 2;
+  const grabY = Number.isFinite(drag.grabOffsetY) ? drag.grabOffsetY : normalSize.height / 2;
+
+  // Raw position can cross the viewport edge while held. The dock preview begins when
+  // roughly 50% of the floating preview has crossed beyond the screen edge.
+  const rawX = ev.clientX - grabX;
+  const rawY = ev.clientY - grabY;
+
+  const halfBeyondLeft = rawX <= -(normalSize.width * 0.5);
+  const halfBeyondRight = rawX + normalSize.width >= window.innerWidth + (normalSize.width * 0.5);
+
+  // Hysteresis: after previewing collapse, dragging a bit back toward center expands again.
+  const cancelLeft = drag.mode === 'tentative-collapse' && drag.tentativeEdge === 'left' && rawX > -(normalSize.width * 0.25);
+  const cancelRight = drag.mode === 'tentative-collapse' && drag.tentativeEdge === 'right' && rawX + normalSize.width < window.innerWidth + (normalSize.width * 0.25);
+
+  if (halfBeyondLeft || halfBeyondRight) {
+    const edge = halfBeyondLeft ? 'left' : 'right';
+    drag.mode = 'tentative-collapse';
+    drag.tentativeEdge = edge;
+    state.minimized = true;
+    state.spot = edge;
+    state.edge = edge;
+    state.x = edge === 'left' ? 0 : window.innerWidth - tabSize.width;
+    state.y = Math.min(Math.max(8, ev.clientY - tabSize.height / 2), window.innerHeight - tabSize.height - 8);
+    wrap.classList.add('tentative-edge');
+    applyGradientPreviewFloatPosition();
+    syncGradientPreviewActions();
+    return;
+  }
+
+  if (drag.mode === 'tentative-collapse' && !(cancelLeft || cancelRight)) {
+    const edge = drag.tentativeEdge || state.edge || 'right';
+    state.minimized = true;
+    state.spot = edge;
+    state.edge = edge;
+    state.x = edge === 'left' ? 0 : window.innerWidth - tabSize.width;
+    state.y = Math.min(Math.max(8, ev.clientY - tabSize.height / 2), window.innerHeight - tabSize.height - 8);
+    applyGradientPreviewFloatPosition();
+    syncGradientPreviewActions();
+    return;
+  }
+
+  if (cancelLeft || cancelRight) {
+    drag.mode = 'floating';
+    drag.tentativeEdge = null;
+    wrap.classList.remove('tentative-edge');
+  }
+
+  state.minimized = false;
+  state.x = Math.min(Math.max(-(normalSize.width * 0.55), rawX), window.innerWidth - normalSize.width + (normalSize.width * 0.55));
+  state.y = Math.min(Math.max(8, rawY), window.innerHeight - normalSize.height - 8);
+  drag.mode = 'floating';
+  wrap.classList.remove('tentative-edge');
+  applyGradientPreviewFloatPosition();
+  syncGradientPreviewActions();
+}
+
+function snapGradientPreviewToNearestEdge() {
+  const state = ensureGradientPreviewState();
+  const drag = __gradientPreviewDrag;
+  const wrap = document.getElementById('gradientPreviewWrap');
+  wrap?.classList.remove('tentative-edge');
+
+  if (drag?.mode === 'tentative-collapse') {
+    const edge = drag.tentativeEdge || state.edge || 'right';
+    const size = gradientPreviewSize(true);
+    state.minimized = true;
+    state.spot = edge;
+    state.edge = edge;
+    state.x = edge === 'left' ? 0 : window.innerWidth - size.width;
+    state.y = Math.min(Math.max(8, state.y), window.innerHeight - size.height - 8);
+    applyGradientPreviewFloatPosition();
+    syncGradientPreviewActions();
+    return;
+  }
+
+  if (drag?.startedMinimized && drag.mode === 'edge-reposition') {
+    const size = gradientPreviewSize(true);
+    state.minimized = true;
+    state.spot = drag.edge || state.edge || 'right';
+    state.edge = state.spot;
+    state.x = state.edge === 'left' ? 0 : window.innerWidth - size.width;
+    state.y = Math.min(Math.max(8, state.y), window.innerHeight - size.height - 8);
+    applyGradientPreviewFloatPosition();
+    syncGradientPreviewActions();
+    return;
+  }
+
+  if (state.minimized || state.spot === 'left' || state.spot === 'right') {
+    if (drag?.mode === 'floating' || drag?.mode === 'restore-drag') {
+      state.minimized = false;
+    } else {
+      const size = gradientPreviewSize(true);
+      state.minimized = true;
+      state.spot = state.edge || (state.x < window.innerWidth / 2 ? 'left' : 'right');
+      state.edge = state.spot;
+      state.x = state.edge === 'left' ? 0 : window.innerWidth - size.width;
+      state.y = Math.min(Math.max(8, state.y), window.innerHeight - size.height - 8);
+      applyGradientPreviewFloatPosition();
+      syncGradientPreviewActions();
+      return;
+    }
+  }
+
+  const size = gradientPreviewSize(false);
+  const spotName = nearestGradientPreviewSpot(state.x, state.y, size.width, size.height, drag);
+  applyGradientPreviewSpot(spotName);
+  showGradientPreviewChrome(2200);
+}
+
+
+// ─── FLOATING PREVIEW PINCH RESIZE ───
+let __gradientPreviewPointers = new Map();
+let __gradientPreviewPinch = null;
+
+function gradientPreviewDefaultWidth() {
+  return Math.min(window.innerWidth * 0.46, 204);
+}
+
+function gradientPreviewMaxWidth() {
+  return Math.max(gradientPreviewDefaultWidth(), window.innerWidth * 0.92);
+}
+
+function gradientPreviewSize(minimized = false) {
+  if (minimized) return { width: 34, height: 112 };
+  const state = ensureGradientPreviewState();
+  const width = Math.min(
+    Math.max(Number(state.previewWidth) || gradientPreviewDefaultWidth(), gradientPreviewDefaultWidth()),
+    gradientPreviewMaxWidth()
+  );
+  return { width, height: width * (2 / 3) };
+}
+
+function distanceBetweenPoints(a, b) {
+  return Math.hypot(a.x - b.x, a.y - b.y);
+}
+
+function centerBetweenPoints(a, b) {
+  return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+}
+
+function beginGradientPreviewPinch() {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  const state = ensureGradientPreviewState();
+  if (!wrap || !state.floating || state.minimized || __gradientPreviewPointers.size < 2) return;
+
+  const points = Array.from(__gradientPreviewPointers.values()).slice(-2);
+  const startDistance = Math.max(1, distanceBetweenPoints(points[0], points[1]));
+  const center = centerBetweenPoints(points[0], points[1]);
+  const size = gradientPreviewSize(false);
+  const rect = wrap.getBoundingClientRect();
+
+  __gradientPreviewPinch = {
+    pointerIds: points.map(p => p.id),
+    startDistance,
+    startWidth: size.width,
+    centerOffsetX: center.x - rect.left,
+    centerOffsetY: center.y - rect.top,
+  };
+
+  __gradientPreviewDrag = null;
+  wrap.classList.add('is-pinching');
+  showGradientPreviewChrome(3000);
+}
+
+function updateGradientPreviewPinch() {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  const state = ensureGradientPreviewState();
+  if (!wrap || !__gradientPreviewPinch || !state.floating) return;
+
+  const [idA, idB] = __gradientPreviewPinch.pointerIds;
+  const a = __gradientPreviewPointers.get(idA);
+  const b = __gradientPreviewPointers.get(idB);
+  if (!a || !b) return;
+
+  const currentDistance = Math.max(1, distanceBetweenPoints(a, b));
+  const scale = currentDistance / __gradientPreviewPinch.startDistance;
+  const minWidth = gradientPreviewDefaultWidth();
+  const maxWidth = gradientPreviewMaxWidth();
+  const nextWidth = Math.min(Math.max(__gradientPreviewPinch.startWidth * scale, minWidth), maxWidth);
+  const nextHeight = nextWidth * (2 / 3);
+  const center = centerBetweenPoints(a, b);
+
+  state.previewWidth = nextWidth;
+  state.minimized = false;
+  state.spot = 'floating';
+  state.x = center.x - (nextWidth * (__gradientPreviewPinch.centerOffsetX / __gradientPreviewPinch.startWidth));
+  state.y = center.y - (nextHeight * (__gradientPreviewPinch.centerOffsetY / (__gradientPreviewPinch.startWidth * (2 / 3))));
+
+  state.x = Math.min(Math.max(8, state.x), Math.max(8, window.innerWidth - nextWidth - 8));
+  state.y = Math.min(Math.max(8, state.y), Math.max(8, window.innerHeight - nextHeight - 8));
+
+  applyGradientPreviewFloatPosition();
+}
+
+function endGradientPreviewPinchIfNeeded(endedPointerId = null) {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  if (!__gradientPreviewPinch) return;
+
+  if (endedPointerId == null || __gradientPreviewPinch.pointerIds.includes(endedPointerId) || __gradientPreviewPointers.size < 2) {
+    __gradientPreviewPinch = null;
+    wrap?.classList.remove('is-pinching');
+    const state = ensureGradientPreviewState();
+    if (state.floating && !state.minimized) {
+      showGradientPreviewChrome(1800);
+    }
+  }
+}
+
+function onGradientPreviewPointerDown(ev) {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  if (!wrap) return;
+  const state = ensureGradientPreviewState();
+  if (!(__gradientPreviewMedia.matches && state.floating)) return;
+
+  __gradientPreviewPointers.set(ev.pointerId, { id: ev.pointerId, x: ev.clientX, y: ev.clientY });
+
+  if (__gradientPreviewPointers.size >= 2 && !state.minimized) {
+    ev.preventDefault?.();
+    ev.stopImmediatePropagation?.();
+    beginGradientPreviewPinch();
+    try { wrap.setPointerCapture(ev.pointerId); } catch {}
+    return;
+  }
+
+  const wasMinimized = !!state.minimized || state.spot === 'left' || state.spot === 'right';
+
+  if (ev.target.closest('[data-gradient-preview-action]') && !wasMinimized) return;
+
+  const rect = wrap.getBoundingClientRect();
+  __gradientPreviewDrag = {
+    pointerId: ev.pointerId,
+    startX: ev.clientX,
+    startY: ev.clientY,
+    lastX: ev.clientX,
+    lastY: ev.clientY,
+    startT: performance.now(),
+    lastT: performance.now(),
+    originX: rect.left,
+    originY: rect.top,
+    grabOffsetX: ev.clientX - rect.left,
+    grabOffsetY: ev.clientY - rect.top,
+    moved: false,
+    startedMinimized: wasMinimized,
+    mode: wasMinimized ? 'edge-pending' : 'floating',
+    edge: state.edge || (rect.left < window.innerWidth / 2 ? 'left' : 'right'),
+    tentativeEdge: null,
+  };
+  wrap.classList.add('dragging');
+  showGradientPreviewChrome(3000);
+  try { wrap.setPointerCapture(ev.pointerId); } catch {}
+}
+
+function applyGradientPreviewSpot(spotName, yOverride = null) {
+  const state = ensureGradientPreviewState();
+  const spots = gradientPreviewSnapSpots();
+  const spot = spots[spotName] || spots['top-right'];
+  state.spot = spotName;
+  state.edge = spot.edge;
+  state.minimized = !!spot.minimized;
+
+  // Preserve the user’s pinched size while moving, snapping, docking, or restoring.
+  // Pinch-in is the only interaction that intentionally shrinks the floating preview.
+  if (!Number.isFinite(Number(state.previewWidth))) {
+    state.previewWidth = gradientPreviewDefaultWidth();
+  }
+
+  state.x = spot.x;
+  state.y = yOverride == null ? spot.y : yOverride;
+  applyGradientPreviewFloatPosition();
+}
+
+function setGradientPreviewFloating(nextFloating) {
+  const state = ensureGradientPreviewState();
+  if (!__gradientPreviewMedia.matches && nextFloating) return;
+  state.floating = !!nextFloating;
+  state.suppressClick = true;
+  __gradientFinalClickSuppressUntil = Date.now() + 140;
+
+  if (state.floating) {
+    state.minimized = false;
+    state.previewWidth = state.previewWidth || gradientPreviewDefaultWidth();
+    if (!state.spot || state.spot === 'left' || state.spot === 'right') state.spot = 'top-right';
+    applyGradientPreviewSpot(state.spot);
+    showGradientPreviewChrome(2400);
+  } else {
+    state.minimized = false;
+    state.x = null;
+    state.y = null;
+  }
+
+  syncGradientPreviewActions();
+}
+
+const __originalFinalPointerMoveForPinch = updateGradientPreviewDragState;
+updateGradientPreviewDragState = function(ev) {
+  if (__gradientPreviewPointers.has(ev.pointerId)) {
+    const p = __gradientPreviewPointers.get(ev.pointerId);
+    p.x = ev.clientX;
+    p.y = ev.clientY;
+  }
+
+  if (__gradientPreviewPinch) {
+    ev.preventDefault?.();
+    ev.stopImmediatePropagation?.();
+    updateGradientPreviewPinch();
+    return;
+  }
+
+  return __originalFinalPointerMoveForPinch(ev);
+};
+
+window.addEventListener('pointerup', ev => {
+  __gradientPreviewPointers.delete(ev.pointerId);
+  endGradientPreviewPinchIfNeeded(ev.pointerId);
+}, true);
+
+window.addEventListener('pointercancel', ev => {
+  __gradientPreviewPointers.delete(ev.pointerId);
+  endGradientPreviewPinchIfNeeded(ev.pointerId);
+}, true);
+
+window.addEventListener('resize', () => {
+  const state = ensureGradientPreviewState();
+  if (state.previewWidth) {
+    state.previewWidth = Math.min(Math.max(state.previewWidth, gradientPreviewDefaultWidth()), gradientPreviewMaxWidth());
+  }
+});
+
+
+// ─── IOS TOUCH PINCH RESIZE FALLBACK ───
+let __gradientTouchPinch = null;
+
+function touchPointFromEventTouch(touch) {
+  return { x: touch.clientX, y: touch.clientY };
+}
+
+function getFirstTwoTouches(ev) {
+  if (!ev.touches || ev.touches.length < 2) return null;
+  return [touchPointFromEventTouch(ev.touches[0]), touchPointFromEventTouch(ev.touches[1])];
+}
+
+function beginGradientPreviewTouchPinch(ev) {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  const state = ensureGradientPreviewState();
+  const pts = getFirstTwoTouches(ev);
+  if (!wrap || !pts || !state.floating || state.minimized) return false;
+
+  ev.preventDefault();
+  ev.stopPropagation();
+
+  const rect = wrap.getBoundingClientRect();
+  const center = centerBetweenPoints(pts[0], pts[1]);
+  const startWidth = rect.width || gradientPreviewSize(false).width;
+  const startHeight = rect.height || startWidth * (2 / 3);
+
+  __gradientTouchPinch = {
+    startDistance: Math.max(1, distanceBetweenPoints(pts[0], pts[1])),
+    startWidth,
+    centerRatioX: (center.x - rect.left) / Math.max(1, startWidth),
+    centerRatioY: (center.y - rect.top) / Math.max(1, startHeight),
+  };
+
+  __gradientPreviewPinch = null;
+  __gradientPreviewDrag = null;
+  wrap.classList.add('is-pinching');
+  showGradientPreviewChrome(3000);
+  return true;
+}
+
+function updateGradientPreviewTouchPinch(ev) {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  const state = ensureGradientPreviewState();
+  const pts = getFirstTwoTouches(ev);
+  if (!wrap || !__gradientTouchPinch || !pts || !state.floating || state.minimized) return false;
+
+  ev.preventDefault();
+  ev.stopPropagation();
+
+  const currentDistance = Math.max(1, distanceBetweenPoints(pts[0], pts[1]));
+  const scale = currentDistance / __gradientTouchPinch.startDistance;
+  const minWidth = gradientPreviewDefaultWidth();
+  const maxWidth = gradientPreviewMaxWidth();
+  const nextWidth = Math.min(Math.max(__gradientTouchPinch.startWidth * scale, minWidth), maxWidth);
+  const nextHeight = nextWidth * (2 / 3);
+  const center = centerBetweenPoints(pts[0], pts[1]);
+
+  state.previewWidth = nextWidth;
+  state.minimized = false;
+  state.spot = 'floating';
+  state.x = center.x - nextWidth * __gradientTouchPinch.centerRatioX;
+  state.y = center.y - nextHeight * __gradientTouchPinch.centerRatioY;
+
+  state.x = Math.min(Math.max(8, state.x), Math.max(8, window.innerWidth - nextWidth - 8));
+  state.y = Math.min(Math.max(8, state.y), Math.max(8, window.innerHeight - nextHeight - 8));
+
+  applyGradientPreviewFloatPosition();
+  return true;
+}
+
+function endGradientPreviewTouchPinch() {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  if (!__gradientTouchPinch) return;
+  __gradientTouchPinch = null;
+  wrap?.classList.remove('is-pinching');
+  showGradientPreviewChrome(1800);
+}
+
+function setupGradientPreviewTouchPinch() {
+  const wrap = document.getElementById('gradientPreviewWrap');
+  if (!wrap || wrap.dataset.touchPinchBound === 'true') return;
+  wrap.dataset.touchPinchBound = 'true';
+
+  wrap.addEventListener('touchstart', ev => {
+    if (ev.touches && ev.touches.length >= 2) {
+      beginGradientPreviewTouchPinch(ev);
+    }
+  }, { passive: false, capture: true });
+
+  wrap.addEventListener('touchmove', ev => {
+    if (__gradientTouchPinch) {
+      updateGradientPreviewTouchPinch(ev);
+    } else if (ev.touches && ev.touches.length >= 2) {
+      beginGradientPreviewTouchPinch(ev);
+    }
+  }, { passive: false, capture: true });
+
+  wrap.addEventListener('touchend', ev => {
+    if (!ev.touches || ev.touches.length < 2) endGradientPreviewTouchPinch();
+  }, { passive: false, capture: true });
+
+  wrap.addEventListener('touchcancel', () => {
+    endGradientPreviewTouchPinch();
+  }, { passive: false, capture: true });
+}
+
+const __originalEnsureGradientPreviewActionsForTouchPinch = ensureGradientPreviewActions;
+ensureGradientPreviewActions = function(...args) {
+  const result = __originalEnsureGradientPreviewActionsForTouchPinch.apply(this, args);
+  setupGradientPreviewTouchPinch();
+  return result;
+};
+
+
+// Preserve floating preview scale across non-pinch interactions.
+function preserveGradientPreviewScale() {
+  const state = ensureGradientPreviewState();
+  if (!Number.isFinite(Number(state.previewWidth))) {
+    state.previewWidth = gradientPreviewDefaultWidth();
+  } else {
+    state.previewWidth = Math.min(Math.max(Number(state.previewWidth), gradientPreviewDefaultWidth()), gradientPreviewMaxWidth());
+  }
+}
+const __originalSyncGradientPreviewActionsPreserveScale = syncGradientPreviewActions;
+syncGradientPreviewActions = function(...args) {
+  preserveGradientPreviewScale();
+  return __originalSyncGradientPreviewActionsPreserveScale.apply(this, args);
+};
 
 ensureGradientState();
 setupGradientPanelEvents();
