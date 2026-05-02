@@ -3076,9 +3076,10 @@ option,
 
 
 
-/* ─── LIQUID LENS SEGMENT PATCH: mode + gradient type only ─── */
+/* ─── LIQUID LENS SEGMENT PATCH: mode + gradient type + radial shape ─── */
 #modeToggle,
-#gradientTypeToggle {
+#gradientTypeToggle,
+#gradientShapeToggle {
   --segment-pad: 4px;
   --segment-indicator-x: 0px;
   --segment-indicator-w: 0px;
@@ -3095,12 +3096,14 @@ option,
 }
 
 #modeToggle.segment-lens-dragging,
-#gradientTypeToggle.segment-lens-dragging {
+#gradientTypeToggle.segment-lens-dragging,
+#gradientShapeToggle.segment-lens-dragging {
   cursor: grabbing;
 }
 
 #modeToggle .mode-btn,
-#gradientTypeToggle .gradient-type-btn {
+#gradientTypeToggle .gradient-type-btn,
+#gradientShapeToggle .gradient-shape-btn {
   flex: 1 1 0 !important;
   min-width: 0 !important;
   height: 30px !important;
@@ -3121,16 +3124,29 @@ option,
   transition: color 180ms ease, text-shadow 180ms ease, opacity 180ms ease !important;
 }
 
+#gradientTypeToggle .gradient-type-btn {
+  flex-basis: 25% !important;
+  width: 25% !important;
+}
+
+#gradientShapeToggle .gradient-shape-btn {
+  flex-basis: 50% !important;
+  width: 50% !important;
+}
+
 #modeToggle .mode-btn.active,
 #gradientTypeToggle .gradient-type-btn.active,
+#gradientShapeToggle .gradient-shape-btn.active,
 #modeToggle .mode-btn.segment-lens-preview,
-#gradientTypeToggle .gradient-type-btn.segment-lens-preview {
+#gradientTypeToggle .gradient-type-btn.segment-lens-preview,
+#gradientShapeToggle .gradient-shape-btn.segment-lens-preview {
   color: var(--text) !important;
   text-shadow: 0 0 10px rgba(255,255,255,0.24);
 }
 
 #modeToggle > .segmented-indicator,
-#gradientTypeToggle > .segmented-indicator {
+#gradientTypeToggle > .segmented-indicator,
+#gradientShapeToggle > .segmented-indicator {
   position: absolute !important;
   top: var(--segment-pad) !important;
   left: var(--segment-pad) !important;
@@ -3154,18 +3170,20 @@ option,
   transform-origin: center center !important;
   transition:
     transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
-    width 180ms ease,
     opacity 140ms ease !important;
-  will-change: transform, width;
+  contain: layout paint;
+  will-change: transform;
 }
 
 #modeToggle.segment-lens-dragging > .segmented-indicator,
-#gradientTypeToggle.segment-lens-dragging > .segmented-indicator {
+#gradientTypeToggle.segment-lens-dragging > .segmented-indicator,
+#gradientShapeToggle.segment-lens-dragging > .segmented-indicator {
   transition: none !important;
 }
 
 #modeToggle > .segmented-indicator::before,
-#gradientTypeToggle > .segmented-indicator::before {
+#gradientTypeToggle > .segmented-indicator::before,
+#gradientShapeToggle > .segmented-indicator::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -3178,7 +3196,8 @@ option,
 
 @supports not ((backdrop-filter: url(#chromatuneSegmentLensFilter)) or (-webkit-backdrop-filter: url(#chromatuneSegmentLensFilter))) {
   #modeToggle > .segmented-indicator,
-  #gradientTypeToggle > .segmented-indicator {
+  #gradientTypeToggle > .segmented-indicator,
+  #gradientShapeToggle > .segmented-indicator {
     backdrop-filter: blur(14px) saturate(1.2) !important;
     -webkit-backdrop-filter: blur(14px) saturate(1.2) !important;
   }
@@ -3191,6 +3210,41 @@ option,
   #gradientTypeToggle .gradient-type-btn {
     padding-inline: 8px !important;
     font-size: 8.2px !important;
+  }
+}
+
+
+
+/* ─── RADIAL SHAPE SEGMENT CONTROL ─── */
+.gradient-shape-feature-row {
+  grid-template-columns: minmax(0, 1fr) 64px;
+}
+
+.gradient-shape-toggle {
+  width: 100%;
+  max-width: none !important;
+  margin: 0 !important;
+}
+
+#gradientShapeToggle {
+  --segment-pad: 4px;
+  --segment-indicator-x: 0px;
+  --segment-indicator-w: 0px;
+}
+
+#gradientShapeToggle .gradient-shape-btn {
+  height: 30px !important;
+  min-height: 30px !important;
+  padding-inline: 14px !important;
+}
+
+@media (max-width: 560px) {
+  .gradient-shape-feature-row {
+    grid-template-columns: 1fr;
+  }
+
+  #gradientShapeToggle .gradient-shape-btn {
+    padding-inline: 10px !important;
   }
 }
 
@@ -3336,6 +3390,7 @@ option,
 // ═══════════════════════════════════════════════════════════
 const Color = (() => {
   const strongestColorCache = new Map();
+  const maxChromaCache = new Map();
 
   function gammaToLinear(c) {
     const a = Math.abs(c);
@@ -3422,20 +3477,32 @@ const Color = (() => {
   }
 
   function maxChroma(L, H, gamut = 'srgb') {
-    if (!inGamut(L, 0, H, gamut)) return 0;
+    const cacheKey = `${gamut}:${L}:${H}`;
+    if (maxChromaCache.has(cacheKey)) return maxChromaCache.get(cacheKey);
+
+    if (!inGamut(L, 0, H, gamut)) {
+      maxChromaCache.set(cacheKey, 0);
+      return 0;
+    }
+
     let lo = 0, hi = 0.01;
 
     while (hi < C_MAX && inGamut(L, hi, H, gamut)) {
       hi = Math.min(hi * 2.2 + 0.005, C_MAX);
     }
 
-    if (inGamut(L, C_MAX, H, gamut)) return C_MAX;
+    if (inGamut(L, C_MAX, H, gamut)) {
+      maxChromaCache.set(cacheKey, C_MAX);
+      return C_MAX;
+    }
 
     for (let i = 0; i < 26; i++) {
       const mid = (lo + hi) / 2;
       inGamut(L, mid, H, gamut) ? (lo = mid) : (hi = mid);
     }
 
+    if (maxChromaCache.size > 9000) maxChromaCache.clear();
+    maxChromaCache.set(cacheKey, lo);
     return lo;
   }
 
@@ -3627,6 +3694,7 @@ const Color = (() => {
 
   function clearStrongestColorCache() {
     strongestColorCache.clear();
+    maxChromaCache.clear();
   }
 
   return {
@@ -4198,6 +4266,79 @@ function renderHSLFieldCanvas(canvas) {
   }
 
   ctx.putImageData(img, 0, 0);
+}
+
+function renderCanvasOnce(canvas, key, renderFn) {
+  if (!canvas || canvas.width <= 0 || canvas.height <= 0) return;
+  if (canvas.dataset.renderKey === key) return;
+  renderFn();
+  canvas.dataset.renderKey = key;
+}
+
+function keyNum(value, digits = 4) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n.toFixed(digits) : '0';
+}
+
+function pickerColorKey() {
+  return [
+    keyNum(S.L), keyNum(S.C), keyNum(S.H, 2),
+    keyNum(S.r, 2), keyNum(S.g, 2), keyNum(S.b, 2),
+    keyNum(S.hslH, 2), keyNum(S.hslS), keyNum(S.hslLight),
+    keyNum(S.hsvH, 2), keyNum(S.hsvS), keyNum(S.hsvV)
+  ].join('|');
+}
+
+function sliderCanvasRenderKey(def, isVert, canvas) {
+  const base = [
+    canvas.width, canvas.height,
+    SUPPORT.cssP3 ? 'p3' : 'srgb',
+    SUPPORT.cssOKLCH ? 'oklch' : 'fallback',
+    S.mode, def.key, isVert ? 'v' : 'h'
+  ];
+
+  if (def.isAlpha) return base.concat(pickerColorKey()).join('|');
+
+  if (S.mode === 'oklch') {
+    if (def.key === 'L') return base.concat(keyNum(S.C), keyNum(S.H, 2)).join('|');
+    if (def.key === 'C') return base.concat(keyNum(S.L), keyNum(S.H, 2)).join('|');
+    if (def.key === 'H') return base.concat(isVert ? keyNum(S.C) : `${keyNum(S.L)}|${keyNum(S.C)}`).join('|');
+  }
+
+  if (S.mode === 'tune') {
+    if (def.key === 'tone') return base.concat(keyNum(S.vividness), keyNum(S.H, 2)).join('|');
+    if (def.key === 'vividness') return base.concat(keyNum(S.L), keyNum(S.H, 2)).join('|');
+    if (def.key === 'activeTuneControl') {
+      const dynamic = S.activeTuneControl === 'hue' ? `${keyNum(S.L)}|${keyNum(S.vividness)}` : 'strongest';
+      return base.concat(S.activeTuneControl, dynamic).join('|');
+    }
+    if (def.key === 'color') return base.concat('strongest').join('|');
+    if (def.key === 'hue') return base.concat(keyNum(S.L), keyNum(S.vividness)).join('|');
+  }
+
+  if (S.mode === 'rgb') {
+    if (def.key === 'r') return base.concat(isVert ? 'static' : `${keyNum(S.g, 2)}|${keyNum(S.b, 2)}`).join('|');
+    if (def.key === 'g') return base.concat(isVert ? 'static' : `${keyNum(S.r, 2)}|${keyNum(S.b, 2)}`).join('|');
+    if (def.key === 'b') return base.concat(isVert ? 'static' : `${keyNum(S.r, 2)}|${keyNum(S.g, 2)}`).join('|');
+  }
+
+  if (S.mode === 'hsl') {
+    if (def.key === 'hslHue') return base.concat('static').join('|');
+    if (def.key === 'hslS') return base.concat(keyNum(S.hslH, 2), keyNum(S.hslLight)).join('|');
+    if (def.key === 'hslL') return base.concat(keyNum(S.hslH, 2), keyNum(S.hslS)).join('|');
+  }
+
+  return base.concat(pickerColorKey(), keyNum(S.alpha)).join('|');
+}
+
+function hslFieldRenderKey(canvas) {
+  return [
+    canvas.width,
+    canvas.height,
+    SUPPORT.cssP3 ? 'p3' : 'srgb',
+    'hsl-field',
+    keyNum(S.hsvH, 2)
+  ].join('|');
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -4913,16 +5054,19 @@ function rebuildUI() {
       if (vi) {
         vi.canvas.width = vi.track.offsetWidth || 44;
         vi.canvas.height = vi.track.offsetHeight || 218;
+        delete vi.canvas.dataset.renderKey;
       }
       if (hi) {
         hi.canvas.width = hi.track.offsetWidth || 320;
         hi.canvas.height = hi.track.offsetHeight || 40;
+        delete hi.canvas.dataset.renderKey;
       }
     });
 
     if (hslFieldUI) {
       hslFieldUI.canvas.width = hslFieldUI.wrap.offsetWidth || 218;
       hslFieldUI.canvas.height = hslFieldUI.wrap.offsetHeight || 218;
+      delete hslFieldUI.canvas.dataset.renderKey;
     }
 
     setupInteractions();
@@ -5039,10 +5183,10 @@ function updateUI() {
       const vfmt = vi.vdef ? vi.vdef.fmt : def.fmt;
       if (document.activeElement !== vi.valEl) vi.valEl.textContent = vfmt(val);
 
-      if (vi.canvas.width > 0 && vi.canvas.height > 0) {
+      renderCanvasOnce(vi.canvas, sliderCanvasRenderKey(def, true, vi.canvas), () => {
         if (def.isAlpha) renderAlphaCanvas(vi.canvas, true);
         else renderSliderCanvas(vi.canvas, def.vFn, true, def.vBounds ? def.vBounds() : []);
-      }
+      });
     }
 
     if (hi) {
@@ -5056,28 +5200,46 @@ function updateUI() {
         hi.row.classList.toggle('tune-control-compact', !isActive);
       }
 
-      if (hi.canvas.width > 0 && hi.canvas.height > 0) {
+      renderCanvasOnce(hi.canvas, sliderCanvasRenderKey(def, false, hi.canvas), () => {
         if (def.isAlpha) renderAlphaCanvas(hi.canvas, false);
         else renderSliderCanvas(hi.canvas, def.hFn, false, def.hBounds ? def.hBounds() : []);
-      }
+      });
     }
   });
 
   if (S.mode === 'hsl' && hslFieldUI) {
-    renderHSLFieldCanvas(hslFieldUI.canvas);
+    renderCanvasOnce(hslFieldUI.canvas, hslFieldRenderKey(hslFieldUI.canvas), () => {
+      renderHSLFieldCanvas(hslFieldUI.canvas);
+    });
     const w = hslFieldUI.wrap.clientWidth || 218;
     const h = hslFieldUI.wrap.clientHeight || 218;
     hslFieldUI.thumb.style.left = `${S.hsvS * w}px`;
     hslFieldUI.thumb.style.top = `${(1 - S.hsvV) * h}px`;
   }
 
-  if (S.gradient) updateGradientPanel();
+  if (S.gradient) renderAddStopCard();
 }
 
 // ═══════════════════════════════════════════════════════════
 // 7 ▸ DRAG INTERACTIONS
 // ═══════════════════════════════════════════════════════════
 let drag = null;
+let uiUpdateRaf = 0;
+
+function requestUIUpdate() {
+  if (uiUpdateRaf) return;
+  uiUpdateRaf = requestAnimationFrame(() => {
+    uiUpdateRaf = 0;
+    updateUI();
+  });
+}
+
+function flushUIUpdate() {
+  if (!uiUpdateRaf) return;
+  cancelAnimationFrame(uiUpdateRaf);
+  uiUpdateRaf = 0;
+  updateUI();
+}
 
 window.addEventListener('mousemove', e => {
   if (!drag) return;
@@ -5086,6 +5248,7 @@ window.addEventListener('mousemove', e => {
 
 window.addEventListener('mouseup', () => {
   if (drag) drag.track.classList.remove('dragging');
+  flushUIUpdate();
   drag = null;
 });
 
@@ -5097,17 +5260,18 @@ window.addEventListener('touchmove', e => {
 
 window.addEventListener('touchend', () => {
   if (drag) drag.track.classList.remove('dragging');
+  flushUIUpdate();
   drag = null;
 });
 
-function applyDrag(cx, cy) {
-  const rect = drag.track.getBoundingClientRect();
+function applyDrag(cx, cy, immediate = false) {
+  const rect = drag.rect || drag.track.getBoundingClientRect();
 
   if (drag.kind === 'hsl-field') {
     const s = Math.max(0, Math.min(1, (cx - rect.left) / rect.width));
     const v = Math.max(0, Math.min(1, 1 - (cy - rect.top) / rect.height));
     syncStateFromHSV(S.hsvH, s, v, { markDirty: true, rememberDerived: true });
-    updateUI();
+    immediate ? updateUI() : requestUIUpdate();
     return;
   }
 
@@ -5122,7 +5286,7 @@ function applyDrag(cx, cy) {
   t = Math.max(0, Math.min(1, t));
 
   drag.def.set(drag.def.min + t * (drag.def.max - drag.def.min));
-  updateUI();
+  immediate ? updateUI() : requestUIUpdate();
 }
 
 function setupTrackDrag(track, def, isVert) {
@@ -5134,8 +5298,8 @@ function setupTrackDrag(track, def, isVert) {
     }
 
     track.classList.add('dragging');
-    drag = { track, def, isVert };
-    applyDrag(e.clientX, e.clientY);
+    drag = { track, def, isVert, rect: track.getBoundingClientRect() };
+    applyDrag(e.clientX, e.clientY, true);
   });
 
   track.addEventListener('touchstart', e => {
@@ -5146,8 +5310,8 @@ function setupTrackDrag(track, def, isVert) {
     }
 
     track.classList.add('dragging');
-    drag = { track, def, isVert };
-    applyDrag(e.touches[0].clientX, e.touches[0].clientY);
+    drag = { track, def, isVert, rect: track.getBoundingClientRect() };
+    applyDrag(e.touches[0].clientX, e.touches[0].clientY, true);
   }, { passive: false });
 }
 
@@ -5155,15 +5319,15 @@ function setupHSLFieldDrag(track) {
   track.addEventListener('mousedown', e => {
     e.preventDefault();
     track.classList.add('dragging');
-    drag = { track, kind: 'hsl-field' };
-    applyDrag(e.clientX, e.clientY);
+    drag = { track, kind: 'hsl-field', rect: track.getBoundingClientRect() };
+    applyDrag(e.clientX, e.clientY, true);
   });
 
   track.addEventListener('touchstart', e => {
     e.preventDefault();
     track.classList.add('dragging');
-    drag = { track, kind: 'hsl-field' };
-    applyDrag(e.touches[0].clientX, e.touches[0].clientY);
+    drag = { track, kind: 'hsl-field', rect: track.getBoundingClientRect() };
+    applyDrag(e.touches[0].clientX, e.touches[0].clientY, true);
   }, { passive: false });
 }
 
@@ -5231,6 +5395,8 @@ const INTERPOLATION_DESCRIPTIONS = {
 let gradientDrag = null;
 let gradientContextDraft = null;
 let gradientFlipTimer = null;
+let gradientDragRaf = 0;
+let gradientDragClientX = null;
 
 function clampGradientPercent(value) {
   const n = Number(value);
@@ -5634,7 +5800,8 @@ function updateGradientPanel() {
   }
   if (previewWrap) previewWrap.classList.remove('copied');
   updateGradientTypeToggle();
-  renderGradientSettingsBody();
+  if (gradientDrag) updateActiveGradientControlDom();
+  else renderGradientSettingsBody();
   if (flipChanged && stopsHost) {
     stopsHost.classList.add('is-flipping');
     clearTimeout(gradientFlipTimer);
@@ -5703,10 +5870,10 @@ function renderGradientSettingsBody() {
   host.innerHTML = `
     ${colorTransitionGroup()}
     ${settingGroup('Radial Features', `
-      <div class="gradient-feature-row">
-        <div class="gradient-toggle-group" role="group" aria-label="Radial gradient shape">
-          <button class="gradient-button ${radial.shape === 'circle' ? 'active' : ''}" type="button" data-gradient-shape="circle">circle</button>
-          <button class="gradient-button ${radial.shape === 'ellipse' ? 'active' : ''}" type="button" data-gradient-shape="ellipse">ellipse</button>
+      <div class="gradient-feature-row gradient-shape-feature-row">
+        <div class="gradient-type-toggle gradient-shape-toggle" id="gradientShapeToggle" role="tablist" aria-label="Radial gradient shape">
+          <button class="gradient-type-btn gradient-shape-btn ${radial.shape === 'circle' ? 'active' : ''}" type="button" role="tab" aria-selected="${radial.shape === 'circle' ? 'true' : 'false'}" data-gradient-shape="circle">circle</button>
+          <button class="gradient-type-btn gradient-shape-btn ${radial.shape === 'ellipse' ? 'active' : ''}" type="button" role="tab" aria-selected="${radial.shape === 'ellipse' ? 'true' : 'false'}" data-gradient-shape="ellipse">ellipse</button>
         </div>
         <div class="gradient-feature-label">shape</div>
       </div>
@@ -5728,6 +5895,54 @@ function renderGradientSettingsBody() {
       ${gradientSliderHtml({ control: 'radial-y', label: 'Y', value: radial.y, min: -100, max: 100, unit: '%', snap: 'quarter' })}
     `)}
   `;
+}
+
+function currentGradientControlValue(control, stopId) {
+  const g = S.gradient;
+  if (!g) return null;
+  if (control === 'linear-angle') return g.linear.angle;
+  if (control === 'conic-angle') return g.conic.angle;
+  if (control === 'radial-x') return g.radial.x;
+  if (control === 'radial-y') return g.radial.y;
+  if (control === 'conic-x') return g.conic.x;
+  if (control === 'conic-y') return g.conic.y;
+  if (control === 'add-stop-position') return g.addStopPosition;
+  if (control === 'stop-position') return findGradientStop(stopId)?.position ?? null;
+  if (control === 'midpoint-before' || control === 'midpoint-after') {
+    const stop = findGradientStop(stopId);
+    if (!stop) return null;
+    sortGradientStops();
+    const idx = g.stops.findIndex(s => s.id === stop.id);
+    const neighbor = control === 'midpoint-before' ? g.stops[idx - 1] : g.stops[idx + 1];
+    if (!neighbor) return null;
+    return control === 'midpoint-before'
+      ? getGradientPairMidpoint(neighbor.id, stop.id)
+      : getGradientPairMidpoint(stop.id, neighbor.id);
+  }
+  return null;
+}
+
+function updateActiveGradientControlDom() {
+  if (!gradientDrag?.track) return;
+  const value = currentGradientControlValue(gradientDrag.control, gradientDrag.stopId);
+  if (value == null || !Number.isFinite(Number(value))) return;
+
+  const min = Number(gradientDrag.track.dataset.min);
+  const max = Number(gradientDrag.track.dataset.max);
+  if (!Number.isFinite(min) || !Number.isFinite(max) || max === min) return;
+
+  const displayValue = gradientDrag.flipped ? stopPositionToSliderX(Number(value), true) : Number(value);
+  const pct = sliderPercent(displayValue, min, max);
+  const thumb = gradientDrag.track.querySelector('.hslider-thumb');
+  if (thumb) {
+    thumb.style.left = thumb.classList.contains('gradient-control-thumb') ? thumbLeftCss(pct, 15) : `${fmtGradientNumber(pct, 4)}%`;
+  }
+
+  const row = gradientDrag.track.closest('.gradient-slider-row');
+  const valueEl = row?.querySelector('.gradient-editable[data-gradient-edit="slider-value"]');
+  if (valueEl && document.activeElement !== valueEl) {
+    valueEl.textContent = `${fmtGradientNumber(value, 2)}${valueEl.dataset.unit || ''}`;
+  }
 }
 function gradientContextControlHtml(kind, activeTile) {
   return `
@@ -5753,9 +5968,13 @@ function renderGradientStops() {
   const host = document.getElementById('gradientStops');
   if (!host || !S.gradient) return;
   const oldRects = new Map();
-  host.querySelectorAll('.gradient-stop-row[data-stop-id]').forEach(row => oldRects.set(row.dataset.stopId, row.getBoundingClientRect()));
+  const animateRows = !gradientDrag;
+  if (animateRows) {
+    host.querySelectorAll('.gradient-stop-row[data-stop-id]').forEach(row => oldRects.set(row.dataset.stopId, row.getBoundingClientRect()));
+  }
   sortGradientStops();
   host.innerHTML = S.gradient.stops.map((stop, index) => gradientStopRowHtml(stop, index)).join('');
+  if (!animateRows) return;
   host.querySelectorAll('.gradient-stop-row[data-stop-id]').forEach(row => {
     const old = oldRects.get(row.dataset.stopId);
     if (!old) return;
@@ -6113,6 +6332,27 @@ function closeGradientContextGrid() {
   if (popover) { popover.classList.remove('show'); popover.setAttribute('aria-hidden', 'true'); }
   gradientContextDraft = null;
 }
+
+function requestGradientApplyDrag(clientX) {
+  gradientDragClientX = clientX;
+  if (gradientDragRaf) return;
+  gradientDragRaf = requestAnimationFrame(() => {
+    gradientDragRaf = 0;
+    const x = gradientDragClientX;
+    gradientDragClientX = null;
+    if (gradientDrag && x != null) gradientApplyDrag(x);
+  });
+}
+
+function flushGradientApplyDrag() {
+  if (!gradientDragRaf) return;
+  cancelAnimationFrame(gradientDragRaf);
+  gradientDragRaf = 0;
+  const x = gradientDragClientX;
+  gradientDragClientX = null;
+  if (gradientDrag && x != null) gradientApplyDrag(x);
+}
+
 function renderGradientContextGrid() {
   const grid = document.getElementById('gradientContextGrid');
   if (!grid || !gradientContextDraft) return;
@@ -6484,13 +6724,16 @@ function setupGradientPanelEvents() {
     if (gradientContextDraft.tile === tile) { closeGradientContextGrid(); return; }
     gradientContextDraft.tile = tile; applyGradientContext(gradientContextDraft.kind, tile); renderGradientContextGrid();
   });
-  window.addEventListener('pointermove', e => { if (!gradientDrag) return; e.preventDefault(); gradientApplyDrag(e.clientX); }, { passive: false });
+  window.addEventListener('pointermove', e => { if (!gradientDrag) return; e.preventDefault(); requestGradientApplyDrag(e.clientX); }, { passive: false });
   window.addEventListener('pointerup', () => {
+    const finishedGradientDrag = !!gradientDrag;
+    flushGradientApplyDrag();
     if (gradientDrag && gradientDrag.track) {
       gradientDrag.track.classList.remove('dragging');
       if (gradientDrag.track.releasePointerCapture && gradientDrag.pointerId != null) { try { gradientDrag.track.releasePointerCapture(gradientDrag.pointerId); } catch {} }
     }
     gradientDrag = null;
+    if (finishedGradientDrag && S.gradient) updateGradientPanel();
   });
   window.addEventListener('scroll', () => { if (S.gradient) renderAddStopCard(); }, { passive: true });
 }
@@ -6572,16 +6815,19 @@ window.addEventListener('resize', () => {
       if (vi && vi.track.offsetHeight > 0) {
         vi.canvas.width  = vi.track.offsetWidth;
         vi.canvas.height = vi.track.offsetHeight;
+        delete vi.canvas.dataset.renderKey;
       }
       if (hi && hi.track.offsetWidth > 0) {
         hi.canvas.width  = hi.track.offsetWidth;
         hi.canvas.height = hi.track.offsetHeight;
+        delete hi.canvas.dataset.renderKey;
       }
     });
 
     if (hslFieldUI && hslFieldUI.wrap.offsetWidth > 0) {
       hslFieldUI.canvas.width  = hslFieldUI.wrap.offsetWidth;
       hslFieldUI.canvas.height = hslFieldUI.wrap.offsetHeight;
+      delete hslFieldUI.canvas.dataset.renderKey;
     }
 
     updateUI();
@@ -8849,12 +9095,13 @@ syncGradientPreviewActions = function(...args) {
 ensureGradientState();
 setupGradientPanelEvents();
 rebuildUI();
+updateGradientPanel();
 </script>
 
 
 <script id="chromatune-segment-lens-patch">
 (() => {
-  const TOGGLE_SELECTOR = '#modeToggle, #gradientTypeToggle';
+  const TOGGLE_SELECTOR = '#modeToggle, #gradientTypeToggle, #gradientShapeToggle';
   const FILTER_ID = 'chromatuneSegmentLensFilter';
   const FILTER_IMAGE_ID = 'chromatuneSegmentLensDisplacementImage';
   const FILTER_MAP_ID = 'chromatuneSegmentLensDisplacementMap';
@@ -9003,6 +9250,7 @@ rebuildUI();
     if (!toggleEl) return [];
     if (toggleEl.id === 'modeToggle') return Array.from(toggleEl.querySelectorAll('.mode-btn'));
     if (toggleEl.id === 'gradientTypeToggle') return Array.from(toggleEl.querySelectorAll('.gradient-type-btn'));
+    if (toggleEl.id === 'gradientShapeToggle') return Array.from(toggleEl.querySelectorAll('.gradient-shape-btn'));
     return [];
   }
 
@@ -9262,8 +9510,19 @@ rebuildUI();
     });
   }, true);
 
-  const observer = new MutationObserver(() => {
-    requestAnimationFrame(() => updateAllLensToggles({ keepDrag: true }));
+  function mutationTouchesLensToggle(mutation) {
+    const target = mutation.target;
+    return target instanceof Element && !!target.closest(TOGGLE_SELECTOR);
+  }
+
+  let observerRaf = 0;
+  const observer = new MutationObserver(mutations => {
+    if (!mutations.some(mutationTouchesLensToggle)) return;
+    if (observerRaf) return;
+    observerRaf = requestAnimationFrame(() => {
+      observerRaf = 0;
+      updateAllLensToggles({ keepDrag: true });
+    });
   });
   observer.observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ['class'] });
 
