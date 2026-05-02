@@ -3074,10 +3074,286 @@ option,
   transition: none !important;
 }
 
+
+
+/* ─── LIQUID LENS SEGMENT PATCH: mode + gradient type only ─── */
+#modeToggle,
+#gradientTypeToggle {
+  --segment-pad: 4px;
+  --segment-indicator-x: 0px;
+  --segment-indicator-w: 0px;
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0 !important;
+  padding: var(--segment-pad) !important;
+  overflow: hidden !important;
+  touch-action: none !important;
+  cursor: grab;
+  isolation: isolate;
+  border-radius: 16px !important;
+}
+
+#modeToggle.segment-lens-dragging,
+#gradientTypeToggle.segment-lens-dragging {
+  cursor: grabbing;
+}
+
+#modeToggle .mode-btn,
+#gradientTypeToggle .gradient-type-btn {
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  height: 30px !important;
+  min-height: 30px !important;
+  padding: 0 14px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+  z-index: 2 !important;
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  color: var(--text3) !important;
+  white-space: nowrap !important;
+  line-height: 1 !important;
+  text-align: center !important;
+  transition: color 180ms ease, text-shadow 180ms ease, opacity 180ms ease !important;
+}
+
+#modeToggle .mode-btn.active,
+#gradientTypeToggle .gradient-type-btn.active,
+#modeToggle .mode-btn.segment-lens-preview,
+#gradientTypeToggle .gradient-type-btn.segment-lens-preview {
+  color: var(--text) !important;
+  text-shadow: 0 0 10px rgba(255,255,255,0.24);
+}
+
+#modeToggle > .segmented-indicator,
+#gradientTypeToggle > .segmented-indicator {
+  position: absolute !important;
+  top: var(--segment-pad) !important;
+  left: var(--segment-pad) !important;
+  width: var(--segment-indicator-w) !important;
+  height: calc(100% - (var(--segment-pad) * 2)) !important;
+  margin: 0 !important;
+  border-radius: 12px !important;
+  z-index: 1 !important;
+  opacity: 1 !important;
+  pointer-events: none !important;
+  overflow: hidden !important;
+  background: rgba(255,255,255,0.055) !important;
+  border: 1px solid rgba(255,255,255,0.13) !important;
+  box-shadow:
+    0 8px 16px rgba(0,0,0,0.24),
+    0 1px 0 rgba(255,255,255,0.10) inset,
+    0 -1px 0 rgba(0,0,0,0.10) inset !important;
+  backdrop-filter: url(#chromatuneSegmentLensFilter) !important;
+  -webkit-backdrop-filter: url(#chromatuneSegmentLensFilter) !important;
+  transform: translateX(var(--segment-indicator-x)) scale(var(--segment-scale-x, 1), var(--segment-scale-y, 1)) !important;
+  transform-origin: center center !important;
+  transition:
+    transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    width 180ms ease,
+    opacity 140ms ease !important;
+  will-change: transform, width;
+}
+
+#modeToggle.segment-lens-dragging > .segmented-indicator,
+#gradientTypeToggle.segment-lens-dragging > .segmented-indicator {
+  transition: none !important;
+}
+
+#modeToggle > .segmented-indicator::before,
+#gradientTypeToggle > .segmented-indicator::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.012) 72%);
+  opacity: 0.55;
+  z-index: 1;
+}
+
+@supports not ((backdrop-filter: url(#chromatuneSegmentLensFilter)) or (-webkit-backdrop-filter: url(#chromatuneSegmentLensFilter))) {
+  #modeToggle > .segmented-indicator,
+  #gradientTypeToggle > .segmented-indicator {
+    backdrop-filter: blur(14px) saturate(1.2) !important;
+    -webkit-backdrop-filter: blur(14px) saturate(1.2) !important;
+  }
+}
+
+@media (max-width: 560px) {
+  #modeToggle .mode-btn {
+    padding-inline: 10px !important;
+  }
+  #gradientTypeToggle .gradient-type-btn {
+    padding-inline: 8px !important;
+    font-size: 8.2px !important;
+  }
+}
+
+
+
+/* ─── COLOR PICKER SLIDER ACTIVE GLASS DOWNSTATE ───────────
+   Applies only inside .picker. Gradient builder sliders are untouched. */
+.picker .hslider-thumb,
+.picker .vslider-thumb {
+  overflow: hidden;
+  will-change: transform, background, box-shadow, border-color, backdrop-filter;
+  transition:
+    transform 0.12s cubic-bezier(0.4, 0, 0.2, 1),
+    background 0.14s ease,
+    border-color 0.14s ease,
+    box-shadow 0.14s ease,
+    opacity 0.14s ease;
+}
+
+.picker .hslider-track.dragging .hslider-thumb,
+.picker .vslider-track.dragging .vslider-thumb {
+  background: rgba(255,255,255,0.075);
+  border-color: rgba(255,255,255,0.26);
+  box-shadow:
+    0 6px 16px -6px rgba(0,0,0,0.62),
+    inset 0 1px 2px rgba(255,255,255,0.16),
+    inset 0 -1px 2px rgba(0,0,0,0.16),
+    0 0 0 1px rgba(255,255,255,0.08);
+}
+
+.picker .hslider-track.dragging .hslider-thumb {
+  -webkit-backdrop-filter: url(#chromatuneHSliderGlass);
+  backdrop-filter: url(#chromatuneHSliderGlass);
+  transform: translateY(-50%) scale(1.08);
+}
+
+.picker .vslider-track.dragging .vslider-thumb {
+  -webkit-backdrop-filter: url(#chromatuneVSliderGlass);
+  backdrop-filter: url(#chromatuneVSliderGlass);
+  transform: translateX(-50%) scale(1.08);
+}
+
+@supports not ((backdrop-filter: url(#chromatuneHSliderGlass)) or (-webkit-backdrop-filter: url(#chromatuneHSliderGlass))) {
+  .picker .hslider-track.dragging .hslider-thumb,
+  .picker .vslider-track.dragging .vslider-thumb {
+    -webkit-backdrop-filter: blur(10px) saturate(1.2);
+    backdrop-filter: blur(10px) saturate(1.2);
+  }
+}
+
 </style>
 </head>
 
 <body>
+
+<!-- Color picker slider active glass filters: horizontal + vertical thumb maps. -->
+<svg aria-hidden="true" width="0" height="0" style="position:absolute;left:-9999px;top:-9999px;pointer-events:none;">
+  <defs>
+    <filter id="chromatuneHSliderGlass" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="0.15" result="blurred" />
+      <feImage id="chromatuneHSliderDisplacementImage" href="" x="0" y="0" width="15" height="27" result="displacement_map" preserveAspectRatio="none" />
+      <feDisplacementMap id="chromatuneHSliderDisplacementMap" in="blurred" in2="displacement_map" scale="8" xChannelSelector="R" yChannelSelector="G" result="displaced" />
+      <feColorMatrix in="displaced" type="saturate" values="1.25" />
+    </filter>
+    <filter id="chromatuneVSliderGlass" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="0.15" result="blurred" />
+      <feImage id="chromatuneVSliderDisplacementImage" href="" x="0" y="0" width="28" height="15" result="displacement_map" preserveAspectRatio="none" />
+      <feDisplacementMap id="chromatuneVSliderDisplacementMap" in="blurred" in2="displacement_map" scale="8" xChannelSelector="R" yChannelSelector="G" result="displaced" />
+      <feColorMatrix in="displaced" type="saturate" values="1.25" />
+    </filter>
+  </defs>
+</svg>
+<script>
+(function initChromatuneColorPickerSliderGlassMaps(){
+  function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+  const surface = x => Math.pow(1 - Math.pow(1 - x, 4), 1 / 4);
+
+  function displacement1D(glassThickness, bezelWidth, refractiveIndex, samples = 128) {
+    const eta = 1 / refractiveIndex;
+    const values = [];
+    for (let i = 0; i < samples; i++) {
+      const x = i / samples;
+      const y = surface(x);
+      const dx = x < 1 ? 0.0001 : -0.0001;
+      const derivative = (surface(clamp(x + dx, 0, 1)) - y) / dx;
+      const mag = Math.sqrt(derivative * derivative + 1);
+      const normal = [-derivative / mag, -1 / mag];
+      const dot = normal[1];
+      const k = 1 - eta * eta * (1 - dot * dot);
+      if (k < 0) values.push(0);
+      else {
+        const refracted = [
+          -(eta * dot + Math.sqrt(k)) * normal[0],
+          eta - (eta * dot + Math.sqrt(k)) * normal[1]
+        ];
+        values.push(refracted[0] * ((y * bezelWidth + glassThickness) / refracted[1]));
+      }
+    }
+    return values;
+  }
+
+  function roundedCapsuleMap(width, height, radius, bezelWidth, maxDisplacement, precomputed) {
+    const image = new ImageData(width, height);
+    for (let i = 0; i < image.data.length; i += 4) {
+      image.data[i] = 128;
+      image.data[i + 1] = 128;
+      image.data[i + 2] = 128;
+      image.data[i + 3] = 255;
+    }
+
+    const radiusSq = radius * radius;
+    const radiusPlusSq = (radius + 1) ** 2;
+    const radiusMinusBezelSq = Math.max(0, radius - bezelWidth) ** 2;
+    const widthBetween = width - radius * 2;
+    const heightBetween = height - radius * 2;
+
+    for (let y1 = 0; y1 < height; y1++) {
+      for (let x1 = 0; x1 < width; x1++) {
+        const x = x1 < radius ? x1 - radius : x1 >= width - radius ? x1 - radius - widthBetween : 0;
+        const y = y1 < radius ? y1 - radius : y1 >= height - radius ? y1 - radius - heightBetween : 0;
+        const distSq = x * x + y * y;
+        if (distSq <= radiusPlusSq && distSq >= radiusMinusBezelSq) {
+          const dist = Math.sqrt(distSq);
+          const outerOpacity = distSq < radiusSq ? 1 : 1 - (dist - radius) / (Math.sqrt(radiusPlusSq) - radius);
+          const bezelIndex = Math.floor(clamp((radius - dist) / bezelWidth, 0, 1) * precomputed.length);
+          const displacement = precomputed[clamp(bezelIndex, 0, precomputed.length - 1)] || 0;
+          const dx = maxDisplacement > 0 ? (-(dist > 0 ? x / dist : 0) * displacement) / maxDisplacement : 0;
+          const dy = maxDisplacement > 0 ? (-(dist > 0 ? y / dist : 0) * displacement) / maxDisplacement : 0;
+          const index = (y1 * width + x1) * 4;
+          image.data[index] = clamp(Math.round(128 + dx * 127 * outerOpacity), 0, 255);
+          image.data[index + 1] = clamp(Math.round(128 + dy * 127 * outerOpacity), 0, 255);
+        }
+      }
+    }
+    return image;
+  }
+
+  function toDataUrl(imageData) {
+    const canvas = document.createElement('canvas');
+    canvas.width = imageData.width;
+    canvas.height = imageData.height;
+    canvas.getContext('2d').putImageData(imageData, 0, 0);
+    return canvas.toDataURL('image/png');
+  }
+
+  function setMap(imageId, mapId, width, height, scale) {
+    const bezelWidth = Math.max(5, Math.min(width, height) * 0.55);
+    const glassThickness = 42;
+    const refractiveIndex = 1.45;
+    const precomputed = displacement1D(glassThickness, bezelWidth, refractiveIndex);
+    const maxDisp = Math.max(...precomputed.map(Math.abs)) || 1;
+    const img = document.getElementById(imageId);
+    const map = document.getElementById(mapId);
+    if (!img || !map) return;
+    img.setAttribute('href', toDataUrl(roundedCapsuleMap(width, height, Math.min(width, height) / 2, bezelWidth, maxDisp, precomputed)));
+    map.setAttribute('scale', String(scale));
+  }
+
+  setMap('chromatuneHSliderDisplacementImage', 'chromatuneHSliderDisplacementMap', 15, 27, 8);
+  setMap('chromatuneVSliderDisplacementImage', 'chromatuneVSliderDisplacementMap', 28, 15, 8);
+})();
+</script>
+
 <div class="toast" id="toast">Copied!</div>
 
 <div class="app-shell">
@@ -8730,5 +9006,432 @@ ensureGradientState();
 setupGradientPanelEvents();
 rebuildUI();
 </script>
+
+
+<script id="chromatune-segment-lens-patch">
+(() => {
+  const TOGGLE_SELECTOR = '#modeToggle, #gradientTypeToggle';
+  const FILTER_ID = 'chromatuneSegmentLensFilter';
+  const FILTER_IMAGE_ID = 'chromatuneSegmentLensDisplacementImage';
+  const FILTER_MAP_ID = 'chromatuneSegmentLensDisplacementMap';
+
+  class LensSpring {
+    constructor(value, stiffness = 420, damping = 30) {
+      this.value = value;
+      this.target = value;
+      this.velocity = 0;
+      this.stiffness = stiffness;
+      this.damping = damping;
+    }
+    setTarget(target) { this.target = target; }
+    update(dt) {
+      const force = (this.target - this.value) * this.stiffness;
+      const dampingForce = this.velocity * this.damping;
+      this.velocity += (force - dampingForce) * dt;
+      this.value += this.velocity * dt;
+      return this.value;
+    }
+    isSettled() {
+      return Math.abs(this.target - this.value) < 0.001 && Math.abs(this.velocity) < 0.001;
+    }
+  }
+
+  const lensSprings = new WeakMap();
+  let activeDrag = null;
+  let raf = null;
+  let suppressClickUntil = 0;
+  let internalActivation = false;
+  let maxDisp = 0;
+
+  function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+  }
+
+  function convexSquircle(x) {
+    return Math.pow(1 - Math.pow(1 - x, 4), 1 / 4);
+  }
+
+  function calculateDisplacementMap1D(glassThickness, bezelWidth, refractiveIndex, samples = 128) {
+    const eta = 1 / refractiveIndex;
+    const result = [];
+    for (let i = 0; i < samples; i++) {
+      const x = i / samples;
+      const y = convexSquircle(x);
+      const dx = x < 1 ? 0.0001 : -0.0001;
+      const derivative = (convexSquircle(Math.max(0, Math.min(1, x + dx))) - y) / dx;
+      const mag = Math.sqrt(derivative * derivative + 1);
+      const normal = [-derivative / mag, -1 / mag];
+      const dot = normal[1];
+      const k = 1 - eta * eta * (1 - dot * dot);
+      if (k < 0) result.push(0);
+      else {
+        const refracted = [
+          -(eta * dot + Math.sqrt(k)) * normal[0],
+          eta - (eta * dot + Math.sqrt(k)) * normal[1]
+        ];
+        result.push(refracted[0] * ((y * bezelWidth + glassThickness) / refracted[1]));
+      }
+    }
+    return result;
+  }
+
+  function calculateDisplacementMap2D(width, height, radius, bezelWidth, maxDisplacement, precomputedMap) {
+    const image = new ImageData(width, height);
+    for (let i = 0; i < image.data.length; i += 4) {
+      image.data[i] = 128;
+      image.data[i + 1] = 128;
+      image.data[i + 2] = 128;
+      image.data[i + 3] = 255;
+    }
+
+    const radiusSq = radius * radius;
+    const radiusPlusSq = (radius + 1) ** 2;
+    const radiusMinusBezelSq = Math.max(0, radius - bezelWidth) ** 2;
+    const widthBetween = width - radius * 2;
+    const heightBetween = height - radius * 2;
+
+    for (let y1 = 0; y1 < height; y1++) {
+      for (let x1 = 0; x1 < width; x1++) {
+        const index = (y1 * width + x1) * 4;
+        const x = x1 < radius ? x1 - radius : x1 >= width - radius ? x1 - radius - widthBetween : 0;
+        const y = y1 < radius ? y1 - radius : y1 >= height - radius ? y1 - radius - heightBetween : 0;
+        const distSq = x * x + y * y;
+
+        if (distSq <= radiusPlusSq && distSq >= radiusMinusBezelSq) {
+          const dist = Math.sqrt(distSq);
+          const outerOpacity = distSq < radiusSq ? 1 : 1 - (dist - radius) / (Math.sqrt(radiusPlusSq) - radius);
+          const bezelIndex = Math.floor(clamp((radius - dist) / bezelWidth, 0, 1) * precomputedMap.length);
+          const displacement = precomputedMap[Math.max(0, Math.min(bezelIndex, precomputedMap.length - 1))] || 0;
+          const dx = maxDisplacement > 0 ? (-(dist > 0 ? x / dist : 0) * displacement) / maxDisplacement : 0;
+          const dy = maxDisplacement > 0 ? (-(dist > 0 ? y / dist : 0) * displacement) / maxDisplacement : 0;
+          image.data[index] = clamp(Math.round(128 + dx * 127 * outerOpacity), 0, 255);
+          image.data[index + 1] = clamp(Math.round(128 + dy * 127 * outerOpacity), 0, 255);
+        }
+      }
+    }
+    return image;
+  }
+
+  function imageDataToDataURL(imageData) {
+    const canvas = document.createElement('canvas');
+    canvas.width = imageData.width;
+    canvas.height = imageData.height;
+    canvas.getContext('2d').putImageData(imageData, 0, 0);
+    return canvas.toDataURL();
+  }
+
+  function ensureLensFilter() {
+    if (document.getElementById(FILTER_ID)) return;
+
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.setAttribute('width', '0');
+    svg.setAttribute('height', '0');
+    svg.style.position = 'absolute';
+    svg.style.pointerEvents = 'none';
+    svg.innerHTML = `
+      <defs>
+        <filter id="${FILTER_ID}" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="0.20" result="blurred"></feGaussianBlur>
+          <feImage id="${FILTER_IMAGE_ID}" href="" x="0" y="0" width="112" height="30" result="displacement_map" preserveAspectRatio="none"></feImage>
+          <feDisplacementMap id="${FILTER_MAP_ID}" in="blurred" in2="displacement_map" scale="16" xChannelSelector="R" yChannelSelector="G" result="displaced"></feDisplacementMap>
+          <feColorMatrix in="displaced" type="saturate" values="1.08"></feColorMatrix>
+        </filter>
+      </defs>
+    `;
+    document.body.prepend(svg);
+
+    const height = 30;
+    const width = 140;
+    const bezelWidth = 9;
+    const glassThickness = 42;
+    const refractiveIndex = 1.6;
+    const oneD = calculateDisplacementMap1D(glassThickness, bezelWidth, refractiveIndex);
+    maxDisp = Math.max(...oneD.map(Math.abs));
+    const map = calculateDisplacementMap2D(width, height, height / 2, bezelWidth, maxDisp || 1, oneD);
+    const image = document.getElementById(FILTER_IMAGE_ID);
+    image.setAttribute('width', String(width));
+    image.setAttribute('height', String(height));
+    image.setAttribute('href', imageDataToDataURL(map));
+  }
+
+  function getButtons(toggleEl) {
+    if (!toggleEl) return [];
+    if (toggleEl.id === 'modeToggle') return Array.from(toggleEl.querySelectorAll('.mode-btn'));
+    if (toggleEl.id === 'gradientTypeToggle') return Array.from(toggleEl.querySelectorAll('.gradient-type-btn'));
+    return [];
+  }
+
+  function ensureIndicator(toggleEl) {
+    if (!toggleEl) return null;
+    let indicator = toggleEl.querySelector(':scope > .segmented-indicator');
+    if (!indicator) {
+      indicator = document.createElement('div');
+      indicator.className = 'segmented-indicator';
+      toggleEl.insertBefore(indicator, toggleEl.firstChild);
+    }
+    return indicator;
+  }
+
+  function getToggleMetrics(toggleEl) {
+    const buttons = getButtons(toggleEl);
+    const pad = parseFloat(getComputedStyle(toggleEl).getPropertyValue('--segment-pad')) || 4;
+    const total = Math.max(0, toggleEl.clientWidth - pad * 2);
+    const width = buttons.length ? total / buttons.length : 0;
+    return { buttons, pad, width, maxX: Math.max(0, total - width) };
+  }
+
+  function getSprings(toggleEl) {
+    let springs = lensSprings.get(toggleEl);
+    if (!springs) {
+      springs = {
+        x: new LensSpring(0),
+        scaleX: new LensSpring(1, 340, 24),
+        scaleY: new LensSpring(1, 340, 24)
+      };
+      lensSprings.set(toggleEl, springs);
+    }
+    return springs;
+  }
+
+  function activeIndex(toggleEl) {
+    const buttons = getButtons(toggleEl);
+    return Math.max(0, buttons.findIndex(btn => btn.classList.contains('active')));
+  }
+
+  function previewIndex(toggleEl, index) {
+    const buttons = getButtons(toggleEl);
+    buttons.forEach((btn, i) => btn.classList.toggle('segment-lens-preview', i === index && !btn.classList.contains('active')));
+  }
+
+  function clearPreview(toggleEl) {
+    getButtons(toggleEl).forEach(btn => btn.classList.remove('segment-lens-preview'));
+  }
+
+  function setToggleLensPosition(toggleEl, x, immediate = false) {
+    const indicator = ensureIndicator(toggleEl);
+    if (!indicator) return;
+    toggleEl.style.setProperty('--segment-indicator-x', `${x}px`);
+    if (immediate) {
+      indicator.style.transition = 'none';
+      requestAnimationFrame(() => { indicator.style.transition = ''; });
+    }
+  }
+
+  function updateLensToggle(toggleEl, opts = {}) {
+    if (!toggleEl) return;
+    ensureLensFilter();
+    const indicator = ensureIndicator(toggleEl);
+    const { buttons, width } = getToggleMetrics(toggleEl);
+    if (!indicator || !buttons.length || !width) return;
+
+    const idx = activeIndex(toggleEl);
+    toggleEl.style.setProperty('--segment-indicator-w', `${width}px`);
+    indicator.style.width = `${width}px`;
+    indicator.style.opacity = '1';
+
+    if (opts.keepDrag && activeDrag?.toggleEl === toggleEl) return;
+
+    const springs = getSprings(toggleEl);
+    springs.x.value = springs.x.target = idx * width;
+    springs.scaleX.value = springs.scaleX.target = 1;
+    springs.scaleY.value = springs.scaleY.target = 1;
+    toggleEl.style.setProperty('--segment-scale-x', '1');
+    toggleEl.style.setProperty('--segment-scale-y', '1');
+    setToggleLensPosition(toggleEl, idx * width);
+    clearPreview(toggleEl);
+  }
+
+  function updateAllLensToggles(opts = {}) {
+    document.querySelectorAll(TOGGLE_SELECTOR).forEach(toggleEl => updateLensToggle(toggleEl, opts));
+  }
+
+  const originalUpdateSegmentedToggleIndicators = window.updateSegmentedToggleIndicators;
+  window.updateSegmentedToggleIndicators = function chromatuneSegmentLensUpdate() {
+    if (typeof originalUpdateSegmentedToggleIndicators === 'function') {
+      originalUpdateSegmentedToggleIndicators();
+    }
+    updateAllLensToggles({ keepDrag: true });
+  };
+  try { updateSegmentedToggleIndicators = window.updateSegmentedToggleIndicators; } catch {}
+
+  function applySpringFrame(toggleEl) {
+    const springs = getSprings(toggleEl);
+    springs.x.update(Math.min(0.032, 1 / 60));
+    springs.scaleX.update(Math.min(0.032, 1 / 60));
+    springs.scaleY.update(Math.min(0.032, 1 / 60));
+
+    toggleEl.style.setProperty('--segment-indicator-x', `${springs.x.value}px`);
+    toggleEl.style.setProperty('--segment-scale-x', String(springs.scaleX.value));
+    toggleEl.style.setProperty('--segment-scale-y', String(springs.scaleY.value));
+
+    const stretchBoost = Math.abs(springs.scaleX.value - 1) * 6;
+    const dragBoost = activeDrag?.toggleEl === toggleEl ? 0.52 : 0;
+    const map = document.getElementById(FILTER_MAP_ID);
+    if (map) map.setAttribute('scale', (maxDisp * (0.72 + stretchBoost + dragBoost * 0.72)).toFixed(3));
+  }
+
+  function loop() {
+    raf = null;
+    const toggles = Array.from(document.querySelectorAll(TOGGLE_SELECTOR));
+    let needsMore = false;
+
+    toggles.forEach(toggleEl => {
+      const springs = getSprings(toggleEl);
+      const dragging = activeDrag?.toggleEl === toggleEl && activeDrag.dragging;
+      const stretch = dragging ? clamp(Math.abs(activeDrag.velocityX) / 760, 0, 0.10) : 0;
+      springs.scaleX.setTarget(dragging ? 1.02 + stretch : 1);
+      springs.scaleY.setTarget(dragging ? 0.985 - stretch * 0.3 : 1);
+      applySpringFrame(toggleEl);
+      if (!Object.values(springs).every(spring => spring.isSettled())) needsMore = true;
+    });
+
+    if (needsMore) raf = requestAnimationFrame(loop);
+  }
+
+  function startLoop() {
+    if (!raf) raf = requestAnimationFrame(loop);
+  }
+
+  function nearestIndex(toggleEl, x) {
+    const { buttons, width } = getToggleMetrics(toggleEl);
+    if (!buttons.length || !width) return 0;
+    return clamp(Math.round(x / width), 0, buttons.length - 1);
+  }
+
+  function indexFromPointer(toggleEl, clientX) {
+    const { buttons, pad, width } = getToggleMetrics(toggleEl);
+    if (!buttons.length || !width) return 0;
+    const rect = toggleEl.getBoundingClientRect();
+    return clamp(Math.floor((clientX - rect.left - pad) / width), 0, buttons.length - 1);
+  }
+
+  function activateSegmentButton(toggleEl, index) {
+    const buttons = getButtons(toggleEl);
+    const button = buttons[index];
+    if (!button) return;
+    internalActivation = true;
+    button.click();
+    internalActivation = false;
+  }
+
+  function xFromPointer(drag, clientX) {
+    const rect = drag.toggleEl.getBoundingClientRect();
+    const { pad, maxX } = getToggleMetrics(drag.toggleEl);
+    return clamp(clientX - rect.left - pad - drag.grabOffset, 0, maxX);
+  }
+
+  document.addEventListener('pointerdown', ev => {
+    if (ev.button != null && ev.button !== 0) return;
+    const toggleEl = ev.target.closest?.(TOGGLE_SELECTOR);
+    if (!toggleEl) return;
+
+    ensureLensFilter();
+    updateLensToggle(toggleEl);
+    const { pad, width } = getToggleMetrics(toggleEl);
+    if (!width) return;
+
+    ev.preventDefault();
+
+    const springs = getSprings(toggleEl);
+    const rect = toggleEl.getBoundingClientRect();
+    const pointerX = ev.clientX - rect.left - pad;
+    const currentX = springs.x.target;
+    const withinKnob = pointerX >= currentX && pointerX <= currentX + width;
+
+    activeDrag = {
+      toggleEl,
+      pointerId: ev.pointerId,
+      startX: ev.clientX,
+      lastX: ev.clientX,
+      velocityX: 0,
+      dragging: false,
+      grabOffset: withinKnob ? pointerX - currentX : width / 2
+    };
+
+    toggleEl.classList.add('segment-lens-pressed');
+    try { toggleEl.setPointerCapture(ev.pointerId); } catch {}
+    startLoop();
+  }, true);
+
+  document.addEventListener('pointermove', ev => {
+    if (!activeDrag || ev.pointerId !== activeDrag.pointerId) return;
+    const moved = Math.abs(ev.clientX - activeDrag.startX);
+    if (!activeDrag.dragging && moved < 3) return;
+
+    if (!activeDrag.dragging) {
+      activeDrag.dragging = true;
+      activeDrag.toggleEl.classList.add('segment-lens-dragging');
+    }
+
+    ev.preventDefault();
+    const nextX = xFromPointer(activeDrag, ev.clientX);
+    const springs = getSprings(activeDrag.toggleEl);
+    springs.x.setTarget(nextX);
+    activeDrag.velocityX = ev.clientX - activeDrag.lastX;
+    activeDrag.lastX = ev.clientX;
+    previewIndex(activeDrag.toggleEl, nearestIndex(activeDrag.toggleEl, nextX));
+    startLoop();
+  }, { capture: true, passive: false });
+
+  function finishDrag(ev) {
+    if (!activeDrag || ev.pointerId !== activeDrag.pointerId) return;
+    const drag = activeDrag;
+    activeDrag = null;
+    drag.toggleEl.classList.remove('segment-lens-pressed', 'segment-lens-dragging');
+    clearPreview(drag.toggleEl);
+
+    ev.preventDefault();
+    suppressClickUntil = Date.now() + 350;
+
+    const springs = getSprings(drag.toggleEl);
+    const index = drag.dragging
+      ? nearestIndex(drag.toggleEl, springs.x.target)
+      : indexFromPointer(drag.toggleEl, ev.clientX);
+
+    activateSegmentButton(drag.toggleEl, index);
+    springs.x.setTarget(index * getToggleMetrics(drag.toggleEl).width);
+
+    requestAnimationFrame(() => {
+      updateLensToggle(drag.toggleEl);
+      startLoop();
+    });
+  }
+
+  document.addEventListener('pointerup', finishDrag, true);
+  document.addEventListener('pointercancel', finishDrag, true);
+
+  document.addEventListener('click', ev => {
+    if (internalActivation) return;
+    const toggleEl = ev.target.closest?.(TOGGLE_SELECTOR);
+    if (!toggleEl) return;
+
+    if (Date.now() < suppressClickUntil) {
+      ev.preventDefault();
+      ev.stopImmediatePropagation();
+      return;
+    }
+
+    requestAnimationFrame(() => {
+      updateLensToggle(toggleEl);
+      startLoop();
+    });
+  }, true);
+
+  const observer = new MutationObserver(() => {
+    requestAnimationFrame(() => updateAllLensToggles({ keepDrag: true }));
+  });
+  observer.observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ['class'] });
+
+  window.addEventListener('resize', () => requestAnimationFrame(updateAllLensToggles));
+
+  requestAnimationFrame(() => {
+    ensureLensFilter();
+    updateAllLensToggles();
+    startLoop();
+  });
+})();
+</script>
+
 </body>
 </html>
